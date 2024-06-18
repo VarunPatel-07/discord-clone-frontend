@@ -1,0 +1,44 @@
+@import "../../app/css/variable.css";
+.bg-black-500 {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.text {
+  font-weight: bolder;
+  font-size: 17px;
+  color: black;
+  position: absolute;
+  translate: -50% 0px;
+  top: 20px;
+  left: 50%;
+  text-align: center;
+}
+
+.loader {
+  overflow: visible;
+  height: -moz-fit-content;
+  height: fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  padding: 20px;
+  display: flex;
+}
+
+.logo {
+  fill: none;
+  stroke-dasharray: 20px;
+  /*<-- Play with this number until it look cool */
+  stroke: black;
+  animation: load 10s infinite linear;
+  stroke: var(--discord-loader-main-color);
+}
+
+@keyframes load {
+  0% {
+    stroke-dashoffset: 0px;
+  }
+  100% {
+    stroke-dashoffset: 200px;
+    /* <-- This number should always be 10 times the number up there*/
+  }
+}/*# sourceMappingURL=components.css.map */
