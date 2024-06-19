@@ -86,8 +86,9 @@
 }
 
 .blue-color-main-button {
-  background-color: var(--discord-loader-main-color);
+  background-color: var(--website-main-white-color);
   padding: 12px 24px;
   border-radius: 30px;
-  color: white;
+  color: var(--main-black-color);
 }
+

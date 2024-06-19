@@ -1,5 +1,7 @@
 :root {
   --discord-loader-main-color: #5765f2;
+  --website-main-white-color: #fcfcfc;
+  --main-black-color: #090a0a;
 }
 
 .max-width-1080 {
@@ -25,4 +27,13 @@
 }
 .w-100 {
   width: 100%;
+}
+
+
+
+.custom-background-image {
+  background-image: url(./background-image.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }

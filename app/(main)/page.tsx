@@ -22,12 +22,23 @@ function Home() {
   } else {
     return (
       <>
+      
         <nav className="fixed top-0 left-0 w-full z-10">
           <div className="flex items-center justify-between plr-15 ptb-20">
-            <div className="logo-section"></div>
+            <div className="logo-section">
+              <picture className="">
+                <img
+                  src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/6257d23c5fb25be7e0b6e220_Open%20Source%20Projects%20_%20Discord-7.svg"
+                  alt="banner image"
+                  className="w-100 h-100 object-cover"
+                  loading="lazy"
+                  style={{width:"180px"}}
+                />
+              </picture>
+            </div>
             <div className="login-button">
               <Link
-                href="/login"
+                href="pages/login"
                 className="blue-color-main-button global-font-roboto fs-20 capitalize"
               >
                 log in
@@ -35,7 +46,7 @@ function Home() {
             </div>
           </div>
         </nav>
-        <div className="relative w-full h-screen bg-black-500">
+        <div className="relative w-full h-screen custom-background-image ">
           <div
             className="flex items-center justify-center max-width-1080 mx-auto h-full
           "
@@ -43,8 +54,13 @@ function Home() {
             <div className="w-40">
               <div className="text-section">
                 <h1 className="text-white fs-45 font-black">
-                GROUP CHAT THAT’S ALL FUN  GAMES
+                  GROUP CHAT THAT’S ALL FUN GAMES
                 </h1>
+                <p className="text-white fs-16">
+                  Discord is great for playing games and chilling with friends,
+                  or even building a worldwide community. Customise your own
+                  space to talk, play, and hang out.
+                </p>
               </div>
             </div>
             <div className="w-60">
@@ -58,7 +74,7 @@ function Home() {
               </picture>
             </div>
           </div>
-        </div>
+        </div> 
       </>
     );
   }

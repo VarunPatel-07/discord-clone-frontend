@@ -1,0 +1,125 @@
+@import "../../css/variable.css";
+.form-container {
+  width: 500px;
+  border-radius: 0.75rem;
+  background-color: rgb(17, 24, 39);
+  padding: 2rem;
+  color: rgb(243, 244, 246);
+}
+
+.title {
+  text-align: center;
+  font-size: 35px;
+  line-height: 2rem;
+  font-weight: 700;
+  color: var(--discord-loader-main-color);
+}
+
+.form {
+  margin-top: 1.5rem;
+}
+
+.input-group {
+  margin-top: 0.25rem;
+  font-size: 18px;
+  line-height: 1.25rem;
+}
+
+.input-group label {
+  display: block;
+  color: rgb(156, 163, 175);
+}
+
+.input-group input {
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid rgb(55, 65, 81);
+  outline: 0;
+  background-color: rgb(17, 24, 39);
+  padding: 0.75rem 1rem;
+  color: rgb(243, 244, 246);
+}
+
+.input-group input:focus {
+  border-color: rgb(167, 139, 250);
+}
+
+.forgot {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: rgb(156, 163, 175);
+  margin: 8px 0 14px 0;
+}
+
+.forgot a,
+.signup a {
+  color: rgb(243, 244, 246);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot a:hover,
+.signup a:hover {
+  -webkit-text-decoration: underline rgb(167, 139, 250);
+          text-decoration: underline rgb(167, 139, 250);
+}
+
+.sign {
+  display: block;
+  width: 100%;
+  background-color: rgb(167, 139, 250);
+  padding: 0.75rem;
+  text-align: center;
+  color: rgb(17, 24, 39);
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+}
+
+.social-message {
+  display: flex;
+  align-items: center;
+  padding-top: 1rem;
+}
+
+.line {
+  height: 1px;
+  flex: 1 1 0%;
+  background-color: rgb(55, 65, 81);
+}
+
+.social-message .message {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 15px;
+  line-height: 1.25rem;
+  color: rgb(156, 163, 175);
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+}
+
+.social-icons .icon {
+  border-radius: 0.125rem;
+  padding: 0.75rem;
+  border: none;
+  background-color: transparent;
+  margin-left: 8px;
+}
+
+.social-icons .icon svg {
+  height: 28px;
+  width: 28px;
+  fill: #fff;
+}
+
+.signup {
+  text-align: center;
+  font-size: 15px;
+  line-height: 1rem;
+  color: rgb(156, 163, 175);
+}/*# sourceMappingURL=pages.css.map */
