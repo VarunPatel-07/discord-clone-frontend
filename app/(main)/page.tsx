@@ -1,19 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 import Link from "next/link";
 // importing the css file
 import "../css/font.css";
 import Image from "next/image";
+import { Context } from "@/context/ContextApi";
+import { redirect } from 'next/navigation'
 function Home() {
+  const { CheckUsersLoginStatus } = useContext(Context) as any;
+
   const [Discord_Loader, setDiscord_Loader] = useState(true);
 
   useEffect(() => {
-    const checkLoginStatus = localStorage.getItem("Is_User_Login");
-    if (checkLoginStatus) {
-      setDiscord_Loader(false);
+    const status = CheckUsersLoginStatus();
+    if (status) {
+      redirect("/pages/dashboard");
     } else {
-      setDiscord_Loader(true);
+      setDiscord_Loader(false);
     }
   }, []);
 
@@ -22,7 +26,6 @@ function Home() {
   } else {
     return (
       <>
-      
         <nav className="fixed top-0 left-0 w-full z-10">
           <div className="flex items-center justify-between plr-15 ptb-20">
             <div className="logo-section">
@@ -32,7 +35,7 @@ function Home() {
                   alt="banner image"
                   className="w-100 h-100 object-cover"
                   loading="lazy"
-                  style={{width:"180px"}}
+                  style={{ width: "180px" }}
                 />
               </picture>
             </div>
@@ -74,7 +77,7 @@ function Home() {
               </picture>
             </div>
           </div>
-        </div> 
+        </div>
       </>
     );
   }
