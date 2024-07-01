@@ -1,24 +1,34 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/(components)/GlobalDiscordLoader";
 import Link from "next/link";
 // importing the css file
-import "../css/font.css";
-import Image from "next/image";
+
 import { Context } from "@/context/ContextApi";
-import { redirect } from 'next/navigation'
+import { useRouter } from "next/navigation";
 function Home() {
+  const { push } = useRouter();
   const { CheckUsersLoginStatus } = useContext(Context) as any;
 
   const [Discord_Loader, setDiscord_Loader] = useState(true);
 
   useEffect(() => {
-    const status = CheckUsersLoginStatus();
-    if (status) {
-      redirect("/pages/dashboard");
-    } else {
-      setDiscord_Loader(false);
-    }
+    const checkStatus = async () => {
+      try {
+        const status = await CheckUsersLoginStatus();
+        console.log(status);
+        if (status) {
+          setDiscord_Loader(false);
+        } else {
+          setDiscord_Loader(false);
+          push("/pages/login");
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
+      }
+    };
+
+    checkStatus();
   }, []);
 
   if (Discord_Loader) {

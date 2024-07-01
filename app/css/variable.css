@@ -28,12 +28,39 @@
 .w-100 {
   width: 100%;
 }
-
-
+.top--10 {
+  top: -10px;
+}
+.right--10 {
+  right: -10px;
+}
+.rounded-50 {
+  border-radius: 50%;
+}
 
 .custom-background-image {
   background-image: url(./background-image.png);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.top-left-50 {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.bg-back-opacity-10 {
+  background-color: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(1px);
+}
+.border-solid-black {
+  border: 1px solid black;
+}
+.hover-secondary-button {
+  &:hover {
+    background-color: var(--discord-loader-main-color);
+    border: 1px solid var(--discord-loader-main-color);
+    color: var(--website-main-white-color);
+  }
 }

@@ -1,0 +1,43 @@
+//
+// ? this is the css for the spinner component
+//
+
+.sinner-component {
+  width: 30px;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+  margin: auto;
+  fill: var(--website-main-white-color);
+
+  circle {
+    fill: none;
+    stroke: var(--website-main-white-color);
+    stroke-width: 5px;
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    animation: dash4 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes rotate4 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash4 {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+
+  100% {
+    stroke-dashoffset: -125px;
+  }
+}

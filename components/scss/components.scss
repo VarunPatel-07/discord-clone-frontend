@@ -1,43 +1,12 @@
-@import "../../app/css/variable.css";
 .bg-black-500 {
   background-color: rgb(0, 0, 0, 0.9);
 }
-//?  this is the scss for the discord loader
-.text {
-  font-weight: bolder;
-  font-size: 17px;
-  color: black;
-  position: absolute;
-  translate: -50% 0px;
-  top: 20px;
-  left: 50%;
-  text-align: center;
-}
+// discord loader
+@import "./discord-loader";
+// spinner component
+@import "./spinner";
 
-.loader {
-  overflow: visible;
-  height: fit-content;
-  width: fit-content;
-  padding: 20px;
-  display: flex;
-}
+// server popup component
 
-.logo {
-  fill: none;
-  stroke-dasharray: 20px;
-  /*<-- Play with this number until it look cool */
-  stroke: black;
-  animation: load 10s infinite linear;
-  stroke: var(--discord-loader-main-color);
-}
-
-@keyframes load {
-  0% {
-    stroke-dashoffset: 0px;
-  }
-
-  100% {
-    stroke-dashoffset: 200px;
-    /* <-- This number should always be 10 times the number up there*/
-  }
-}
+@import "./server-popup";
+  

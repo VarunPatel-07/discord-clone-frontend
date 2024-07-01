@@ -3,8 +3,26 @@
   width: 500px;
   border-radius: 0.75rem;
   background-color: rgb(17, 24, 39);
-  padding: 2rem;
   color: rgb(243, 244, 246);
+}
+
+[type=date] {
+  background: #fff url(./calender.png) 97% 50% no-repeat;
+  cursor: pointer;
+}
+
+[type=date]::-webkit-inner-spin-button {
+  background-color: #fff;
+  color: #fff;
+  display: none;
+  cursor: pointer;
+}
+
+[type=date]::-webkit-calendar-picker-indicator {
+  background-color: #fff;
+  color: #fff;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .title {

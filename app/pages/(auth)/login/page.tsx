@@ -1,14 +1,18 @@
 "use client";
-import React, { useContext, useState , useEffect } from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useState, useEffect } from "react";
 import "../../scss/pages.css";
 import Link from "next/link";
 import { Context } from "@/context/ContextApi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/(components)/GlobalDiscordLoader";
+
+import SpinnerComponent from "@/components/SpinnerComponent";
 
 function LogIn() {
+  const { push } = useRouter();
   const context = useContext(Context);
-  const { Login_User_Function , CheckUsersLoginStatus } = context as any;
+  const { Login_User_Function, CheckUsersLoginStatus } = context as any;
 
   //
   //? defining all the useState
@@ -19,13 +23,12 @@ function LogIn() {
   });
   const [Password_type, setPassword_Type] = useState("password" as string);
   const [Discord_Loader, setDiscord_Loader] = useState(true);
-
+  const [ShowSpinner, setShowSpinner] = useState(false);
   //
   //? Defining all the required functions
   //
   const LogInDetails = (e: any): void => {
     setLog_In_Info({ ...Log_In_Info, [e.target.name]: e.target.value });
-    console.log(Log_In_Info);
   };
   const ChangePasswordType = () => {
     if (Password_type === "password") {
@@ -36,28 +39,47 @@ function LogIn() {
   };
   // context api
 
-  const SubmitUserInfo = (e: any) => {
+  const SubmitUserInfo = async (e: any) => {
     e.preventDefault();
-    Login_User_Function(Log_In_Info);
+    setShowSpinner(true);
+    await Login_User_Function(Log_In_Info);
+    setShowSpinner(false);
+    const status = CheckUsersLoginStatus();
+    if (status) {
+      push("dashboard");
+    }
   };
   //
   // ? defining the useEffect
   //
   useEffect(() => {
-    const status = CheckUsersLoginStatus();
-    setDiscord_Loader(status);
+    const checkStatus = async () => {
+      try {
+        const status = await CheckUsersLoginStatus();
+
+        if (status) {
+          setDiscord_Loader(false);
+        } else {
+          setDiscord_Loader(false);
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
+      }
+    };
+
+    checkStatus();
   }, []);
 
-  // 
-  // ? rendering the function on the base of the conditions 
-  // 
+  //
+  // ? rendering the function on the base of the conditions
+  //
   if (Discord_Loader) {
     return <GlobalDiscordLoader />;
   } else {
     return (
       <div className="h-screen w-screen custom-background-image">
         <div className="w-100 h-100 flex items-center justify-center">
-          <div className="form-container">
+          <div className="form-container py-8 px-8">
             <div className="discord-logo text-center w-100 flex items-center justify-center pb-8">
               <picture className="">
                 <img
@@ -82,6 +104,7 @@ function LogIn() {
                   placeholder=""
                   value={Log_In_Info.UserName}
                   onChange={LogInDetails}
+                  autoComplete="on"
                 />
               </div>
               <div className="input-group pb-6">
@@ -96,6 +119,7 @@ function LogIn() {
                     placeholder=""
                     value={Log_In_Info.Password}
                     onChange={LogInDetails}
+                    autoComplete="on"
                   />
                   <button
                     type="button"
@@ -112,7 +136,7 @@ function LogIn() {
                 </div>
               </div>
               <button
-                className="sign"
+                className="sign text-white"
                 disabled={
                   !(
                     Log_In_Info.UserName.length > 3 &&
@@ -120,7 +144,7 @@ function LogIn() {
                   )
                 }
               >
-                Sign in
+                {ShowSpinner ? <SpinnerComponent /> : "Login"}
               </button>
             </form>
             <div className="social-message">
