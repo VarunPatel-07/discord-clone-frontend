@@ -2,14 +2,14 @@
 import { Context } from "@/context/ContextApi";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext, useEffect } from "react";
-import Create_Update_Server_PopUp from "@/components/Create_Update_Server_PopUp";
-import Single_Image_DragDrop from "@/components/Single_Image_DragDrop";
 import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 
 function Dashboard() {
   const { push } = useRouter();
   // ? importing the required function from the context api
-  const { CheckUsersLoginStatus, setShow_Create_Server_PopUp } = useContext(
+  const { CheckUsersLoginStatus } = useContext(
     Context
   ) as any;
 
@@ -40,9 +40,19 @@ function Dashboard() {
   } else {
     return (
       <>
-        <h1>hello from dashboard</h1>
-        <button onClick={() => setShow_Create_Server_PopUp(true)}>hello</button>
-        <Create_Update_Server_PopUp Pop_Up_Mode="Create-PopUp-Mode" />
+        <div className="flex w-full h-full max-w-full max-h-full flex-col bg-[#202225]">
+          <div className="w-100 navbar">
+            <Navbar />
+          </div>
+          <div className="w-100 h-100">
+            <div className="w-100 h-100 flex">
+              <div className="w--15">
+                <Sidebar />
+              </div>
+              <div className="w-100 bg-[#36393F] rounded overflow-auto"></div>
+            </div>
+          </div>
+        </div>
       </>
     );
   }

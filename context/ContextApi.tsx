@@ -7,17 +7,23 @@ import React, {
   useEffect,
 } from "react";
 import axios from "axios";
-
+import { useRouter } from "next/navigation";
+import io from "socket.io-client";
 interface ContextApiProps {
   //
   //? exporting all the state
   //
 
-  Server_Profile_Image: string;
-  setServer_Profile_Image: React.Dispatch<React.SetStateAction<string>>;
+  Global_Server_Profile_Image: {
+    Preview__Image__URL: string;
+    File_Of_Image: string;
+  };
+  setGlobal_Server_Profile_Image: React.Dispatch<React.SetStateAction<object>>;
 
   Show_Create_Server_PopUp: boolean;
   setShow_Create_Server_PopUp: React.Dispatch<React.SetStateAction<boolean>>;
+
+  Including_Server_Info_Array: object;
 
   //
   //? exporting all the functions
@@ -25,24 +31,32 @@ interface ContextApiProps {
   Login_User_Function: (user_info: object) => void;
   Register_User_Function: (user_info: object) => void;
   CheckUsersLoginStatus: () => void;
+  Create_New_Server_Function: (server_info: object, AuthToken: string) => void;
+  FetchTheIncludingServer: (AuthToke: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
 
 const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN;
-
+  const { push } = useRouter();
+  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
+  const socket = io(Host);
+  const initialState = [];
   //
   //
   // ? defining all the state
   //
   //
-  const [Server_Profile_Image, setServer_Profile_Image] = useState(
-    "" as string
-  );
+  const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
+    useState({
+      Preview__Image__URL: "",
+      File_Of_Image: "" as any,
+    });
   const [Show_Create_Server_PopUp, setShow_Create_Server_PopUp] = useState(
     false as boolean
   );
+  const [Including_Server_Info_Array, setIncluding_Server_Info_Array] =
+    useState(initialState);
   //
   //
   // ? defining all the functions
@@ -126,18 +140,70 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       return false;
     }
   };
+  const Create_New_Server_Function = async (
+    server_info: object,
+    AuthToken: string
+  ) => {
+    try {
+      if (AuthToken) {
+        const response = await axios({
+          method: "post",
+          url: `${Host}/app/api/server/create-server`,
+          headers: {
+            Authorization: AuthToken,
+            "Content-Type": "multipart/form-data",
+          },
+          data: server_info,
+        });
 
+        if (response.data.success) {
+          push(`/pages/server/${response.data.server_id}`);
+           socket.emit("newServerCreationOccurred", response.data.server_id);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchTheIncludingServer = async (AuthToke: string) => {
+    try {
+      if (AuthToke) {
+        const response = await axios({
+          method: "get",
+          url: `${Host}/app/api/server/get-servers`,
+          headers: {
+            Authorization: AuthToke,
+          },
+        });
+
+        const Data = response.data;
+
+        if (Data.success) {
+          setIncluding_Server_Info_Array(Data.server_info);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
   const context_value = {
-    Server_Profile_Image,
-    setServer_Profile_Image,
+    Global_Server_Profile_Image,
+    setGlobal_Server_Profile_Image:
+      setGlobal_Server_Profile_Image as React.Dispatch<
+        React.SetStateAction<object>
+      >,
     Show_Create_Server_PopUp,
     setShow_Create_Server_PopUp,
+    Including_Server_Info_Array,
+
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
+    Create_New_Server_Function,
+    FetchTheIncludingServer,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

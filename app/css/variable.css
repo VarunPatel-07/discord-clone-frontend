@@ -16,14 +16,18 @@
 .w-50 {
   width: 50%;
 }
-.w-60 {
+.w--60 {
   width: 60%;
 }
-.w-40 {
+.w--40 {
   width: 40%;
 }
 .w-25 {
   width: 25%;
+}
+.w--15 {
+  width: 10%;
+  max-width: 72px;
 }
 .w-100 {
   width: 100%;
@@ -63,4 +67,8 @@
     border: 1px solid var(--discord-loader-main-color);
     color: var(--website-main-white-color);
   }
+}
+.max-h-full{
+  max-height: 100vh;
+  overflow: hidden;
 }

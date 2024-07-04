@@ -5,9 +5,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import "./scss/components.css";
 function Single_Image_DragDrop() {
   // getting the context
-  const { Server_Profile_Image, setServer_Profile_Image } = useContext(
-    Context
-  ) as any;
+  const { Global_Server_Profile_Image, setGlobal_Server_Profile_Image } =
+    useContext(Context) as any;
   const [Preview__Image__URL, setPreview__Image__URL] = useState("" as string);
   const onDrop = useCallback((acceptedFiles) => {
     acceptedFiles.map((file) => {
@@ -15,25 +14,21 @@ function Single_Image_DragDrop() {
 
       setPreview__Image__URL(Image_URL);
       //   setting it globally so it can be used in other components
-      setServer_Profile_Image(Image_URL);
-      // todo  start
-      // make an object for the Server_Profile_Image
-      // which is like this
-      // {
-      //   Preview__Image__URL
-      //   File_Of_Image
-      // }
-      // todo end
+      setGlobal_Server_Profile_Image({
+        Preview__Image__URL: Image_URL,
+        File_Of_Image: file,
+      });
+      
     });
   }, []);
   useEffect(() => {
-    if (Server_Profile_Image) {
-      console.log("global image", Server_Profile_Image);
+    if (Global_Server_Profile_Image) {
+      console.log("global image", Global_Server_Profile_Image);
     }
-  }, [Server_Profile_Image]);
+  }, [Global_Server_Profile_Image]);
   const Remove_Selected_Image = () => {
     setPreview__Image__URL("");
-    setServer_Profile_Image("");
+    setGlobal_Server_Profile_Image("");
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 

@@ -41,6 +41,41 @@
     /* <-- This number should always be 10 times the number up there*/
   }
 }
+.sinner-component {
+  width: 30px;
+  transform-origin: center;
+  animation: rotate4 2s linear infinite;
+  margin: auto;
+  fill: var(--website-main-white-color);
+}
+.sinner-component circle {
+  fill: none;
+  stroke: var(--website-main-white-color);
+  stroke-width: 5px;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash4 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate4 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes dash4 {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dashoffset: -125px;
+  }
+}
 .drag-drop-image {
   width: 100%;
 }
@@ -158,4 +193,61 @@
 }
 .server-popup-form-container .link:hover {
   text-decoration: underline;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.create-new-server-button {
+  width: 52px;
+  height: 52px;
+  background-color: var(--discord-loader-main-color);
+  color: var(--website-main-white-color);
+  border-radius: 50%;
+  transition: 0.15s ease-in-out;
+}
+.create-new-server-button:hover {
+  border-radius: 15px;
+}
+
+.server-logo-wrapper .clickable-button .image-section {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: 0.1s ease-in-out;
+}
+.server-logo-wrapper .active-server-indicator {
+  top: 50%;
+  left: 0;
+  background-color: rgb(255, 255, 255);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: 0.1s ease-in-out;
+}
+.server-logo-wrapper:hover .active-server-indicator {
+  border-radius: 15px;
+  height: 30px;
+}
+.server-logo-wrapper:hover .clickable-button .image-section {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.active-server .clickable-button .image-section {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: 0.1s ease-in-out;
+}
+.active-server .active-server-indicator {
+  height: 45px;
+  border-radius: 15px;
+  transition: 0.1s ease-in-out;
 }/*# sourceMappingURL=components.css.map */

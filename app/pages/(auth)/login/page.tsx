@@ -5,7 +5,7 @@ import "../../scss/pages.css";
 import Link from "next/link";
 import { Context } from "@/context/ContextApi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import GlobalDiscordLoader from "@/components/(components)/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 
 import SpinnerComponent from "@/components/SpinnerComponent";
 
