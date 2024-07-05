@@ -16,6 +16,8 @@ function Sidebar() {
     setShow_Create_Server_PopUp,
     FetchTheIncludingServer,
     Including_Server_Info_Array,
+    UserInfoFetchingFunction,
+    UserInformation,
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
@@ -24,7 +26,7 @@ function Sidebar() {
 
   useEffect(() => {
     socket.on("EmitNewServerCreated", (data) => {
-      console.log(data);
+      
       const AuthToken = localStorage.getItem("AuthToken");
       FetchTheIncludingServer(AuthToken);
     });
@@ -32,6 +34,7 @@ function Sidebar() {
   useEffect(() => {
     const AuthToken = localStorage.getItem("AuthToken");
     FetchTheIncludingServer(AuthToken);
+    UserInfoFetchingFunction(AuthToken);
   }, []);
 
   const Server__Clicked = (server_info: any) => {
@@ -59,7 +62,7 @@ function Sidebar() {
               {Including_Server_Info_Array?.map((Info: any) => {
                 return (
                   <div
-                    key={Info._id}
+                    key={Info.id}
                     className={`w-100 server-logo-wrapper flex items-center justify-center relative mb-6 cursor-pointer ${
                       Path.split("/").includes(Info.id) ? "active-server" : ""
                     }`}
@@ -99,7 +102,7 @@ function Sidebar() {
             >
               <div className="flex flex-col items-center justify-center w-100 h-100">
                 <p className="global-font-roboto capitalize fs-28 font-semibold text-white cursor-pointer">
-                  h
+                  {UserInformation?.FullName?.slice(0, 1)}
                 </p>
               </div>
             </div>

@@ -143,4 +143,8 @@
   font-size: 15px;
   line-height: 1rem;
   color: rgb(156, 163, 175);
+}
+
+.server-setting-and-modification button {
+  width: 100%;
 }/*# sourceMappingURL=pages.css.map */

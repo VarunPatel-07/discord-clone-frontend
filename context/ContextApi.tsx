@@ -25,6 +25,9 @@ interface ContextApiProps {
 
   Including_Server_Info_Array: object;
 
+  ServerInfoById: object;
+  UserInformation: object;
+
   //
   //? exporting all the functions
   //
@@ -33,6 +36,8 @@ interface ContextApiProps {
   CheckUsersLoginStatus: () => void;
   Create_New_Server_Function: (server_info: object, AuthToken: string) => void;
   FetchTheIncludingServer: (AuthToke: string) => void;
+  FetchingTheServerInfoByServerId: (serverId: string, AuthToke: string) => void;
+  UserInfoFetchingFunction: (AuthToken: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -57,6 +62,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
   const [Including_Server_Info_Array, setIncluding_Server_Info_Array] =
     useState(initialState);
+  const [ServerInfoById, setServerInfoById] = useState("" as any);
+  const [UserInformation, setUserInformation] = useState('' as any);
   //
   //
   // ? defining all the functions
@@ -158,7 +165,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
         if (response.data.success) {
           push(`/pages/server/${response.data.server_id}`);
-           socket.emit("newServerCreationOccurred", response.data.server_id);
+          socket.emit("newServerCreationOccurred", response.data.server_id);
         }
       }
     } catch (error) {
@@ -186,6 +193,57 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       console.log(error);
     }
   };
+  const FetchingTheServerInfoByServerId = async (
+    serverId: string,
+    AuthToke: string
+  ) => {
+    try {
+      if (!AuthToke) return;
+      const result = await axios({
+        method: "get",
+        url: `${Host}/app/api/server/serverInfo/${serverId}`,
+        headers: {
+          Authorization: AuthToke,
+        },
+      });
+      const Data = result.data;
+      console.log(Data.Server__Info);
+      if (Data.success) {
+        setServerInfoById(Data.Server__Info);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const UserInfoFetchingFunction = async (AuthToken: string) => {
+    try {
+      if (!AuthToken) return;
+      if (!localStorage.getItem("User__Info")) {
+        const response = await axios({
+          method: "get",
+          url: `${Host}/app/api/auth/userDetails`,
+          headers: {
+            Authorization: AuthToken,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        if (response.data.success) {
+          localStorage.setItem(
+            "User__Info",
+            JSON.stringify(response.data.user)
+          );
+          setUserInformation(response.data.user);
+          
+        }
+      } else {
+        const user_info = JSON.parse(localStorage.getItem("User__Info") as any);
+        setUserInformation(user_info);
+       
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -198,12 +256,16 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Show_Create_Server_PopUp,
     setShow_Create_Server_PopUp,
     Including_Server_Info_Array,
+    ServerInfoById,
+    UserInformation,
 
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
     Create_New_Server_Function,
     FetchTheIncludingServer,
+    FetchingTheServerInfoByServerId,
+    UserInfoFetchingFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

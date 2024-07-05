@@ -9,17 +9,14 @@
   color: rgba(243, 244, 246, 1);
 }
 [type="date"] {
-  background: #fff
-    url(./calender.png)
-    97% 50% no-repeat;
-    cursor: pointer;
+  background: #fff url(./calender.png) 97% 50% no-repeat;
+  cursor: pointer;
 }
 [type="date"]::-webkit-inner-spin-button {
   background-color: #fff;
   color: #fff;
   display: none;
   cursor: pointer;
-
 }
 [type="date"]::-webkit-calendar-picker-indicator {
   background-color: #fff;
@@ -145,4 +142,11 @@
   font-size: 15px;
   line-height: 1rem;
   color: rgba(156, 163, 175, 1);
+}
+
+.server-setting-and-modification {
+  button {
+    width: 100%;
+    
+  }
 }
