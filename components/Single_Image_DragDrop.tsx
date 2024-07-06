@@ -18,7 +18,6 @@ function Single_Image_DragDrop() {
         Preview__Image__URL: Image_URL,
         File_Of_Image: file,
       });
-      
     });
   }, []);
   useEffect(() => {
@@ -34,19 +33,20 @@ function Single_Image_DragDrop() {
 
   return (
     <div className="drag-drop-image">
-      <div
-        {...getRootProps()}
-        className="drag-drop-image__uploader cursor-pointer"
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p>Drop the files here ...</p>
-        ) : (
-          <p>Drag n drop some files </p>
-        )}
-      </div>
-      <div className="drag-drop-image__content pt-4 flex items-center justify-center">
-        {Preview__Image__URL && (
+      {!Preview__Image__URL ? (
+        <div
+          {...getRootProps()}
+          className="drag-drop-image__uploader cursor-pointer"
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop the files here ...</p>
+          ) : (
+            <p>Drag n drop some files </p>
+          )}
+        </div>
+      ) : (
+        <div className="drag-drop-image__content pt-4 flex items-center justify-center">
           <div className="relative ">
             <picture className="single-image-preview">
               <source src={Preview__Image__URL} />
@@ -63,8 +63,8 @@ function Single_Image_DragDrop() {
               <IoIosCloseCircle />
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import React, {
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import io from "socket.io-client";
+import { promises } from "dns";
 interface ContextApiProps {
   //
   //? exporting all the state
@@ -27,6 +28,8 @@ interface ContextApiProps {
 
   ServerInfoById: object;
   UserInformation: object;
+  UpdateServerInfoImage: object;
+  setUpdateServerInfoImage: React.Dispatch<React.SetStateAction<object>>;
 
   //
   //? exporting all the functions
@@ -38,6 +41,19 @@ interface ContextApiProps {
   FetchTheIncludingServer: (AuthToke: string) => void;
   FetchingTheServerInfoByServerId: (serverId: string, AuthToke: string) => void;
   UserInfoFetchingFunction: (AuthToken: string) => void;
+  RegeneratingServerInviteCodeFunction: (
+    AuthToken: string,
+    serverId: string
+  ) => object;
+  JoiningServerWithInvitationCode: (
+    AuthToken: string,
+    serverId: string,
+    invitationCode: string
+  ) => object;
+  UpdatingServerInformationFunction: (
+    AuthToken: string,
+    server_info: object
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -63,7 +79,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [Including_Server_Info_Array, setIncluding_Server_Info_Array] =
     useState(initialState);
   const [ServerInfoById, setServerInfoById] = useState("" as any);
-  const [UserInformation, setUserInformation] = useState('' as any);
+  const [UserInformation, setUserInformation] = useState("" as any);
+
+  const [UpdateServerInfoImage, setUpdateServerInfoImage] = useState({
+    Preview_Image: "" as string,
+    File_Of_Image: "" as any,
+  });
   //
   //
   // ? defining all the functions
@@ -207,9 +228,13 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       const Data = result.data;
-      console.log(Data.Server__Info);
+      console.log(Data);
       if (Data.success) {
         setServerInfoById(Data.Server__Info);
+        setUpdateServerInfoImage({
+          Preview_Image: Data.Server__Info.imageUrl,
+          File_Of_Image: "" as any,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -233,15 +258,94 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             JSON.stringify(response.data.user)
           );
           setUserInformation(response.data.user);
-          
         }
       } else {
         const user_info = JSON.parse(localStorage.getItem("User__Info") as any);
         setUserInformation(user_info);
-       
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+  const RegeneratingServerInviteCodeFunction = async (
+    AuthToken: string,
+    serverId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/regenerateInviteCode`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: {
+          serverId: serverId,
+        },
+      });
+
+      if (response.data.success) {
+        return { success: true, inviteCode: response.data.Invite_Code };
+      }
+    } catch (error) {
+      return { success: false };
+    }
+  };
+  const JoiningServerWithInvitationCode = async (
+    AuthToken: string,
+    InvitationCode: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/joinServerWithInviteCode`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: {
+          inviteCode: InvitationCode,
+        },
+      });
+
+      if (response.data.success) {
+        socket.emit("NewMemberJoined", response.data.server_id);
+        return {
+          success: true,
+          allReadyInServer: response.data.allReadyInServer,
+          serverId: response.data.Server_Id,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      return { success: false };
+    }
+  };
+  const UpdatingServerInformationFunction = async (
+    AuthToken: string,
+    server_info: object
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/updateServerInfo`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: server_info,
+      });
+
+      if (response.data.success) {
+        socket.emit("newServerCreationOccurred", response.data.server_id);
+        
+      }
+    } catch (error) {
+      console.log(error);
+      
     }
   };
   //
@@ -258,6 +362,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Including_Server_Info_Array,
     ServerInfoById,
     UserInformation,
+    UpdateServerInfoImage,
+    setUpdateServerInfoImage: setUpdateServerInfoImage as React.Dispatch<
+      React.SetStateAction<object>
+    >,
 
     Login_User_Function,
     CheckUsersLoginStatus,
@@ -266,6 +374,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FetchTheIncludingServer,
     FetchingTheServerInfoByServerId,
     UserInfoFetchingFunction,
+    RegeneratingServerInviteCodeFunction,
+    JoiningServerWithInvitationCode,
+    UpdatingServerInformationFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

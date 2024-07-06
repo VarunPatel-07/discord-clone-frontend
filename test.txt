@@ -1,0 +1,87 @@
+{/* {ServerInfoById?.members?.map((MemberInfo) => {
+                            const isAllowed =
+                              ["ADMIN", "MODERATOR", "GUEST"].includes(
+                                MemberInfo.role
+                              ) && MemberInfo.userId === UserInformation.id;
+                            const isAdmin =
+                              ["ADMIN"].includes(MemberInfo.role) &&
+                              MemberInfo.userId === UserInformation.id;
+                            const isAuthorized = [
+                              "MODERATOR",
+                              "ADMIN",
+                            ].includes(MemberInfo.role);
+
+                            return (
+                              <React.Fragment key={MemberInfo.userId}>
+                                {isAllowed && (
+                                  <DropdownMenuItem
+                                    className="p-0 bg-black"
+                                    onClick={() => {
+                                      setShowInviteMemberModal(true);
+                                      setCopy(false);
+                                    }}
+                                  >
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-indigo-600 hover:text-indigo-800 py-[10px] px-[12px] ">
+                                      <span>invite people</span>
+                                      <span className="fs-20">
+                                        <BiUserPlus />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                                {isAdmin && (
+                                  <DropdownMenuItem className="p-0">
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                      <span>server settings</span>
+                                      <span className="fs-20">
+                                        <IoIosSettings />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                                {isAdmin && (
+                                  <DropdownMenuItem className="p-0">
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                      <span>manage members</span>
+                                      <span className="fs-18">
+                                        <FaUserFriends />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                                {isAuthorized && (
+                                  <DropdownMenuItem className="p-0">
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                      <span>create channel</span>
+                                      <span className="fs-18">
+                                        <FaCirclePlus />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                                {isAuthorized && (
+                                  <DropdownMenuSeparator className="bg-[#2F3136] m-0" />
+                                )}
+                                {isAdmin && (
+                                  <DropdownMenuItem className="p-0">
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
+                                      <span>delete server</span>
+                                      <span className="fs-16">
+                                        <FaTrash />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                                {!isAdmin && (
+                                  <DropdownMenuItem className="py-0">
+                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
+                                      <span>leave server</span>
+                                      <span className="fs-16">
+                                        <RxExit />
+                                      </span>
+                                    </span>
+                                  </DropdownMenuItem>
+                                )}
+                              </React.Fragment>
+                            );
+                          })} */}
