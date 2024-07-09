@@ -54,6 +54,19 @@ interface ContextApiProps {
     AuthToken: string,
     server_info: object
   ) => void;
+  ChangingMemberRoleFunction: (
+    AuthToken: string,
+    serverId: string,
+    MemberId: string,
+    CurrentMemberRole: string,
+    user_Id: string
+  ) => void;
+  KickOutMemberFromServerFunction: (
+    AuthToken: string,
+    serverId: string,
+    userId: string,
+    memberId: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -228,7 +241,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       const Data = result.data;
-      console.log(Data);
+
       if (Data.success) {
         setServerInfoById(Data.Server__Info);
         setUpdateServerInfoImage({
@@ -341,11 +354,66 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket.emit("newServerCreationOccurred", response.data.server_id);
-        
       }
     } catch (error) {
       console.log(error);
-      
+    }
+  };
+  const ChangingMemberRoleFunction = async (
+    AuthToken: string,
+    serverId: string,
+    MemberId: string,
+    CurrentMemberRole: string,
+    user_Id: string
+  ) => {
+    console.log(MemberId, CurrentMemberRole, user_Id);
+    try {
+      if (!AuthToken) return;
+      const formData = new FormData();
+      formData.append("memberId", MemberId);
+      formData.append("CurrentMemberRole", CurrentMemberRole);
+      formData.append("user_Id", user_Id);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/changeMemberRole/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        socket.emit("newServerCreationOccurred", response.data.server_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const KickOutMemberFromServerFunction = async (
+    AuthToken: string,
+    serverId: string,
+    userId: string,
+    memberId: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("memberId", memberId);
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/kickOutMemberFromServer/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        socket.emit("newServerCreationOccurred", response.data.server_id);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   //
@@ -377,6 +445,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     RegeneratingServerInviteCodeFunction,
     JoiningServerWithInvitationCode,
     UpdatingServerInformationFunction,
+    ChangingMemberRoleFunction,
+    KickOutMemberFromServerFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };
