@@ -67,6 +67,18 @@ interface ContextApiProps {
     userId: string,
     memberId: string
   ) => void;
+  CreateNewChannelFunction: (
+    AuthToken: string,
+    serverId: string,
+    ChannelName: string,
+    ChannelType: string
+  ) => void;
+  LeaveFromServerFunction: (
+    AuthToken: string,
+    serverId: string,
+    userId: string,
+    memberId: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -416,6 +428,62 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       console.log(error);
     }
   };
+  const CreateNewChannelFunction = async (
+    AuthToken: string,
+    serverId: string,
+    ChannelName: string,
+    ChannelType: string
+  ) => {
+    console.log(serverId, ChannelName, ChannelType);
+    try {
+      if (!AuthToken) return;
+      const formData = new FormData();
+      formData.append("ChannelName", ChannelName);
+      formData.append("ChannelType", ChannelType);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/createNewChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+
+      if (response.data.success) {
+        socket.emit("newServerCreationOccurred", response.data.server_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const LeaveFromServerFunction = async (
+    AuthToken: string,
+    serverId: string,
+    userId: string,
+    memberId: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("memberId", memberId);
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/LeaveServer/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        socket.emit("newServerCreationOccurred", response.data.server_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -447,6 +515,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     UpdatingServerInformationFunction,
     ChangingMemberRoleFunction,
     KickOutMemberFromServerFunction,
+    CreateNewChannelFunction,
+    LeaveFromServerFunction
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };
