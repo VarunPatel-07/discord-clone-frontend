@@ -31,6 +31,9 @@ interface ContextApiProps {
   UpdateServerInfoImage: object;
   setUpdateServerInfoImage: React.Dispatch<React.SetStateAction<object>>;
 
+  GlobalAlertInformation: object;
+  setGlobalAlertInformation: React.Dispatch<React.SetStateAction<object>>;
+
   //
   //? exporting all the functions
   //
@@ -79,6 +82,28 @@ interface ContextApiProps {
     userId: string,
     memberId: string
   ) => void;
+  Check_The_User_Is_KickedOut: (
+    SocketData: {
+      message: string;
+      success: boolean;
+      serverId: string;
+      memberId: string;
+      userId: string;
+      serverName: string;
+    },
+    UserCurrentPath: Array<string>
+  ) => object;
+  DeleteServerFunction: (AuthToken: string, serverId: string) => void;
+  Check_Server_Is_Deleted: (
+    SocketData: {
+      message: string;
+      success: boolean;
+      serverId: string;
+      serverName: string;
+      adminId: string;
+    },
+    UserCurrentPath: Array<string>
+  ) => object;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -109,6 +134,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [UpdateServerInfoImage, setUpdateServerInfoImage] = useState({
     Preview_Image: "" as string,
     File_Of_Image: "" as any,
+  });
+  const [GlobalAlertInformation, setGlobalAlertInformation] = useState({
+    showAlert: false as boolean,
+    title: "" as string,
+    message: "" as string,
   });
   //
   //
@@ -378,7 +408,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     CurrentMemberRole: string,
     user_Id: string
   ) => {
-    console.log(MemberId, CurrentMemberRole, user_Id);
     try {
       if (!AuthToken) return;
       const formData = new FormData();
@@ -423,6 +452,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         socket.emit("newServerCreationOccurred", response.data.server_id);
+        socket.emit("MemberRemovedByAdmin", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -434,7 +464,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChannelName: string,
     ChannelType: string
   ) => {
-    console.log(serverId, ChannelName, ChannelType);
     try {
       if (!AuthToken) return;
       const formData = new FormData();
@@ -484,6 +513,115 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       console.log(error);
     }
   };
+  const Check_The_User_Is_KickedOut = async (
+    SocketData: {
+      message: string;
+      success: boolean;
+      serverId: string;
+      memberId: string;
+      userId: string;
+      serverName: string;
+    },
+    UserCurrentPath: Array<string>
+  ) => {
+    try {
+      if (!SocketData) return;
+      if (
+        UserCurrentPath.includes("server") &&
+        UserCurrentPath.includes(SocketData.serverId)
+      ) {
+        const serverId = UserCurrentPath[3];
+        const user_id = JSON.parse(localStorage.getItem("User__Info") || "").id;
+        if (serverId === SocketData.serverId && user_id === SocketData.userId) {
+          return {
+            userKickedOut: true,
+            isInTheCurrentServer: true,
+            serverName: SocketData.serverName,
+          };
+        } else
+          return {
+            userKickedOut: false,
+            isInTheCurrentServer: false,
+          };
+      } else {
+        return {
+          userKickedOut: true,
+          isInTheCurrentServer: false,
+          serverName: SocketData.serverName,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const DeleteServerFunction = async (AuthToken: string, serverId: string) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "delete",
+        url: `${Host}/app/api/server/deleteServer/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        socket.emit("ServerHasBeenDeleted", response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const Check_Server_Is_Deleted = async (
+    SocketData: {
+      message: string;
+      success: boolean;
+      serverId: string;
+      serverName: string;
+      adminId: string;
+    },
+    UserCurrentPath: Array<string>
+  ) => {
+    try {
+
+      if (!SocketData) return;
+      if (
+        UserCurrentPath.includes("server") &&
+        UserCurrentPath.includes(SocketData.serverId)
+      ) {
+        const serverId = UserCurrentPath[3];
+        if (serverId === SocketData.serverId) {
+          if (
+            SocketData.adminId ===
+            JSON.parse(localStorage.getItem("User__Info") || "").id
+          ) {
+            return {
+              serverHasBeenDeleted: true,
+              userIsInTheCurrentServer: true,
+              serverName: SocketData.serverName,
+              userIsAdmin: true,
+            };
+          } else {
+            return {
+              serverHasBeenDeleted: true,
+              userIsInTheCurrentServer: true,
+              serverName: SocketData.serverName,
+              userIsAdmin: false,
+            };
+          }
+        }
+      } else {
+        return {
+          serverHasBeenDeleted: true,
+          userIsInTheCurrentServer: false,
+          serverName: "",
+        };
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -502,6 +640,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setUpdateServerInfoImage: setUpdateServerInfoImage as React.Dispatch<
       React.SetStateAction<object>
     >,
+    GlobalAlertInformation,
+    setGlobalAlertInformation: setGlobalAlertInformation as React.Dispatch<
+      React.SetStateAction<object>
+    >,
 
     Login_User_Function,
     CheckUsersLoginStatus,
@@ -516,7 +658,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChangingMemberRoleFunction,
     KickOutMemberFromServerFunction,
     CreateNewChannelFunction,
-    LeaveFromServerFunction
+    LeaveFromServerFunction,
+    Check_The_User_Is_KickedOut,
+    DeleteServerFunction,
+    Check_Server_Is_Deleted,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

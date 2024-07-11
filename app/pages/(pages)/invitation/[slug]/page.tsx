@@ -2,9 +2,10 @@
 import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 import { Context } from "@/context/ContextApi";
 import { useRouter, usePathname } from "next/navigation";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 
 function Invitation() {
+  const hasRun = useRef(false);
   const { push } = useRouter();
   const Path = usePathname();
   const {
@@ -15,6 +16,9 @@ function Invitation() {
   const [Discord_Loader, setDiscord_Loader] = useState(true);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const AuthToken = localStorage.getItem("AuthToken");
     UserInfoFetchingFunction(AuthToken);
     const checkStatus = async () => {

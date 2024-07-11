@@ -20,11 +20,7 @@ function Single_Image_DragDrop() {
       });
     });
   }, []);
-  useEffect(() => {
-    if (Global_Server_Profile_Image) {
-      console.log("global image", Global_Server_Profile_Image);
-    }
-  }, [Global_Server_Profile_Image]);
+  
   const Remove_Selected_Image = () => {
     setPreview__Image__URL("");
     setGlobal_Server_Profile_Image("");
