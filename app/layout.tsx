@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export async function generateMetadata({ params }): Promise<Metadata> {
   return {
     title: `Discord Clone`,
+    description: `Discord Clone`,
   };
 }
 

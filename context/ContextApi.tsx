@@ -34,6 +34,9 @@ interface ContextApiProps {
   GlobalAlertInformation: object;
   setGlobalAlertInformation: React.Dispatch<React.SetStateAction<object>>;
 
+  AllTheTextChannelsOfTheServer: Array<object>;
+  AllTheAudioChannelsOfTheServer: Array<object>;
+  AllTheVideoChannelsOfTheServer: Array<object>;
   //
   //? exporting all the functions
   //
@@ -104,6 +107,15 @@ interface ContextApiProps {
     },
     UserCurrentPath: Array<string>
   ) => object;
+  FetchTheTextChannelOfTheServer: (AuthToken: string, serverId: string) => void;
+  FetchTheAudioChannelOfTheServer: (
+    AuthToken: string,
+    serverId: string
+  ) => void;
+  FetchTheVideoChannelOfTheServer: (
+    AuthToken: string,
+    serverId: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -140,6 +152,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     title: "" as string,
     message: "" as string,
   });
+  const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] =
+    useState([] as Array<object>);
+  const [AllTheAudioChannelsOfTheServer, setAllTheAudioChannelsOfTheServer] =
+    useState([] as Array<object>);
+  const [AllTheVideoChannelsOfTheServer, setAllTheVideoChannelsOfTheServer] =
+    useState([] as Array<object>);
   //
   //
   // ? defining all the functions
@@ -283,7 +301,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       const Data = result.data;
-
+      console.log(Data);
       if (Data.success) {
         setServerInfoById(Data.Server__Info);
         setUpdateServerInfoImage({
@@ -480,7 +498,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket.emit("newServerCreationOccurred", response.data.server_id);
+        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
       }
     } catch (error) {
       console.log(error);
@@ -584,7 +602,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     UserCurrentPath: Array<string>
   ) => {
     try {
-
       if (!SocketData) return;
       if (
         UserCurrentPath.includes("server") &&
@@ -622,6 +639,70 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       console.log(error);
     }
   };
+  const FetchTheTextChannelOfTheServer = async (
+    AuthToken: string,
+    serverId: string
+  ) => {
+    try {
+      console.log(AuthToken);
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/server/FetchTextChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheTextChannelsOfTheServer(response.data.text_channels);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchTheAudioChannelOfTheServer = async (
+    AuthToken: string,
+    serverId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/server/FetchAudioChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheAudioChannelsOfTheServer(response.data.audio_channels);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchTheVideoChannelOfTheServer = async (
+    AuthToken: string,
+    serverId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/server/FetchVideoChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheVideoChannelsOfTheServer(response.data.video_channels);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -644,6 +725,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setGlobalAlertInformation: setGlobalAlertInformation as React.Dispatch<
       React.SetStateAction<object>
     >,
+    AllTheTextChannelsOfTheServer,
+    AllTheAudioChannelsOfTheServer,
+    AllTheVideoChannelsOfTheServer,
 
     Login_User_Function,
     CheckUsersLoginStatus,
@@ -662,6 +746,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Check_The_User_Is_KickedOut,
     DeleteServerFunction,
     Check_Server_Is_Deleted,
+    FetchTheTextChannelOfTheServer,
+    FetchTheAudioChannelOfTheServer,
+    FetchTheVideoChannelOfTheServer,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

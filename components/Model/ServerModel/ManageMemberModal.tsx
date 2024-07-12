@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { Context } from "@/context/ContextApi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import LineLoader from "@/components/LineLoader";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 //
 
@@ -114,7 +115,16 @@ function ManageMemberModal({
                             <div className="avatar flex items-center justify-center gap-[10px] ">
                               <div className="profile-image">
                                 <div className="w-[52px] h-[52px] rounded-full overflow-hidden">
-                                  {MemberInfo?.user?.Profile_Image ? (
+                                  <Avatar className="w-[52px] h-[52px] rounded-full">
+                                    <AvatarImage
+                                      src={MemberInfo?.user?.Profile_Image}
+                                    />
+                                    <AvatarFallback className="global-font-roboto uppercase fs-28 font-semibold bg-slate-500 text-white flex items-center justify-center">
+                                      {MemberInfo?.user?.FullName.split("")[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+
+                                  {/* {MemberInfo?.user?.Profile_Image ? (
                                     <picture>
                                       <source src="https://images.unsplash.com/photo-1720188228786-e6cb3b668aef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8" />
                                       <img
@@ -135,7 +145,7 @@ function ManageMemberModal({
                                         }
                                       </p>
                                     </div>
-                                  )}
+                                  )} */}
                                 </div>
                               </div>
                               <div className="members-information flex flex-col items-start justify-start gap-[2px]">

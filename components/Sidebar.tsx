@@ -6,7 +6,7 @@ import { Context } from "@/context/ContextApi";
 import Create_Update_Server_PopUp from "./Create_Update_Server_PopUp";
 import io from "socket.io-client";
 import { usePathname, useRouter } from "next/navigation";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 function Sidebar() {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
   const socket = io(Host);
@@ -26,7 +26,6 @@ function Sidebar() {
 
   useEffect(() => {
     socket.on("EmitNewServerCreated", (data) => {
-      
       const AuthToken = localStorage.getItem("AuthToken");
       FetchTheIncludingServer(AuthToken);
     });
@@ -60,7 +59,6 @@ function Sidebar() {
           <div className="fetching-servers-wrapper h-100 mt-6 overflow-auto w-100">
             <div className="flex flex-col justify-between w-100">
               {Including_Server_Info_Array?.map((Info: any) => {
-               
                 return (
                   <div
                     key={Info.id}
@@ -93,34 +91,19 @@ function Sidebar() {
             </div>
           </div>
           <div className="account-detailed-section absolute bottom-0 bg-[#202225] z-10 py-6 w-100 left-0">
-            <div
-              className="w-[48px] bg-red-600 h-[48px] mx-auto rounded-full cursor-pointer"
-              onClick={() =>
-                setShowAccountSettingPopUp(
-                  ShowAccountSettingPopUp ? false : true
-                )
-              }
-            >
-              <div className="flex flex-col items-center justify-center w-100 h-100">
-                <p className="global-font-roboto capitalize fs-28 font-semibold text-white cursor-pointer">
+            <div className="w-[100%] flex items-center justify-center">
+              <Avatar className="flex items-center justify-center w-[48px] h-[48px] cursor-pointer">
+                <AvatarImage
+                  src={UserInformation?.profile_image}
+                  alt="@shadcn"
+                />
+                <AvatarFallback className="w-[48px] h-[48px] text-[25px]">
                   {UserInformation?.FullName?.slice(0, 1)}
-                </p>
-              </div>
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
-        {ShowAccountSettingPopUp ? (
-          <div className="absolute bottom-[100px] left-[15px] bg-white w-[200px] z-20  flex flex-col  rounded-[10px] transition overflow-hidden">
-            <p className="global-font-roboto bg-white capitalize fs-16 font-semibold text-black cursor-pointer hover:bg-gray-200 w-100 py-2 px-3">
-              hello
-            </p>
-            <p className="global-font-roboto bg-white capitalize fs-16 font-semibold text-black cursor-pointer hover:bg-gray-200 w-100 py-2 px-3">
-              hello
-            </p>
-          </div>
-        ) : (
-          ""
-        )}
       </div>
 
       <Create_Update_Server_PopUp Pop_Up_Mode="Create-PopUp-Mode" />

@@ -28,6 +28,7 @@ import UpdateServerInfo from "@/components/Model/ServerModel/UpdateServerInfo";
 import CreateChannelModal from "@/components/Model/ServerModel/CreateChannelModal";
 import LeaveServerAlertModal from "@/components/Model/ServerModel/LeaveServerAlertModal";
 import DeleteServerAlertModal from "@/components/Model/ServerModel/DeleteServerAlertModal";
+import ServerSideBarChannelContent from "@/components/ServerSideBarChannalContent/ServerSideBarChannelContent";
 
 function ServerDetails() {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
@@ -133,39 +134,38 @@ function ServerDetails() {
     socket.on("EmitServerHasBeenDeleted", async (data) => {
       const Current_PathName = Pathname?.split("/");
       const response = await Check_Server_Is_Deleted(data, Current_PathName);
-     
 
       if (response?.serverHasBeenDeleted) {
         if (response?.userIsInTheCurrentServer) {
-         if(response?.userIsAdmin){
-          setGlobalAlertInformation({
-            showAlert: true,
-            title: `You have deleted the Server`,
-            message: `The Server "${response?.serverName}" has been deleted by You`,
-          });
-          setTimeout(() => {
+          if (response?.userIsAdmin) {
             setGlobalAlertInformation({
-              showAlert: false,
-              title: "",
-              message: "",
+              showAlert: true,
+              title: `You have deleted the Server`,
+              message: `The Server "${response?.serverName}" has been deleted by You`,
             });
-          }, 2500);
-          push("/pages/dashboard");
-         }else{
-          setGlobalAlertInformation({
-            showAlert: true,
-            title: `The Server has been deleted`,
-            message: `The Server "${response?.serverName}" has been deleted by the Admin`,
-          });
-          setTimeout(() => {
+            setTimeout(() => {
+              setGlobalAlertInformation({
+                showAlert: false,
+                title: "",
+                message: "",
+              });
+            }, 2500);
+            push("/pages/dashboard");
+          } else {
             setGlobalAlertInformation({
-              showAlert: false,
-              title: "",
-              message: "",
+              showAlert: true,
+              title: `The Server has been deleted`,
+              message: `The Server "${response?.serverName}" has been deleted by the Admin`,
             });
-          }, 2500);
-          push("/pages/dashboard");
-         }
+            setTimeout(() => {
+              setGlobalAlertInformation({
+                showAlert: false,
+                title: "",
+                message: "",
+              });
+            }, 2500);
+            push("/pages/dashboard");
+          }
         }
       }
     });
@@ -189,12 +189,12 @@ function ServerDetails() {
               </div>
               <div className="w-100 bg-[#36393F] rounded overflow-auto">
                 <div className="w-100 h-100 flex items-stretch">
-                  <div className="server-configuration w-[18%] min-w-[200px] bg-[#2F3136]">
-                    <div className="server-setting-and-modification">
+                  <div className="server-configuration w-[18%] h-full overflow-hidden  min-w-[200px] bg-[#2F3136] relative flex flex-col items-start justify-start">
+                    <div className="server-setting-and-modification absolute top-0  z-10 left-0 w-100 bg-[#2F3136] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="curser-pointer text-white border-0 outline-none ">
-                            <span className="flex items-center justify-between px-[10px] py-[10px]">
+                            <span className="flex items-center justify-between px-[10px] py-[8px]">
                               <span className="global-font-roboto fs-18 font-medium capitalize ">
                                 {ServerInfoById?.name}
                               </span>
@@ -328,6 +328,9 @@ function ServerDetails() {
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </div>
+                    <div className="h-[100%] w-[100%] pt-[45px]  overflow-auto remove-scrollbar">
+                      <ServerSideBarChannelContent />
                     </div>
                   </div>
                   <div className="more-action-on-server-section w-[82%] bg-[#36393F]"></div>
