@@ -20,7 +20,6 @@ function Register() {
     Password: "" as string,
     Email: "" as string,
     FullName: "" as string,
-    DateOfBirth: "" as string,
   });
   const [Password_type, setPassword_Type] = useState("password" as string);
   const [Discord_Loader, setDiscord_Loader] = useState(true);
@@ -50,6 +49,11 @@ function Register() {
     if (status) {
       push("/pages/dashboard");
     }
+  };
+  const SignInWithGoogleButton = () => {
+    const GoogleSignInURL = process.env
+      .NEXT_PUBLIC_SIGNING_WITH_GOOGLE_LINK as string;
+    window.open(`${GoogleSignInURL}`, "_self");
   };
   //
   // ? defining the useEffect
@@ -165,19 +169,7 @@ function Register() {
                   </button>
                 </div>
               </div>
-              <div className="input-group pb-3">
-                <label htmlFor="Date" className="mb-2 fs-14 capitalize">
-                  entre your date of birth
-                </label>
-                <input
-                  type="date"
-                  name="DateOfBirth"
-                  id="DateOfBirth"
-                  placeholder=""
-                  onChange={LogInDetails}
-                  className="fs-16"
-                />
-              </div>
+
               <button
                 className="sign mt-3"
                 disabled={
@@ -185,8 +177,7 @@ function Register() {
                     User_Info.UserName.length >= 3 &&
                     User_Info.Password.length >= 3 &&
                     User_Info.Email.includes("@") &&
-                    User_Info.FullName.length >= 2 &&
-                    User_Info.DateOfBirth.length >= 3
+                    User_Info.FullName.length >= 2
                   )
                 }
               >
@@ -199,7 +190,11 @@ function Register() {
               <div className="line"></div>
             </div>
             <div className="social-icons my-2">
-              <button aria-label="Log in with Google" className="icon">
+              <button
+                aria-label="Log in with Google"
+                className="icon"
+                onClick={SignInWithGoogleButton}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 32 32"

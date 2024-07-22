@@ -1,6 +1,7 @@
 "use client";
 import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 import { Context } from "@/context/ContextApi";
+import { getCookie } from "cookies-next";
 import { useRouter, usePathname } from "next/navigation";
 import React, { useState, useEffect, useContext, useRef } from "react";
 
@@ -19,7 +20,7 @@ function Invitation() {
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     UserInfoFetchingFunction(AuthToken);
     const checkStatus = async () => {
       try {

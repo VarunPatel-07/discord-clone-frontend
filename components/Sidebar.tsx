@@ -1,18 +1,19 @@
 "use client";
-import React, { useEffect, useContext, use, useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import React, { useEffect, useContext, useState } from "react";
+import { FaPlus, FaWpexplorer } from "react-icons/fa";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
 import Create_Update_Server_PopUp from "./Create_Update_Server_PopUp";
-import io from "socket.io-client";
-import { usePathname, useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+import { usePathname } from "next/navigation";
+
+import Link from "next/link";
+import { getCookie } from "cookies-next";
+import { MdExplore } from "react-icons/md";
 function Sidebar() {
-  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
-  const socket = io(Host);
   const Path = usePathname();
-  const { push } = useRouter();
   const {
+    socket,
     setShow_Create_Server_PopUp,
     FetchTheIncludingServer,
     Including_Server_Info_Array,
@@ -26,19 +27,19 @@ function Sidebar() {
 
   useEffect(() => {
     socket.on("EmitNewServerCreated", (data) => {
-      const AuthToken = localStorage.getItem("AuthToken");
+      const AuthToken = getCookie("User_Authentication_Token") as string;
       FetchTheIncludingServer(AuthToken);
     });
   }, []);
   useEffect(() => {
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     FetchTheIncludingServer(AuthToken);
     UserInfoFetchingFunction(AuthToken);
   }, []);
 
-  const Server__Clicked = (server_info: any) => {
-    push(`/pages/server/${server_info.id}`);
-  };
+  // const Server__Clicked = (server_info: any) => {
+  //   push(`/pages/server/${server_info.id}`);
+  // };
   return (
     <>
       <div className="sidebar bg-[#202225] h-100  w-100 overflow-y-auto  overflow-x-visible ">
@@ -60,14 +61,12 @@ function Sidebar() {
             <div className="flex flex-col justify-between w-100">
               {Including_Server_Info_Array?.map((Info: any) => {
                 return (
-                  <div
+                  <Link
                     key={Info.id}
                     className={`w-100 server-logo-wrapper flex items-center justify-center relative mb-6 cursor-pointer ${
                       Path.split("/").includes(Info.id) ? "active-server" : ""
                     }`}
-                    onClick={() => {
-                      Server__Clicked(Info);
-                    }}
+                    href={`/pages/server/${Info.id}`}
                   >
                     <div className="clickable-button">
                       <div className="image-section w-100 h-100">
@@ -85,22 +84,18 @@ function Sidebar() {
                     <span
                       className={`absolute active-server-indicator  `}
                     ></span>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
           </div>
           <div className="account-detailed-section absolute bottom-0 bg-[#202225] z-10 py-6 w-100 left-0">
             <div className="w-[100%] flex items-center justify-center">
-              <Avatar className="flex items-center justify-center w-[48px] h-[48px] cursor-pointer">
-                <AvatarImage
-                  src={UserInformation?.profile_image}
-                  alt="@shadcn"
-                />
-                <AvatarFallback className="w-[48px] h-[48px] text-[25px]">
-                  {UserInformation?.FullName?.slice(0, 1)}
-                </AvatarFallback>
-              </Avatar>
+              <Link href="/pages/explorer">
+                <div className="w-[52px] h-[52px] bg-[rgba(255,255,255,0.1)] rounded-full flex flex-col items-center justify-center cursor-pointer transition duration-[0.15s] hover:bg-green-800 hover:rounded-[20px] group">
+                  <MdExplore className="w-[28px] h-[28px] text-green-700 transition duration-[0.15s] group-hover:text-black" />
+                </div>
+              </Link>
             </div>
           </div>
         </div>

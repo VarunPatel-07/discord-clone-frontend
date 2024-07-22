@@ -29,13 +29,15 @@ import CreateChannelModal from "@/components/Model/ServerModel/CreateChannelModa
 import LeaveServerAlertModal from "@/components/Model/ServerModel/LeaveServerAlertModal";
 import DeleteServerAlertModal from "@/components/Model/ServerModel/DeleteServerAlertModal";
 import ServerSideBarChannelContent from "@/components/ServerSideBarChannalContent/ServerSideBarChannelContent";
+import { getCookie } from "cookies-next";
 
 function ServerDetails() {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
-  const socket = io(Host);
+
   const { push } = useRouter();
   const Pathname = usePathname();
   const {
+    socket,
     CheckUsersLoginStatus,
     FetchingTheServerInfoByServerId,
     ServerInfoById,
@@ -87,7 +89,7 @@ function ServerDetails() {
     };
 
     checkStatus();
-    const AuthToke = localStorage.getItem("AuthToken") || "";
+    const AuthToke = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
     FetchingTheServerInfoByServerId(serverId, AuthToke);
@@ -96,13 +98,13 @@ function ServerDetails() {
 
   useEffect(() => {
     socket.on("New_Member_Joined", (data) => {
-      const AuthToken = localStorage.getItem("AuthToken") || "";
+      const AuthToken = getCookie("User_Authentication_Token") as string;
       const serverId = Pathname?.split("/")[3];
 
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });
     socket.on("EmitNewServerCreated", (data) => {
-      const AuthToken = localStorage.getItem("AuthToken") || "";
+      const AuthToken = getCookie("User_Authentication_Token") as string;
       const serverId = Pathname?.split("/")[3];
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });

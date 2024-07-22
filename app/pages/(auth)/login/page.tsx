@@ -49,6 +49,11 @@ function LogIn() {
       push("dashboard");
     }
   };
+  const SignInWithGoogleButton = () => {
+    const GoogleSignInURL = process.env
+      .NEXT_PUBLIC_SIGNING_WITH_GOOGLE_LINK as string;
+    window.open(`${GoogleSignInURL}`, "_self");
+  };
   //
   // ? defining the useEffect
   //
@@ -153,7 +158,11 @@ function LogIn() {
               <div className="line"></div>
             </div>
             <div className="social-icons mt-3 mb-3">
-              <button aria-label="Log in with Google" className="icon">
+              <button
+                aria-label="Log in with Google"
+                onClick={SignInWithGoogleButton}
+                className="icon"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 32 32"

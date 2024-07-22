@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import Single_Image_DragDrop from "./Single_Image_DragDrop";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
+import { getCookie } from "cookies-next";
 function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
   const [Server__Name, setServer__Name] = useState("" as string);
   const {
@@ -19,7 +20,7 @@ function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
     const formData = new FormData();
     formData.append("ServerName", Server__Name);
     formData.append("serverImage", Global_Server_Profile_Image.File_Of_Image);
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     Create_New_Server_Function(formData, AuthToken);
     setShow_Create_Server_PopUp(false);
   };

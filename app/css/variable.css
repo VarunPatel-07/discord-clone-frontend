@@ -68,7 +68,11 @@
     color: var(--website-main-white-color);
   }
 }
-.max-h-full{
+.max-h-full {
   max-height: 100vh;
   overflow: hidden;
+}
+
+.hover-parent-to-change-child:hover .show-status-on-hover {
+  transform: translateY(-22px);
 }

@@ -1,6 +1,3 @@
-import { Context } from "@/context/ContextApi";
-import React, { useState, useContext } from "react";
-import { IoIosCloseCircleOutline } from "react-icons/io";
 import {
   Select,
   SelectContent,
@@ -8,53 +5,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePathname } from "next/navigation";
+import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
-function CreateChannelModal({
-  ShowCreateNewChannelModal,
-  setShowCreateNewChannelModal,
-  CreateChanelInfoChannelName,
-  setCreateChanelInfoChannelName,
-  CreateChanelInfoChannelType,
-  setCreateChanelInfoChannelType,
+import { usePathname } from "next/navigation";
+import React, { useContext, useState } from "react";
+import { IoIosCloseCircleOutline } from "react-icons/io";
+
+function UpdateChannelInfoModel({
+  ShowModal,
+  setShowModal,
+  ChannalInfo,
 }: {
-  ShowCreateNewChannelModal: boolean;
-  setShowCreateNewChannelModal: React.Dispatch<React.SetStateAction<boolean>>;
-  CreateChanelInfoChannelName: string;
-  setCreateChanelInfoChannelName: React.Dispatch<React.SetStateAction<string>>;
-  CreateChanelInfoChannelType: string;
-  setCreateChanelInfoChannelType: React.Dispatch<React.SetStateAction<string>>;
+  ShowModal: boolean;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  ChannalInfo: any;
 }) {
-  //
-
-  //
-
   const Pathname = usePathname();
-  const { CreateNewChannelFunction } = useContext(Context) as any;
-  //
-  //
-  //
-  const Create__New__Channel__Function = async (e: any) => {
+  const { UpdateChannelInfoFunction } = useContext(Context) as any;
+  const [ChanelInfoChannelName, setChanelInfoChannelName] = useState(
+    ChannalInfo.name
+  );
+  const [ChanelInfoChannelType, setChanelInfoChannelType] = useState(
+    ChannalInfo.type
+  );
+  const Update__Channel__Function = (e) => {
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
-    setShowCreateNewChannelModal(true);
-    await CreateNewChannelFunction(
+    const Channel_Name = ChanelInfoChannelName ?? ChannalInfo.name;
+    const Channel_Type = ChanelInfoChannelType ?? ChannalInfo.type;
+    UpdateChannelInfoFunction(
       AuthToken,
       serverId,
-      CreateChanelInfoChannelName,
-      CreateChanelInfoChannelType
+      Channel_Name,
+      Channel_Type,
+      ChannalInfo.id
     );
-    setShowCreateNewChannelModal(false);
+    setShowModal(false);
   };
-  //
-  //
-  //
   return (
     <div
-      className={`absolute w-full h-full max-h-full max-w-full bg-[rgba(0,0,0,0.5)] backdrop-blur-[10px] z-20 top-0 left-0 transition scale-0 opacity-0 not-visible ${
-        ShowCreateNewChannelModal ? "scale-100 opacity-100 visible" : ""
-      } `}
+      className={`w-[100vw] h-[100vh] fixed top-0 left-0 bg-[rgba(0,0,0,0.5)] backdrop-blur z-20 transition ${
+        ShowModal ? "scale-100 opacity-100" : "scale-0 opacity-0"
+      }`}
     >
       <div className="w-100 h-100 flex items-center justify-center w-100 px-[15px]">
         <div className="modal-inner-section w-100  max-w-[600px] max-h-[600px] overflow-auto no- rounded-[10px] bg-[#f2f2f2] py-[15px]  ">
@@ -63,9 +56,7 @@ function CreateChannelModal({
               <button
                 className="border-0 bg-transparent text-[30px]"
                 onClick={() => {
-                  setShowCreateNewChannelModal(false);
-                  setCreateChanelInfoChannelName("");
-                  setCreateChanelInfoChannelType("");
+                  setShowModal(false);
                 }}
               >
                 <IoIosCloseCircleOutline />
@@ -74,15 +65,12 @@ function CreateChannelModal({
             <div className="invite-people-card-main-content-section w-100">
               <div className="card-title w-100 px-[15px]">
                 <h3 className="font-mono text-[30px] capitalize text-indigo-600 text-center font-semibold ">
-                  create channel
+                  update channel
                 </h3>
               </div>
               <div className="server-information-section mt-8">
                 <div className="input-section w-100 px-[15px]">
-                  <form
-                    className="form"
-                    onSubmit={Create__New__Channel__Function}
-                  >
+                  <form className="form" onSubmit={Update__Channel__Function}>
                     <div className="flex flex-col items-start justify-start">
                       <label
                         htmlFor="Sever_Name"
@@ -96,9 +84,9 @@ function CreateChannelModal({
                         id="Sever_Name"
                         name="Sever_Name"
                         placeholder="Enter Sever Name"
-                        value={CreateChanelInfoChannelName}
+                        value={ChanelInfoChannelName ?? ChannalInfo.name}
                         onChange={(e: any) => {
-                          setCreateChanelInfoChannelName(e.target.value);
+                          setChanelInfoChannelName(e.target.value);
                         }}
                         required
                       />
@@ -106,9 +94,9 @@ function CreateChannelModal({
                     <div className="mt-[30px]">
                       <Select
                         onValueChange={(value) => {
-                          setCreateChanelInfoChannelType(value);
+                          setChanelInfoChannelType(value);
                         }}
-                        value={CreateChanelInfoChannelType}
+                        value={ChanelInfoChannelType ?? ChannalInfo.type}
                       >
                         <SelectTrigger className="w-[100%] shadow-none border-0 outline-none">
                           <SelectValue placeholder="Select Channel Type" />
@@ -139,9 +127,9 @@ function CreateChannelModal({
                     <button
                       className="bg-indigo-500 text-white w-100 px-[15px] py-[12px] rounded-[5px]  capitalize fs-18 font-medium global-font-roboto mt-[30px] transition hover:bg-indigo-700 disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       type="submit"
-                      disabled={CreateChanelInfoChannelName === "general"}
+                      disabled={ChanelInfoChannelName === "general"}
                     >
-                      Create Channel
+                      Update Channel
                     </button>
                   </form>
                 </div>
@@ -154,4 +142,4 @@ function CreateChannelModal({
   );
 }
 
-export default CreateChannelModal;
+export default UpdateChannelInfoModel;

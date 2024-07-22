@@ -10,11 +10,13 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import { promises } from "dns";
+import { getCookie } from "cookies-next";
+
 interface ContextApiProps {
   //
   //? exporting all the state
   //
-
+  socket: any;
   Global_Server_Profile_Image: {
     Preview__Image__URL: string;
     File_Of_Image: string;
@@ -116,6 +118,18 @@ interface ContextApiProps {
     AuthToken: string,
     serverId: string
   ) => void;
+  UpdateChannelInfoFunction: (
+    AuthToken: string,
+    serverId: string,
+    ChannelName: string,
+    ChannelType: string,
+    channelId: string
+  ) => void;
+  DeleteChannelFunction: (
+    AuthToken: string,
+    serverId: string,
+    channelId: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -123,7 +137,12 @@ const Context = createContext<ContextApiProps | undefined>(undefined);
 const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { push } = useRouter();
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
-  const socket = io(Host);
+
+  const socket = io(Host, {
+    auth: {
+      token: getCookie("User_Authentication_Token") as string,
+    },
+  });
   const initialState = [];
   //
   //
@@ -217,7 +236,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
   const CheckUsersLoginStatus = async () => {
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+
     if (AuthToken) {
       try {
         const response: any = await axios({
@@ -235,6 +255,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         return true;
       } catch (error) {
         localStorage.removeItem("AuthToken");
+        localStorage.removeItem("User__Info");
+        console.log(error);
         return false;
       }
     } else {
@@ -484,6 +506,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!AuthToken) return;
+      console.log(serverId, ChannelName, ChannelType);
       const formData = new FormData();
       formData.append("ChannelName", ChannelName);
       formData.append("ChannelType", ChannelType);
@@ -497,6 +520,57 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
 
+      if (response.data.success) {
+        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const UpdateChannelInfoFunction = async (
+    AuthToken: string,
+    serverId: string,
+    ChannelName: string,
+    ChannelType: string,
+    channelId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const formData = new FormData();
+      formData.append("ChannelName", ChannelName);
+      formData.append("ChannelType", ChannelType);
+      formData.append("channelId", channelId);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/server/updateChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
+      }
+    } catch (error) {}
+  };
+  const DeleteChannelFunction = async (
+    AuthToken: string,
+    serverId: string,
+    channelId: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("channelId", channelId);
+      const response = await axios({
+        method: "delete",
+        url: `${Host}/app/api/server/deleteChannel/${serverId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
       if (response.data.success) {
         socket.emit("NewChannelHasBeenCreated", response.data.server_id);
       }
@@ -644,7 +718,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     serverId: string
   ) => {
     try {
-      console.log(AuthToken);
       if (!AuthToken) return;
       const response = await axios({
         method: "get",
@@ -707,6 +780,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ? defining the context value
   //
   const context_value = {
+    socket,
     Global_Server_Profile_Image,
     setGlobal_Server_Profile_Image:
       setGlobal_Server_Profile_Image as React.Dispatch<
@@ -749,6 +823,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FetchTheTextChannelOfTheServer,
     FetchTheAudioChannelOfTheServer,
     FetchTheVideoChannelOfTheServer,
+    UpdateChannelInfoFunction,
+    DeleteChannelFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

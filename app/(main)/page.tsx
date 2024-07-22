@@ -21,6 +21,8 @@ function Home() {
           push("/pages/dashboard");
         } else {
           setDiscord_Loader(false);
+          localStorage.removeItem("AuthToken");
+          localStorage.removeItem("User__Info");
           push("/pages/login");
         }
       } catch (error) {
@@ -64,7 +66,7 @@ function Home() {
             className="flex items-center justify-center max-width-1080 mx-auto h-full
           "
           >
-            <div className="w--40">
+            <div className="w-[40%]">
               <div className="text-section">
                 <h1 className="text-white fs-45 font-black">
                   GROUP CHAT THAT’S ALL FUN GAMES
@@ -76,7 +78,7 @@ function Home() {
                 </p>
               </div>
             </div>
-            <div className="w---60">
+            <div className="w-[60%]">
               <picture className="w-100 h-100">
                 <img
                   src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/664dae3aa8fa28593aa47cc6_CHARACTERS%20FULL.webp"

@@ -3,6 +3,7 @@ import { IoIosCloseCircle, IoIosCloseCircleOutline } from "react-icons/io";
 import { useDropzone } from "react-dropzone";
 import { Context } from "@/context/ContextApi";
 import { usePathname } from "next/navigation";
+import { getCookie } from "cookies-next";
 
 //
 
@@ -63,7 +64,7 @@ function UpdateServerInfo({
   };
   const Submit__Form__Function = async (e: any) => {
     e.preventDefault();
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     const formData = new FormData();
 

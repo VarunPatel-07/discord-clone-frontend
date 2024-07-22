@@ -6,12 +6,11 @@ import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
+
 function Dashboard() {
   const { push } = useRouter();
   // ? importing the required function from the context api
-  const { CheckUsersLoginStatus } = useContext(
-    Context
-  ) as any;
+  const { CheckUsersLoginStatus } = useContext(Context) as any;
 
   // ? defining all the state
 

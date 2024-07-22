@@ -1,4 +1,5 @@
 import { Context } from "@/context/ContextApi";
+import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
 import React, { useContext } from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
@@ -18,7 +19,7 @@ function DeleteServerAlertModal({
   //
   //
   const Delete_Server = async (server_info) => {
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     await DeleteServerFunction(AuthToken, serverId);
     setShowDeleteServerModal(false);

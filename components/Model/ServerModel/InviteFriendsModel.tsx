@@ -5,6 +5,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { FaCheck } from "react-icons/fa";
 import { MdContentCopy } from "react-icons/md";
 import { TbReload } from "react-icons/tb";
+import { getCookie } from "cookies-next";
 //
 
 //
@@ -40,7 +41,7 @@ function InviteFriendsModel({
   //
   const RegenerateServerInviteCode = async () => {
     setCopy(false);
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     const Updated_Invite_Code = await RegeneratingServerInviteCodeFunction(
       AuthToken,

@@ -11,6 +11,7 @@ import { Context } from "@/context/ContextApi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import LineLoader from "@/components/LineLoader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getCookie } from "cookies-next";
 
 //
 
@@ -49,7 +50,7 @@ function ManageMemberModal({
     MemberRole: string,
     user_Id: string
   ) => {
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     setChangingTheMemberRole(true);
     await ChangingMemberRoleFunction(
@@ -62,7 +63,7 @@ function ManageMemberModal({
     setChangingTheMemberRole(false);
   };
   const KickOutMemberFromServer = async (userId: string, memberId: string) => {
-    const AuthToken = localStorage.getItem("AuthToken");
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
     await KickOutMemberFromServerFunction(
