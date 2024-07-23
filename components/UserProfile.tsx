@@ -1,14 +1,28 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoIosSettings, IoMdMic } from "react-icons/io";
+import { Context } from "@/context/ContextApi";
+import { getCookie } from "cookies-next";
 
-function UserProfile({
-  Position,
-  UserInformation,
-}: {
-  Position: string;
-  UserInformation: any;
-}) {
+function UserProfile({ Position }: { Position: string }) {
+  const { socket, UserInfoFetchingFunction, UserInformation } = useContext(
+    Context
+  ) as any;
+  useEffect(() => {
+    
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    UserInfoFetchingFunction(AuthToken);
+  }, []);
+  useEffect(() => {
+    socket.on("EmitUserStatusChanged", () => {
+      
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      UserInfoFetchingFunction(AuthToken);
+    });
+    return () => {
+      socket.off("EmitUserStatusChanged");
+    };
+  }, []);
   return (
     <div
       className={`${Position} w-[100%] transition-all cursor-pointer bg-[#121314] hover-parent-to-change-child hover:bg-green-900  px-[12px] py-[12px]`}

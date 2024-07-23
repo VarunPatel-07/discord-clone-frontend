@@ -22,12 +22,8 @@ function UpdateChannelInfoModel({
 }) {
   const Pathname = usePathname();
   const { UpdateChannelInfoFunction } = useContext(Context) as any;
-  const [ChanelInfoChannelName, setChanelInfoChannelName] = useState(
-    ChannalInfo.name
-  );
-  const [ChanelInfoChannelType, setChanelInfoChannelType] = useState(
-    ChannalInfo.type
-  );
+  const [ChanelInfoChannelName, setChanelInfoChannelName] = useState("");
+  const [ChanelInfoChannelType, setChanelInfoChannelType] = useState("");
   const Update__Channel__Function = (e) => {
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
@@ -84,7 +80,11 @@ function UpdateChannelInfoModel({
                         id="Sever_Name"
                         name="Sever_Name"
                         placeholder="Enter Sever Name"
-                        value={ChanelInfoChannelName ?? ChannalInfo.name}
+                        value={
+                          ChanelInfoChannelName === ""
+                            ? ChannalInfo.name
+                            : ChanelInfoChannelName
+                        }
                         onChange={(e: any) => {
                           setChanelInfoChannelName(e.target.value);
                         }}
@@ -96,7 +96,11 @@ function UpdateChannelInfoModel({
                         onValueChange={(value) => {
                           setChanelInfoChannelType(value);
                         }}
-                        value={ChanelInfoChannelType ?? ChannalInfo.type}
+                        value={
+                          ChanelInfoChannelType === ""
+                            ? ChannalInfo.type
+                            : ChanelInfoChannelType
+                        }
                       >
                         <SelectTrigger className="w-[100%] shadow-none border-0 outline-none">
                           <SelectValue placeholder="Select Channel Type" />

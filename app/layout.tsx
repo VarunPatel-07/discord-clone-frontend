@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
         <ContextProvider>
           <section className="min-h-screen h-[100vh] overflow-hidden max-h-[100vh] relative">
             <main className="w-full h-full">{children}</main>

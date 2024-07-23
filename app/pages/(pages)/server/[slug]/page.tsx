@@ -108,6 +108,15 @@ function ServerDetails() {
       const serverId = Pathname?.split("/")[3];
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });
+
+    return () => {
+      socket.off("EmitMemberRemovedByAdmin");
+      socket.off("EmitServerHasBeenDeleted");
+    };
+
+    // socket
+  }, []);
+  useEffect(() => {
     socket.on("EmitMemberRemovedByAdmin", async (data) => {
       const Current_PathName = Pathname?.split("/");
       const response = await Check_The_User_Is_KickedOut(
@@ -171,9 +180,22 @@ function ServerDetails() {
         }
       }
     });
-
-    // socket
+    return () => {
+      socket.off("EmitMemberRemovedByAdmin");
+      socket.off("EmitServerHasBeenDeleted");
+    };
   }, []);
+  useEffect(() => {
+    socket.on("EmitUserStatusChanged", () => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+
+      const serverId = Pathname?.split("/")[3];
+      FetchingTheServerInfoByServerId(serverId, AuthToken);
+    });
+    return () => {
+      socket.off("EmitUserStatusChanged");
+    };
+  });
 
   if (Discord_Loader) {
     return <GlobalDiscordLoader />;
@@ -197,10 +219,12 @@ function ServerDetails() {
                         <DropdownMenuTrigger asChild>
                           <button className="curser-pointer text-white border-0 outline-none ">
                             <span className="flex items-center justify-between px-[10px] py-[8px]">
-                              <span className="global-font-roboto fs-18 font-medium capitalize ">
+                              <span className="global-font-roboto fs-18 font-medium capitalize text-nowrap w-[95%] text-ellipsis  overflow-hidden ">
                                 {ServerInfoById?.name}
                               </span>
-                              <FaChevronDown />
+                              <span className=" w-[5%] min-w-[30px] flex items-center justify-end">
+                                <FaChevronDown />
+                              </span>
                             </span>
                           </button>
                         </DropdownMenuTrigger>

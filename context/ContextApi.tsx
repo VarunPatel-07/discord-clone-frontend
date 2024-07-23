@@ -10,7 +10,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import { promises } from "dns";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 interface ContextApiProps {
   //
@@ -189,18 +189,15 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         formData.append("UserName", (loginInfo as any).UserName);
         formData.append("Password", (loginInfo as any).Password);
 
-        const response = await axios({
+        await axios({
           method: "post",
           url: `${Host}/app/api/auth/login`,
           headers: {
             "Content-Type": "multipart/form-data",
           },
           data: formData,
+          withCredentials: true,
         });
-
-        if (response.data.success) {
-          localStorage.setItem("AuthToken", response.data.token);
-        }
       }
     } catch (error) {
       console.log(error);
@@ -218,18 +215,15 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         formData.append("Email", Email);
         formData.append("FullName", FullName);
         formData.append("DateOfBirth", DateOfBirth);
-        const response = await axios({
+        await axios({
           method: "post",
           url: `${Host}/app/api/auth/register`,
           headers: {
             "Content-Type": "multipart/form-data",
           },
           data: formData,
+          withCredentials: true,
         });
-
-        if (response.data.success) {
-          localStorage.setItem("AuthToken", response.data.token);
-        }
       }
     } catch (error) {
       console.log(error);
@@ -249,13 +243,13 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
 
         if (!response.data.success) {
-          localStorage.removeItem("AuthToken");
+          deleteCookie("User_Authentication_Token");
           return false;
         }
         return true;
       } catch (error) {
-        localStorage.removeItem("AuthToken");
-        localStorage.removeItem("User__Info");
+        deleteCookie("User_Authentication_Token");
+        deleteCookie("User__Info");
         console.log(error);
         return false;
       }
@@ -323,7 +317,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       const Data = result.data;
-      console.log(Data);
+
       if (Data.success) {
         setServerInfoById(Data.Server__Info);
         setUpdateServerInfoImage({
@@ -338,30 +332,23 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const UserInfoFetchingFunction = async (AuthToken: string) => {
     try {
       if (!AuthToken) return;
-      if (!localStorage.getItem("User__Info")) {
-        const response = await axios({
-          method: "get",
-          url: `${Host}/app/api/auth/userDetails`,
-          headers: {
-            Authorization: AuthToken,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        if (response.data.success) {
-          localStorage.setItem(
-            "User__Info",
-            JSON.stringify(response.data.user)
-          );
-          setUserInformation(response.data.user);
-        }
-      } else {
-        const user_info = JSON.parse(localStorage.getItem("User__Info") as any);
-        setUserInformation(user_info);
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/auth/userDetails`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setUserInformation(response.data.user);
+        setCookie("User__Info", JSON.stringify(response.data.user));
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   const RegeneratingServerInviteCodeFunction = async (
     AuthToken: string,
     serverId: string
@@ -506,7 +493,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!AuthToken) return;
-      console.log(serverId, ChannelName, ChannelType);
+
       const formData = new FormData();
       formData.append("ChannelName", ChannelName);
       formData.append("ChannelType", ChannelType);
@@ -623,7 +610,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         UserCurrentPath.includes(SocketData.serverId)
       ) {
         const serverId = UserCurrentPath[3];
-        const user_id = JSON.parse(localStorage.getItem("User__Info") || "").id;
+        const user_id = JSON.parse(getCookie("User__Info") || "").id;
         if (serverId === SocketData.serverId && user_id === SocketData.userId) {
           return {
             userKickedOut: true,
@@ -684,8 +671,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const serverId = UserCurrentPath[3];
         if (serverId === SocketData.serverId) {
           if (
-            SocketData.adminId ===
-            JSON.parse(localStorage.getItem("User__Info") || "").id
+            SocketData.adminId === JSON.parse(getCookie("User__Info") || "").id
           ) {
             return {
               serverHasBeenDeleted: true,

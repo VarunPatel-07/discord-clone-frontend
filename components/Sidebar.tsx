@@ -1,12 +1,10 @@
 "use client";
 import React, { useEffect, useContext, useState } from "react";
-import { FaPlus, FaWpexplorer } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
 import Create_Update_Server_PopUp from "./Create_Update_Server_PopUp";
-
 import { usePathname } from "next/navigation";
-
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
@@ -18,7 +16,7 @@ function Sidebar() {
     FetchTheIncludingServer,
     Including_Server_Info_Array,
     UserInfoFetchingFunction,
-    UserInformation,
+   
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
@@ -30,6 +28,9 @@ function Sidebar() {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       FetchTheIncludingServer(AuthToken);
     });
+    return () => {
+      socket.off("EmitNewServerCreated");
+    }
   }, []);
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;

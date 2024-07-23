@@ -118,43 +118,28 @@ function ManageMemberModal({
                                 <div className="w-[52px] h-[52px] rounded-full overflow-hidden">
                                   <Avatar className="w-[52px] h-[52px] rounded-full">
                                     <AvatarImage
-                                      src={MemberInfo?.user?.Profile_Image}
+                                      src={MemberInfo?.user?.Profile_Picture}
                                     />
                                     <AvatarFallback className="global-font-roboto uppercase fs-28 font-semibold bg-slate-500 text-white flex items-center justify-center">
                                       {MemberInfo?.user?.FullName.split("")[0]}
                                     </AvatarFallback>
                                   </Avatar>
-
-                                  {/* {MemberInfo?.user?.Profile_Image ? (
-                                    <picture>
-                                      <source src="https://images.unsplash.com/photo-1720188228786-e6cb3b668aef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8" />
-                                      <img
-                                        src="https://images.unsplash.com/photo-1720188228786-e6cb3b668aef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwyfHx8ZW58MHx8fHx8"
-                                        alt=""
-                                        className="w-100 h-100 object-cover"
-                                      />
-                                    </picture>
-                                  ) : (
-                                    <div
-                                      className={`w-100 h-100 flex items-center justify-center bg-$ bg-red-400 `}
-                                    >
-                                      <p className="global-font-roboto uppercase fs-28 font-semibold">
-                                        {
-                                          MemberInfo?.user?.FullName.split(
-                                            ""
-                                          )[0]
-                                        }
-                                      </p>
-                                    </div>
-                                  )} */}
                                 </div>
                               </div>
                               <div className="members-information flex flex-col items-start justify-start gap-[2px]">
                                 <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium ">
                                   {MemberInfo?.user?.FullName}
                                 </p>
-                                <p className="global-font-roboto capitalize fs-14 h-[20px] text-[#8e8e8e] font-medium ">
-                                  {MemberInfo?.user?.UserName}
+                                <p
+                                  className={`username fs-14 ${
+                                    MemberInfo.user?.Is_Online
+                                      ? "text-green-500"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {MemberInfo.user?.Is_Online
+                                    ? "Online"
+                                    : "Offline"}
                                 </p>
                               </div>
                             </div>

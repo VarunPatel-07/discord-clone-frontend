@@ -7,11 +7,11 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 function DeleteChannelModal({
   ShowModal,
   setShowModal,
-  ChannalInfo,
+  ChannalId,
 }: {
   ShowModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  ChannalInfo: any;
+  ChannalId: string;
 }) {
   const Pathname = usePathname();
   const { DeleteChannelFunction } = useContext(Context) as any;
@@ -19,7 +19,7 @@ function DeleteChannelModal({
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
-    DeleteChannelFunction(AuthToken, serverId, ChannalInfo.id);
+    DeleteChannelFunction(AuthToken, serverId, ChannalId);
     setShowModal(false);
   };
   return (
