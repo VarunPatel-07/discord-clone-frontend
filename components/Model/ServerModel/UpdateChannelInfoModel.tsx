@@ -28,8 +28,13 @@ function UpdateChannelInfoModel({
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
-    const Channel_Name = ChanelInfoChannelName ?? ChannalInfo.name;
-    const Channel_Type = ChanelInfoChannelType ?? ChannalInfo.type;
+    const Channel_Name = ChanelInfoChannelName
+      ? ChanelInfoChannelName
+      : ChannalInfo.name;
+    const Channel_Type = ChanelInfoChannelType
+      ? ChanelInfoChannelType
+      : ChannalInfo.type;
+
     UpdateChannelInfoFunction(
       AuthToken,
       serverId,

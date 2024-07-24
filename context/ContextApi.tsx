@@ -169,7 +169,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [GlobalAlertInformation, setGlobalAlertInformation] = useState({
     showAlert: false as boolean,
     title: "" as string,
-    message: "" as string,
   });
   const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] =
     useState([] as Array<object>);
@@ -559,7 +558,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
+        console.log(response.data);
+        socket.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
       console.log(error);
@@ -714,6 +714,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
+        console.log(response.data);
         setAllTheTextChannelsOfTheServer(response.data.text_channels);
       }
     } catch (error) {
@@ -735,6 +736,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
+        console.log(response.data);
         setAllTheAudioChannelsOfTheServer(response.data.audio_channels);
       }
     } catch (error) {
@@ -756,6 +758,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
+        console.log(response.data);
         setAllTheVideoChannelsOfTheServer(response.data.video_channels);
       }
     } catch (error) {

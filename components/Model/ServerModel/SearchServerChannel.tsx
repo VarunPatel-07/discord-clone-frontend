@@ -63,7 +63,7 @@ function SearchServerChannel({
                 </button>
               </div>
             </div>
-            {AllTheTextChannelsOfTheServer.length >= 1 && (
+            {AllTheTextChannelsOfTheServer?.length > 0 && (
               <div className="text-channal w-[100%] px-[15px]">
                 <div className="channal-header w-[100%]">
                   <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
@@ -92,7 +92,7 @@ function SearchServerChannel({
                 </ul>
               </div>
             )}
-            {AllTheAudioChannelsOfTheServer.length >= 1 && (
+            {AllTheAudioChannelsOfTheServer?.length > 0 && (
               <div className="audio-channal w-[100%] px-[15px]">
                 <div className="channal-header w-[100%]">
                   <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
@@ -121,7 +121,7 @@ function SearchServerChannel({
                 </ul>
               </div>
             )}
-            {AllTheVideoChannelsOfTheServer.length >= 1 && (
+            {AllTheVideoChannelsOfTheServer?.length > 0 && (
               <div className="video-channal w-[100%] px-[15px]">
                 <div className="channal-header w-[100%]">
                   <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">

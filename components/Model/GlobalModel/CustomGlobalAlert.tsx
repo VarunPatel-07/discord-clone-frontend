@@ -1,28 +1,38 @@
 "use client";
 import { Context } from "@/context/ContextApi";
 import React, { useState, useContext } from "react";
+import { IoIosCloseCircle } from "react-icons/io";
 
 function CustomGlobalAlert() {
   //
   //
-  const { GlobalAlertInformation } = useContext(Context) as any;
+  const { GlobalAlertInformation, setGlobalAlertInformation } = useContext(
+    Context
+  ) as any;
   return (
     <div
-      className={`absolute  transition-all  min-w-[450px]  rounded-[5px] bg-white overflow-hidden ${
+      className={`absolute  transition-all  max-w-[500px]  rounded-[8px] border-[1px] bg-black  ${
         GlobalAlertInformation?.showAlert
-          ? "bottom-[15px] right-[15px] opacity-100 visible"
-          : "bottom-[-100px] right-[-100px] opacity-0 not-visible"
+          ? "bottom-[15px] right-[15px] opacity-100 scale-x-100 "
+          : "bottom-[15px] right-[-100px] opacity-0 scale-x-0  "
       }`}
     >
-      <div className="w-[100%] px-[15px] py-[10px] relative">
-        <p className="global-font-roboto fs-14 capitalize font-medium text-black">
+      <div className="w-[100%] px-[15px] py-[10px]  relative">
+        <p className="global-font-roboto fs-14 capitalize font-light text-white overflow-hidden text-ellipsis line-clamp-2">
           {GlobalAlertInformation?.title}
         </p>
-        <p className="global-font-roboto fs-14 capitalize font-[400] text-black mt-[4px] mb-[6px]">
-          {GlobalAlertInformation?.message}
-        </p>
-        <span className="absolute bottom-0 right-0 inline-block h-[10px] w-[100%] bg-[var(--discord-loader-main-color)]"></span>
 
+        <button
+          onClick={() =>
+            setGlobalAlertInformation({
+              showAlert: false,
+              title: "",
+            })
+          }
+          className="text-white w-[25px] h-[25px] absolute top-[-8px] right-[-8px] bg-black rounded-full"
+        >
+          <IoIosCloseCircle className="w-[25px] h-[25px] " />
+        </button>
       </div>
     </div>
   );

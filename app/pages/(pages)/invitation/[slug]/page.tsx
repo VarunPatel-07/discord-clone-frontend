@@ -9,11 +9,9 @@ function Invitation() {
   const hasRun = useRef(false);
   const { push } = useRouter();
   const Path = usePathname();
-  const {
-    CheckUsersLoginStatus,
-    UserInfoFetchingFunction,
-    JoiningServerWithInvitationCode,
-  } = useContext(Context) as any;
+  const { CheckUsersLoginStatus, JoiningServerWithInvitationCode } = useContext(
+    Context
+  ) as any;
   const [Discord_Loader, setDiscord_Loader] = useState(true);
 
   useEffect(() => {
@@ -21,7 +19,7 @@ function Invitation() {
     hasRun.current = true;
 
     const AuthToken = getCookie("User_Authentication_Token") as string;
-    UserInfoFetchingFunction(AuthToken);
+
     const checkStatus = async () => {
       try {
         const status = await CheckUsersLoginStatus();

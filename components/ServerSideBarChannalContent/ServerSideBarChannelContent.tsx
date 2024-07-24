@@ -17,7 +17,7 @@ function ServerSideBarChannelContent() {
     FetchTheAudioChannelOfTheServer,
     FetchTheVideoChannelOfTheServer,
 
-    UserInformation,
+    ServerInfoById,
   } = useContext(Context) as any;
   const [Open, setOpen] = useState(false as boolean);
 
@@ -37,6 +37,7 @@ function ServerSideBarChannelContent() {
   const FetchAllTheChannel = () => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = PathName.split("/")[3];
+
     Promise.all([
       FetchTheTextChannelOfTheServer(AuthToken, serverId),
       FetchTheAudioChannelOfTheServer(AuthToken, serverId),
@@ -105,6 +106,7 @@ function ServerSideBarChannelContent() {
               setShowDeleteChannelModal={setShowDeleteChannelModal}
               setChannelInfo={setChannelInfo}
               setChannalId={setChannalId}
+              ServerInfoById={ServerInfoById}
             />
           </div>
           <UserProfile Position="absolute bottom-[0px] left-[0px]" />

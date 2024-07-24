@@ -30,6 +30,7 @@ import LeaveServerAlertModal from "@/components/Model/ServerModel/LeaveServerAle
 import DeleteServerAlertModal from "@/components/Model/ServerModel/DeleteServerAlertModal";
 import ServerSideBarChannelContent from "@/components/ServerSideBarChannalContent/ServerSideBarChannelContent";
 import { getCookie } from "cookies-next";
+import ServerChatsPlayground from "@/components/ServerChatsSection/ServerChatsPlayground";
 
 function ServerDetails() {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
@@ -110,14 +111,15 @@ function ServerDetails() {
     });
 
     return () => {
-      socket.off("EmitMemberRemovedByAdmin");
-      socket.off("EmitServerHasBeenDeleted");
+      socket.off("New_Member_Joined");
+      socket.off("EmitNewServerCreated");
     };
 
     // socket
   }, []);
   useEffect(() => {
     socket.on("EmitMemberRemovedByAdmin", async (data) => {
+      console.log(data);
       const Current_PathName = Pathname?.split("/");
       const response = await Check_The_User_Is_KickedOut(
         data,
@@ -129,13 +131,11 @@ function ServerDetails() {
           setGlobalAlertInformation({
             showAlert: true,
             title: `You have been removed from the "${response?.serverName}" server`,
-            message: `The Admin Of  "${response?.serverName}" server has removed you from the server`,
           });
           setTimeout(() => {
             setGlobalAlertInformation({
               showAlert: false,
               title: "",
-              message: "",
             });
           }, 2500);
           push("/pages/dashboard");
@@ -219,7 +219,7 @@ function ServerDetails() {
                         <DropdownMenuTrigger asChild>
                           <button className="curser-pointer text-white border-0 outline-none ">
                             <span className="flex items-center justify-between px-[10px] py-[8px]">
-                              <span className="global-font-roboto fs-18 font-medium capitalize text-nowrap w-[95%] text-ellipsis  overflow-hidden ">
+                              <span className="global-font-roboto fs-18 text-start font-medium capitalize text-nowrap w-[95%] text-ellipsis  overflow-hidden ">
                                 {ServerInfoById?.name}
                               </span>
                               <span className=" w-[5%] min-w-[30px] flex items-center justify-end">
@@ -359,7 +359,9 @@ function ServerDetails() {
                       <ServerSideBarChannelContent />
                     </div>
                   </div>
-                  <div className="more-action-on-server-section w-[82%] bg-[#36393F]"></div>
+                  <div className="chats w-[82%] bg-[#36393F]">
+                    <ServerChatsPlayground />
+                  </div>
                 </div>
               </div>
             </div>
