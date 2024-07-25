@@ -79,7 +79,7 @@ function ServerSideBarChannelContent() {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                   aria-hidden="true"
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                  className="w-[14px] h-[14px] text-gray-500 dark:text-gray-400"
                 >
                   <path
                     d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
@@ -93,14 +93,14 @@ function ServerSideBarChannelContent() {
               <input
                 required
                 placeholder="Search"
-                className="block w-full p-4 py-[5px] ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50  outline-none  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="block w-full px-4 py-[5px] ps-10  text-gray-900 border border-gray-300 rounded-lg bg-gray-50  outline-none  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 fs-14 h-[30px]"
                 id="default-search"
                 type="search"
                 autoComplete="off"
               />
             </div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-[8px] w-[100%]">
+          <div className="flex flex-col items-start justify-start gap-[8px] w-[100%] pt-[8px]">
             <ListOfAllTheServerChannel
               setShowUpdateChannelInfoModal={setShowUpdateChannelInfoModal}
               setShowDeleteChannelModal={setShowDeleteChannelModal}

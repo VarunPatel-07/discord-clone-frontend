@@ -39,6 +39,8 @@ interface ContextApiProps {
   AllTheTextChannelsOfTheServer: Array<object>;
   AllTheAudioChannelsOfTheServer: Array<object>;
   AllTheVideoChannelsOfTheServer: Array<object>;
+  CurrentChatChannelInfo: object;
+  setCurrentChatChannelInfo: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -176,6 +178,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     useState([] as Array<object>);
   const [AllTheVideoChannelsOfTheServer, setAllTheVideoChannelsOfTheServer] =
     useState([] as Array<object>);
+  const [CurrentChatChannelInfo, setCurrentChatChannelInfo] = useState({
+    ChatId: "" as string,
+    ChatName: "" as string,
+    ChatType: "" as string,
+    ChatUserId: "" as string,
+  });
   //
   //
   // ? defining all the functions
@@ -791,7 +799,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
     AllTheVideoChannelsOfTheServer,
-
+    CurrentChatChannelInfo,
+    setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<
+      React.SetStateAction<object>
+    >,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

@@ -90,3 +90,23 @@
 
 
                           {id: '0dcf52a8-1f24-47f3-9da6-32306d0635b4', name: 'the batman', type: 'AUDIO', userId: '3753e1e0-5121-41da-98fc-197177d4e545', serverId: '1396e884-b102-4d6e-ad71-063efa20bccd', …}
+
+
+                          id
+: 
+"d4fa157f-19e9-4ef7-af1b-f824adbca52f"
+name
+: 
+"general"
+serverId
+: 
+"1396e884-b102-4d6e-ad71-063efa20bccd"
+type
+: 
+"TEXT"
+updatedAt
+: 
+"2024-07-22T08:32:51.723Z"
+userId
+: 
+"3753e1e0-5121-41da-98fc-197177d4e545"

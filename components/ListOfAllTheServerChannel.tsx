@@ -1,7 +1,7 @@
 import { Context } from "@/context/ContextApi";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Edit } from "lucide-react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AiOutlineAudio } from "react-icons/ai";
 import { FaHashtag } from "react-icons/fa";
 import { IoIosLock, IoMdVideocam } from "react-icons/io";
@@ -25,44 +25,93 @@ function ListOfAllTheServerChannel({
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
     AllTheVideoChannelsOfTheServer,
+    CurrentChatChannelInfo,
+    setCurrentChatChannelInfo,
   } = useContext(Context) as any;
+
+  useEffect(() => {
+    AllTheTextChannelsOfTheServer?.map((channel_info) => {
+      if (channel_info.type === "TEXT") {
+        if (channel_info.name === "general") {
+          setCurrentChatChannelInfo({
+            ChatId: channel_info.id,
+            ChatName: channel_info.name,
+            ChatType: channel_info.type,
+            ChatUserId: channel_info.userId,
+          });
+        }
+      }
+    });
+  }, [AllTheTextChannelsOfTheServer, setCurrentChatChannelInfo]);
   return (
-    <div className="w-[100%] flex flex-col items-start justify-start gap-[8px]">
+    <div className="w-[100%] flex flex-col items-start justify-start gap-[10px]">
       {AllTheTextChannelsOfTheServer?.length > 0 && (
         <div className="text-channal w-[100%] px-[15px]">
           <div className="channal-header w-[100%]">
-            <span className="global-font-roboto w-[100%] block fs-16 text-[#e6e6e6] capitalize font-medium ">
+            <span className="global-font-roboto w-[100%] block fs-16 text-[#f4f3f3] capitalize font-medium ">
               text channel
             </span>
           </div>
-          <ul className="flex flex-col items-start justify-start gap-[1px]">
+          <ul className="flex flex-col items-start justify-start mt-[4px] gap-[1px]">
             {AllTheTextChannelsOfTheServer?.map((channel_info) => {
               return (
                 <li
-                  className="w-[100%] cursor-pointer   hover:bg-[rgba(255,255,255,0.15)] pl-[12px] pr-[5px] py-[8px] rounded flex items-center justify-between group"
+                  className={`w-[100%] cursor-pointer my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                    CurrentChatChannelInfo?.ChatId === channel_info.id
+                      ? "bg-[rgba(255,255,255,0.18)]"
+                      : "hover:bg-[rgba(255,255,255,0.08)]"
+                  }`}
                   key={channel_info.id}
+                  onClick={() => {
+                    setCurrentChatChannelInfo({
+                      ChatId: channel_info.id,
+                      ChatName: channel_info.name,
+                      ChatType: channel_info.type,
+                      ChatUserId: channel_info.userId,
+                    });
+                  }}
                 >
-                  <span className="flex items-center gap-[5px] w-[70%] text-[#f2f2f2]">
-                    <span className="w-[16px] h-[16px] ">
-                      <FaHashtag className="w-[16px] h-[16px] " />
+                  <span
+                    className={`flex items-center gap-[5px] w-[70%]  ${
+                      CurrentChatChannelInfo?.ChatId === channel_info.id
+                        ? "text-[rgb(255,255,255,0.9)]"
+                        : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                    }`}
+                  >
+                    <span className="w-[14px] h-[14px] ">
+                      <FaHashtag className="w-[14px] h-[14px] " />
                     </span>
-                    <span className="block capitalize  overflow-hidden whitespace-nowrap text-ellipsis">
+                    <span className="block capitalize fs-14 overflow-hidden whitespace-nowrap text-ellipsis global-font-roboto">
                       {channel_info.name}
                     </span>
                   </span>
                   {channel_info.name === "general" ? (
                     <span className="flex w-[30%] items-center justify-end  ">
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         title="locked"
                       >
-                        <IoIosLock className="w-[20px] h-[20px]" />
+                        <IoIosLock className="w-[16px] h-[16px]" />
                       </button>
                     </span>
                   ) : (
-                    <span className="flex  items-center justify-center transition duration-[0.01s] opacity-0 group-hover:opacity-100">
+                    <span
+                      className={`flex  items-center justify-center transition duration-[0.01s] ${
+                        CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? ""
+                          : "opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowUpdateChannelInfoModal(true);
                           setChannelInfo({
@@ -72,16 +121,20 @@ function ListOfAllTheServerChannel({
                           });
                         }}
                       >
-                        <Edit className="w-[20px] h-[20px]" />
+                        <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
                         }}
                       >
-                        <MdDelete className="w-[20px] h-[20px]" />
+                        <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
                   )}
@@ -95,7 +148,7 @@ function ListOfAllTheServerChannel({
       {AllTheAudioChannelsOfTheServer?.length > 0 && (
         <>
           <span className="w-[100%] px-[5px]">
-            <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.4)] block rounded"></span>
+            <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.2)] block rounded"></span>
           </span>
 
           <div className="audio-channal w-[100%] px-[15px]">
@@ -104,25 +157,53 @@ function ListOfAllTheServerChannel({
                 audio channel
               </span>
             </div>
-            <ul className="flex flex-col items-start justify-start gap-[1px]">
+            <ul className="flex flex-col items-start justify-start mt-[2px] gap-[1px]">
               {AllTheAudioChannelsOfTheServer?.map((channel_info) => {
                 return (
                   <li
-                    className="w-[100%] cursor-pointer   hover:bg-[rgba(255,255,255,0.15)] pl-[12px] pr-[5px] py-[8px] rounded flex items-center justify-between group"
+                    className={`w-[100%] cursor-pointer my-[4px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                      CurrentChatChannelInfo?.ChatId === channel_info.id
+                        ? "bg-[rgba(255,255,255,0.18)]"
+                        : "hover:bg-[rgba(255,255,255,0.08)]"
+                    }`}
                     key={channel_info.id}
+                    onClick={() => {
+                      setCurrentChatChannelInfo({
+                        ChatId: channel_info.id,
+                        ChatName: channel_info.name,
+                        ChatType: channel_info.type,
+                        ChatUserId: channel_info.userId,
+                      });
+                    }}
                   >
-                    <span className="flex items-center gap-[5px] w-[70%] text-[#f2f2f2]">
-                      <span className="w-[20px] h-[20px] block">
-                        <AiOutlineAudio className="w-[20px] h-[20px]" />
+                    <span
+                      className={`flex items-center gap-[5px] w-[70%]  ${
+                        CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? "text-[rgb(255,255,255,0.9)]"
+                          : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                      }`}
+                    >
+                      <span className="w-[16px] h-[16px] block">
+                        <AiOutlineAudio className="w-[16px] h-[16px]" />
                       </span>
 
-                      <span className="block capitalize  overflow-hidden whitespace-nowrap text-ellipsis">
+                      <span className="block capitalize fs-14 overflow-hidden whitespace-nowrap text-ellipsis global-font-roboto">
                         {channel_info.name}
                       </span>
                     </span>
-                    <span className="flex w-[30%]  items-center justify-end transition duration-[0.01s] opacity-0 group-hover:opacity-100">
+                    <span
+                      className={`flex  items-center justify-center transition duration-[0.01s] ${
+                        CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? ""
+                          : "opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowUpdateChannelInfoModal(true);
                           setChannelInfo({
@@ -132,16 +213,20 @@ function ListOfAllTheServerChannel({
                           });
                         }}
                       >
-                        <Edit className="w-[20px] h-[20px]" />
+                        <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
                         }}
                       >
-                        <MdDelete className="w-[20px] h-[20px]" />
+                        <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
                   </li>
@@ -154,7 +239,7 @@ function ListOfAllTheServerChannel({
       {AllTheVideoChannelsOfTheServer?.length > 0 && (
         <>
           <span className="w-[100%] px-[5px]">
-            <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.4)] block rounded"></span>
+            <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.2)] block rounded"></span>
           </span>
           <div className="video-channal w-[100%] px-[15px]">
             <div className="channal-header w-[100%]">
@@ -162,25 +247,53 @@ function ListOfAllTheServerChannel({
                 video channel
               </span>
             </div>
-            <ul className="flex flex-col items-start justify-start gap-[1px]">
+            <ul className="flex flex-col items-start justify-start mt-[4px] gap-[1px]">
               {AllTheVideoChannelsOfTheServer?.map((channel_info) => {
                 return (
                   <li
-                    className="w-[100%] cursor-pointer   hover:bg-[rgba(255,255,255,0.15)] pl-[12px] pr-[5px] py-[8px] rounded flex items-center justify-between group"
+                    className={`w-[100%] cursor-pointer my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                      CurrentChatChannelInfo?.ChatId === channel_info.id
+                        ? "bg-[rgba(255,255,255,0.18)]"
+                        : "hover:bg-[rgba(255,255,255,0.08)]"
+                    }`}
                     key={channel_info.id}
+                    onClick={() => {
+                      setCurrentChatChannelInfo({
+                        ChatId: channel_info.id,
+                        ChatName: channel_info.name,
+                        ChatType: channel_info.type,
+                        ChatUserId: channel_info.userId,
+                      });
+                    }}
                   >
-                    <span className="flex items-center gap-[5px] w-[70%] text-[#f2f2f2]">
-                      <span className="w-[18px] h-[18px] block">
-                        <IoMdVideocam className="w-[18px] h-[18px]" />
+                    <span
+                      className={`flex items-center gap-[5px] w-[70%]  ${
+                        CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? "text-[rgb(255,255,255,0.9)]"
+                          : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                      }`}
+                    >
+                      <span className="w-[16px] h-[16px] block">
+                        <IoMdVideocam className="w-[16px] h-[16px]" />
                       </span>
 
-                      <span className="block capitalize  overflow-hidden whitespace-nowrap text-ellipsis">
+                      <span className="block capitalize fs-14 overflow-hidden whitespace-nowrap text-ellipsis global-font-roboto">
                         {channel_info.name}
                       </span>
                     </span>
-                    <span className="flex w-[30%] items-center justify-end transition duration-[0.01s] opacity-0 group-hover:opacity-100">
+                    <span
+                      className={`flex  items-center justify-center transition duration-[0.01s] ${
+                        CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? ""
+                          : "opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowUpdateChannelInfoModal(true);
                           setChannelInfo({
@@ -190,16 +303,20 @@ function ListOfAllTheServerChannel({
                           });
                         }}
                       >
-                        <Edit className="w-[20px] h-[20px]" />
+                        <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
-                        className="text-[#f2f2f2] w-[20px] h-[20px]"
+                        className={`w-[16px] h-[16px] ${
+                          CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgb(255,255,255,0.9)]"
+                            : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
+                        }`}
                         onClick={(e) => {
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
                         }}
                       >
-                        <MdDelete className="w-[20px] h-[20px]" />
+                        <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
                   </li>
@@ -210,7 +327,7 @@ function ListOfAllTheServerChannel({
         </>
       )}
       <span className="w-[100%] px-[5px]">
-        <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.4)] block rounded"></span>
+        <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.2)] block rounded"></span>
       </span>
       <div className="w-[100%] ">
         <div className="channal-header w-[100%] px-[15px] ">
