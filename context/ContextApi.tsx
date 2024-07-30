@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import io from "socket.io-client";
 import { promises } from "dns";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
@@ -41,6 +41,7 @@ interface ContextApiProps {
   AllTheVideoChannelsOfTheServer: Array<object>;
   CurrentChatChannelInfo: object;
   setCurrentChatChannelInfo: React.Dispatch<React.SetStateAction<object>>;
+  ChangingTheMemberRole: boolean;
   //
   //? exporting all the functions
   //
@@ -138,8 +139,18 @@ const Context = createContext<ContextApiProps | undefined>(undefined);
 
 const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { push } = useRouter();
-  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
 
+  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
+  const Pathname = usePathname();
+
+  // if (!getCookie("User_Authentication_Token")) {
+  //   const userPath = Pathname.split("/");
+  //   if (!userPath.includes("login")) {
+  //     push("/login");
+  //     return;
+  //   }
+  //   return;
+  // }
   const socket = io(Host, {
     auth: {
       token: getCookie("User_Authentication_Token") as string,
@@ -184,6 +195,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChatType: "" as string,
     ChatUserId: "" as string,
   });
+  const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(
+    false as boolean
+  );
   //
   //
   // ? defining all the functions
@@ -303,6 +317,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const Data = response.data;
 
         if (Data.success) {
+          console.log(Data.server_info);
           setIncluding_Server_Info_Array(Data.server_info);
         }
       }
@@ -400,12 +415,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket.emit("NewMemberJoined", response.data.server_id);
-        return {
-          success: true,
-          allReadyInServer: response.data.allReadyInServer,
-          serverId: response.data.Server_Id,
-        };
+        push(`/pages/server/${response.data.Server_Id}`);
+        socket.emit("newServerCreationOccurred", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -429,7 +440,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket.emit("newServerCreationOccurred", response.data.server_id);
+        console.log(response.data);
+        socket.emit("newServerCreationOccurred", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -444,6 +456,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!AuthToken) return;
+      setChangingTheMemberRole(true);
       const formData = new FormData();
       formData.append("memberId", MemberId);
       formData.append("CurrentMemberRole", CurrentMemberRole);
@@ -458,7 +471,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        socket.emit("newServerCreationOccurred", response.data.server_id);
+        console.log(response.data);
+        socket.emit("newServerCreationOccurred", response.data);
+        setChangingTheMemberRole(false);
       }
     } catch (error) {
       console.log(error);
@@ -471,10 +486,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     memberId: string
   ) => {
     try {
+      if (!AuthToken) return;
+      setChangingTheMemberRole(true);
       const formData = new FormData();
       formData.append("userId", userId);
       formData.append("memberId", memberId);
-      if (!AuthToken) return;
       const response = await axios({
         method: "put",
         url: `${Host}/app/api/server/kickOutMemberFromServer/${serverId}`,
@@ -487,6 +503,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (response.data.success) {
         socket.emit("newServerCreationOccurred", response.data.server_id);
         socket.emit("MemberRemovedByAdmin", response.data);
+        setChangingTheMemberRole(false);
       }
     } catch (error) {
       console.log(error);
@@ -803,6 +820,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<
       React.SetStateAction<object>
     >,
+    ChangingTheMemberRole,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

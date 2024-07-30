@@ -1,22 +1,23 @@
 "use client";
 import React, { useEffect, useContext, useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaDiscord, FaPlus } from "react-icons/fa";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
 import Create_Update_Server_PopUp from "./Create_Update_Server_PopUp";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
+
 function Sidebar() {
   const Path = usePathname();
+  const { push } = useRouter();
   const {
     socket,
     setShow_Create_Server_PopUp,
     FetchTheIncludingServer,
     Including_Server_Info_Array,
     UserInfoFetchingFunction,
-   
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
@@ -30,7 +31,7 @@ function Sidebar() {
     });
     return () => {
       socket.off("EmitNewServerCreated");
-    }
+    };
   }, []);
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
@@ -46,7 +47,7 @@ function Sidebar() {
       <div className="sidebar bg-[#202225] h-100  w-100 overflow-y-auto  overflow-x-visible ">
         <div className="w-100 h-100 flex flex-col items-center justify-start relative ">
           <div className="create-new-server-wrapper flex flex-col items-center mt-1 constant-create-button w-100 sticky top-0 bg-[#202225] z-10">
-            <div className="create-new-server-button my-4 ">
+            <div className="create-new-server-button my-[10px] hover:bg-green-600">
               <button
                 className="w-100 h-100 flex items-center justify-center fs-18"
                 onClick={() => setShow_Create_Server_PopUp(true)}
@@ -54,20 +55,44 @@ function Sidebar() {
                 <FaPlus />
               </button>
             </div>
-            <div className="w-100 px-2">
-              <span className="bg-[#36393F] w-100 h-1 inline-block rounded-sm "></span>
+            <div className="w-100 px-2  flex">
+              <span className="bg-[#36393F] w-100 h-[3px] inline-block rounded-sm "></span>
             </div>
           </div>
           <div className="fetching-servers-wrapper h-100 mt-6 overflow-auto w-100">
             <div className="flex flex-col justify-between w-100">
+              <div
+                className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
+                  Path.split("/").includes("dashboard")
+                    ? "active-server"
+                    : "server-logo-wrapper"
+                }`}
+                onClick={() => {
+                  push(`/pages/dashboard`);
+                }}
+              >
+                <div className="clickable-button">
+                  <div className="image-section w-100 h-100">
+                    <div className="w-[52px] h-[52px] bg-indigo-600 flex flex-col items-center justify-center">
+                      <FaDiscord className="text-white w-[35px] h-[30px]" />
+                    </div>
+                  </div>
+                </div>
+                <span className={`absolute active-server-indicator  `}></span>
+              </div>
+
               {Including_Server_Info_Array?.map((Info: any) => {
                 return (
-                  <Link
+                  <div
                     key={Info.id}
-                    className={`w-100 server-logo-wrapper flex items-center justify-center relative mb-6 cursor-pointer ${
-                      Path.split("/").includes(Info.id) ? "active-server" : ""
+                    className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
+                      Path.split("/").includes(Info.id)
+                        ? "active-server"
+                        : "server-logo-wrapper"
                     }`}
-                    href={`/pages/server/${Info.id}`}
+                    onClick={() => {
+                      push(`/pages/server/${Info?.id}`);
+                    }}
                   >
                     <div className="clickable-button">
                       <div className="image-section w-100 h-100">
@@ -85,7 +110,7 @@ function Sidebar() {
                     <span
                       className={`absolute active-server-indicator  `}
                     ></span>
-                  </Link>
+                  </div>
                 );
               })}
             </div>

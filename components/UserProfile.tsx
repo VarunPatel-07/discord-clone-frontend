@@ -38,7 +38,7 @@ function UserProfile({ Position }: { Position: string }) {
             </Avatar>
           </div>
           <div className="info">
-            <p className="name text-white text-[15px]">
+            <p className="name text-white text-[15px] max-w-[60px]  xl:max-w-[90px] text-nowrap text-ellipsis overflow-hidden">
               {UserInformation?.FullName}
             </p>
             <div className="w-100 h-[22px] overflow-hidden ">

@@ -35,11 +35,9 @@ function ManageMemberModal({
     ChangingMemberRoleFunction,
     UserInformation,
     KickOutMemberFromServerFunction,
+    ChangingTheMemberRole,
   } = useContext(Context) as any;
 
-  const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(
-    false as boolean
-  );
   //
   //
 
@@ -52,7 +50,7 @@ function ManageMemberModal({
   ) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
-    setChangingTheMemberRole(true);
+
     await ChangingMemberRoleFunction(
       AuthToken,
       serverId,
@@ -60,7 +58,6 @@ function ManageMemberModal({
       MemberRole,
       user_Id
     );
-    setChangingTheMemberRole(false);
   };
   const KickOutMemberFromServer = async (userId: string, memberId: string) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
@@ -95,9 +92,6 @@ function ManageMemberModal({
                 <h3 className="font-mono text-[30px] capitalize text-indigo-600 text-center font-semibold ">
                   Manage members
                 </h3>
-                <p className="global-font-roboto capitalize fs-14 font-medium text-center mt-4">
-                  {ServerInfoById?.members?.length} members
-                </p>
               </div>
               <div className="members-information-wrapper mt-8 flex flex-col items-start justify-start w-100 ">
                 {ChangingTheMemberRole ? (
@@ -106,6 +100,9 @@ function ManageMemberModal({
                   </div>
                 ) : (
                   <>
+                    <p className="global-font-roboto capitalize fs-14 w-[100%] mb-[12px] font-medium text-center mt-4">
+                      {ServerInfoById?.members?.length} members
+                    </p>
                     {ServerInfoById?.members?.map((MemberInfo: any) => (
                       <div
                         className="user-avatar-wrapper-main w-100 transition hover:bg-[#020202da] border-b-[1px] py-[10px] px-[15px] rounded-[5px] cursor-pointer last:border-0 hover:text-white"

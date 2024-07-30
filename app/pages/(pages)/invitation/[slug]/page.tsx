@@ -23,37 +23,29 @@ function Invitation() {
     const checkStatus = async () => {
       try {
         const status = await CheckUsersLoginStatus();
-        if (status) {
-        } else {
+        if (!status) {
           push("/pages/login");
+        } else {
+          const Invite_Code = Path.split("/")[3];
+          await JoiningServerWithInvitationCode(AuthToken, Invite_Code);
         }
       } catch (error) {
         console.error("Error checking login status:", error);
+      } finally {
+        setDiscord_Loader(false); // Hide loader once operation is complete
       }
-    };
-    checkStatus();
-    const Invite_Code = Path.split("/")[3];
-    const Join__Server = async () => {
-      const MemberStatus = await JoiningServerWithInvitationCode(
-        AuthToken,
-        Invite_Code
-      );
-      if (MemberStatus?.success) {
-        if (MemberStatus?.allReadyInServer) {
-          push(`/pages/server/${MemberStatus?.serverId}`);
-        } else {
-          push(`/pages/server/${MemberStatus?.serverId}`);
-        }
-      }
-      // push(`/server/${Invite_Code}`);
     };
 
-    Join__Server();
+    checkStatus();
+
+    // Clean-up function
   }, []);
 
   if (Discord_Loader) {
     return <GlobalDiscordLoader />;
   }
+
+  return null; // Return null or other component after the loader
 }
 
 export default Invitation;

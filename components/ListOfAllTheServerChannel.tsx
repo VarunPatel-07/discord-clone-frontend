@@ -330,11 +330,16 @@ function ListOfAllTheServerChannel({
         <span className="w-[100%] h-[1px] bg-[rgba(230,230,230,0.2)] block rounded"></span>
       </span>
       <div className="w-[100%] ">
-        <div className="channal-header w-[100%] px-[15px] ">
-          <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
-            video channel
-          </span>
-        </div>
+        {ServerInfoById?.members ? (
+          <div className="channal-header w-[100%] px-[15px] ">
+            <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
+              members
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
+
         <div className="w-[100%] px-[15px] flex flex-col gap-[5px]">
           {ServerInfoById?.members?.map((MemberInfo: any) => (
             <div

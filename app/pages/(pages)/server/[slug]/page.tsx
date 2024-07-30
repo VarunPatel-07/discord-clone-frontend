@@ -98,28 +98,36 @@ function ServerDetails() {
   }, []);
 
   useEffect(() => {
-    socket.on("New_Member_Joined", (data) => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
-      const serverId = Pathname?.split("/")[3];
+    socket.on("EmitNewMemberJoinedUsingInvitationCode", (data) => {
+      if (!data.Server_Id) return;
+      if (!data.allReadyInServer) {
+        const AuthToken = getCookie("User_Authentication_Token") as string;
+        if (!AuthToken) return;
+        const serverId = data.Server_Id;
 
-      FetchingTheServerInfoByServerId(serverId, AuthToken);
-    });
-    socket.on("EmitNewServerCreated", (data) => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
-      const serverId = Pathname?.split("/")[3];
-      FetchingTheServerInfoByServerId(serverId, AuthToken);
+        FetchingTheServerInfoByServerId(serverId, AuthToken);
+      }
     });
 
     return () => {
-      socket.off("New_Member_Joined");
-      socket.off("EmitNewServerCreated");
+      socket.off("EmitNewMemberJoinedUsingInvitationCode");
     };
 
     // socket
   }, []);
   useEffect(() => {
+    socket.on("EmitNewServerCreated", (data) => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const serverId = data.server_id;
+      if (!AuthToken && !serverId) return;
+      FetchingTheServerInfoByServerId(serverId, AuthToken);
+    });
+    return () => {
+      socket.off("EmitNewServerCreated");
+    };
+  }, []);
+  useEffect(() => {
     socket.on("EmitMemberRemovedByAdmin", async (data) => {
-      console.log(data);
       const Current_PathName = Pathname?.split("/");
       const response = await Check_The_User_Is_KickedOut(
         data,

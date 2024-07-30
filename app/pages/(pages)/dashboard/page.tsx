@@ -6,6 +6,7 @@ import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
+import DashboardSideBar from "@/components/Sidebar/DashboardSideBar";
 
 function Dashboard() {
   const { push } = useRouter();
@@ -39,16 +40,23 @@ function Dashboard() {
   } else {
     return (
       <>
-        <div className="flex w-full h-full max-w-full max-h-full flex-col bg-[#202225]">
-          <div className="w-100 navbar">
-            <Navbar />
+        <div className="w-[100%] h-[100vh] flex bg-[#36393F]">
+          <div className="w-[15%] max-w-[72px]">
+            <Sidebar />
           </div>
-          <div className="w-100 h-100">
-            <div className="w-100 h-100 flex">
-              <div className="w--15">
-                <Sidebar />
+          <div className="w-[100%] h-[100%] bg-[#36393F] rounded overflow-hidden">
+            <div className="w-[100%] h-[100%] flex flex-col">
+              <div className="w-100 navbar">
+                <Navbar />
               </div>
-              <div className="w-100 bg-[#36393F] rounded overflow-auto"></div>
+              <div className="w-[100%] h-[100%]">
+                <div className="flex w-[100%] h-[100%]">
+                  <div className="w-[18%] h-[100%]">
+                    <DashboardSideBar />
+                  </div>
+                  <div className="w-[82%] h-[100%]"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

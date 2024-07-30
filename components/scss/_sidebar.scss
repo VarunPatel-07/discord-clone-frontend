@@ -61,9 +61,13 @@
   }
 
   .active-server-indicator {
+    top: 50%;
+    left: 0;
+    background-color: rgb(255, 255, 255);
+    width: 8px;
     height: 45px;
     border-radius: 15px;
+    transform: translate(-50%, -50%);
     transition: 0.1s ease-in-out;
   }
-  
 }
