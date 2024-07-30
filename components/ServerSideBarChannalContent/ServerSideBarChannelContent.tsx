@@ -9,16 +9,17 @@ import SearchServerChannel from "../Model/ServerModel/SearchServerChannel";
 import DeleteChannelModal from "../Model/ServerModel/DeleteChannelModal";
 import UpdateChannelInfoModel from "../Model/ServerModel/UpdateChannelInfoModel";
 import ListOfAllTheServerChannel from "../ListOfAllTheServerChannel";
+import UseSocketIO from "@/hooks/UseSocketIO";
 function ServerSideBarChannelContent() {
   const PathName = usePathname();
   const {
-    socket,
     FetchTheTextChannelOfTheServer,
     FetchTheAudioChannelOfTheServer,
     FetchTheVideoChannelOfTheServer,
 
     ServerInfoById,
   } = useContext(Context) as any;
+  const socket = UseSocketIO();
   const [Open, setOpen] = useState(false as boolean);
 
   const [ShowDeleteChannelModal, setShowDeleteChannelModal] = useState(
@@ -49,11 +50,11 @@ function ServerSideBarChannelContent() {
     FetchAllTheChannel();
   }, []);
   useEffect(() => {
-    socket.on("EmitNewChannelHasBeenCreated", () => {
+    socket?.on("EmitNewChannelHasBeenCreated", () => {
       FetchAllTheChannel();
     });
     return () => {
-      socket.off("EmitNewChannelHasBeenCreated");
+      socket?.off("EmitNewChannelHasBeenCreated");
     };
   }, []);
   useEffect(() => {

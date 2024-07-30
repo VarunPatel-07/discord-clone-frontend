@@ -8,12 +8,12 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 function Sidebar() {
   const Path = usePathname();
   const { push } = useRouter();
   const {
-    socket,
     setShow_Create_Server_PopUp,
     FetchTheIncludingServer,
     Including_Server_Info_Array,
@@ -23,14 +23,14 @@ function Sidebar() {
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
     false as boolean
   );
-
+  const socket = UseSocketIO();
   useEffect(() => {
-    socket.on("EmitNewServerCreated", (data) => {
+    socket?.on("EmitNewServerCreated", (data) => {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       FetchTheIncludingServer(AuthToken);
     });
     return () => {
-      socket.off("EmitNewServerCreated");
+      socket?.off("EmitNewServerCreated");
     };
   }, []);
   useEffect(() => {

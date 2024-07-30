@@ -11,3 +11,33 @@
 @import "./server-popup";
 @import "./sidebar";
 @import "./line-loder";
+@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,600");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #3b70fc;
+  flex-direction: column;
+}
+
+// color map
+$COLOR: (
+  prime: #3b70fc,
+  dark: #3c3c3c,
+  grey: #dddfe6,
+  white: #f9f9f9,
+);
+
+// color function
+@function color($color) {
+  @return map-get($COLOR, $color);
+}
+
+
+

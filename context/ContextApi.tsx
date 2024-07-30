@@ -8,15 +8,16 @@ import React, {
 } from "react";
 import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
-import io from "socket.io-client";
+
 import { promises } from "dns";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 interface ContextApiProps {
   //
   //? exporting all the state
   //
-  socket: any;
+
   Global_Server_Profile_Image: {
     Preview__Image__URL: string;
     File_Of_Image: string;
@@ -42,6 +43,13 @@ interface ContextApiProps {
   CurrentChatChannelInfo: object;
   setCurrentChatChannelInfo: React.Dispatch<React.SetStateAction<object>>;
   ChangingTheMemberRole: boolean;
+  FetchAllTheOtherUsers: Array<object>;
+  // setFetchAllTheOtherUsers: React.Dispatch<React.SetStateAction<object>>;
+  AllTheUsersRequestSendOrReceived: object;
+  // setAllTheUsersRequestSendOrReceived: React.Dispatch<
+  //   React.SetStateAction<object>
+  // >;
+
   //
   //? exporting all the functions
   //
@@ -133,6 +141,7 @@ interface ContextApiProps {
     serverId: string,
     channelId: string
   ) => void;
+  FetchTheUserOnTheBaseOfDemand: (AuthToken: string, userType: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -143,19 +152,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
   const Pathname = usePathname();
 
-  // if (!getCookie("User_Authentication_Token")) {
-  //   const userPath = Pathname.split("/");
-  //   if (!userPath.includes("login")) {
-  //     push("/login");
-  //     return;
-  //   }
-  //   return;
-  // }
-  const socket = io(Host, {
-    auth: {
-      token: getCookie("User_Authentication_Token") as string,
-    },
-  });
+  const socket = UseSocketIO();
   const initialState = [];
   //
   //
@@ -198,6 +195,17 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(
     false as boolean
   );
+
+  const [FetchAllTheOtherUsers, setFetchAllTheOtherUsers] = useState(
+    [] as Array<object>
+  );
+  const [
+    AllTheUsersRequestSendOrReceived,
+    setAllTheUsersRequestSendOrReceived,
+  ] = useState({
+    Send: [] as Array<object>,
+    Received: [] as Array<object>,
+  });
   //
   //
   // ? defining all the functions
@@ -296,7 +304,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
         if (response.data.success) {
           push(`/pages/server/${response.data.server_id}`);
-          socket.emit("newServerCreationOccurred", response.data.server_id);
+          socket?.emit("newServerCreationOccurred", response.data.server_id);
         }
       }
     } catch (error) {
@@ -317,7 +325,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const Data = response.data;
 
         if (Data.success) {
-          console.log(Data.server_info);
+          // console.log(Data.server_info);
           setIncluding_Server_Info_Array(Data.server_info);
         }
       }
@@ -416,7 +424,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         push(`/pages/server/${response.data.Server_Id}`);
-        socket.emit("newServerCreationOccurred", response.data);
+        socket?.emit("NewMemberJoinedUsingInvitationCode", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -441,7 +449,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         console.log(response.data);
-        socket.emit("newServerCreationOccurred", response.data);
+        socket?.emit("newServerCreationOccurred", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -472,7 +480,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         console.log(response.data);
-        socket.emit("newServerCreationOccurred", response.data);
+        socket?.emit("newServerCreationOccurred", response.data);
         setChangingTheMemberRole(false);
       }
     } catch (error) {
@@ -501,8 +509,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        socket.emit("newServerCreationOccurred", response.data.server_id);
-        socket.emit("MemberRemovedByAdmin", response.data);
+        socket?.emit("MemberRemovedByAdmin", response.data);
+        socket?.emit("newServerCreationOccurred", response.data.server_id);
         setChangingTheMemberRole(false);
       }
     } catch (error) {
@@ -532,7 +540,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
+        socket?.emit("NewChannelHasBeenCreated", response.data.server_id);
       }
     } catch (error) {
       console.log(error);
@@ -561,7 +569,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        socket.emit("NewChannelHasBeenCreated", response.data.server_id);
+        socket?.emit("NewChannelHasBeenCreated", response.data.server_id);
       }
     } catch (error) {}
   };
@@ -584,7 +592,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         console.log(response.data);
-        socket.emit("NewChannelHasBeenCreated");
+        socket?.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
       console.log(error);
@@ -611,7 +619,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        socket.emit("newServerCreationOccurred", response.data.server_id);
+        socket?.emit("newServerCreationOccurred", response.data.server_id);
       }
     } catch (error) {
       console.log(error);
@@ -671,7 +679,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket.emit("ServerHasBeenDeleted", response.data);
+        socket?.emit("ServerHasBeenDeleted", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -739,7 +747,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        console.log(response.data);
+        // console.log(response.data);
         setAllTheTextChannelsOfTheServer(response.data.text_channels);
       }
     } catch (error) {
@@ -761,7 +769,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        console.log(response.data);
+        // console.log(response.data);
         setAllTheAudioChannelsOfTheServer(response.data.audio_channels);
       }
     } catch (error) {
@@ -783,8 +791,37 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        console.log(response.data);
+        // console.log(response.data);
         setAllTheVideoChannelsOfTheServer(response.data.video_channels);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchTheUserOnTheBaseOfDemand = async (
+    AuthToken: string,
+    userType: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/follow/FetchAllTheTypeOfUserFollowers/${userType}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        if (response.data.It_Is_Pending) {
+          setAllTheUsersRequestSendOrReceived({
+            Send: response.data.RequestSent,
+            Received: response.data.RequestReceived,
+          });
+        } else {
+          setFetchAllTheOtherUsers(response.data.user);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -794,7 +831,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ? defining the context value
   //
   const context_value = {
-    socket,
     Global_Server_Profile_Image,
     setGlobal_Server_Profile_Image:
       setGlobal_Server_Profile_Image as React.Dispatch<
@@ -820,6 +856,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<
       React.SetStateAction<object>
     >,
+    FetchAllTheOtherUsers,
+    AllTheUsersRequestSendOrReceived,
+
     ChangingTheMemberRole,
     Login_User_Function,
     CheckUsersLoginStatus,
@@ -843,6 +882,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FetchTheVideoChannelOfTheServer,
     UpdateChannelInfoFunction,
     DeleteChannelFunction,
+    FetchTheUserOnTheBaseOfDemand,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

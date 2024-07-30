@@ -31,6 +31,7 @@ import DeleteServerAlertModal from "@/components/Model/ServerModel/DeleteServerA
 import ServerSideBarChannelContent from "@/components/ServerSideBarChannalContent/ServerSideBarChannelContent";
 import { getCookie } from "cookies-next";
 import ServerChatsPlayground from "@/components/ServerChatsSection/ServerChatsPlayground";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 function ServerDetails() {
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
@@ -38,7 +39,6 @@ function ServerDetails() {
   const { push } = useRouter();
   const Pathname = usePathname();
   const {
-    socket,
     CheckUsersLoginStatus,
     FetchingTheServerInfoByServerId,
     ServerInfoById,
@@ -96,38 +96,39 @@ function ServerDetails() {
     FetchingTheServerInfoByServerId(serverId, AuthToke);
     UserInfoFetchingFunction(AuthToke);
   }, []);
+  const socket = UseSocketIO();
 
   useEffect(() => {
-    socket.on("EmitNewMemberJoinedUsingInvitationCode", (data) => {
+    socket?.on("EmitNewMemberJoinedUsingInvitationCode", (data) => {
       if (!data.Server_Id) return;
       if (!data.allReadyInServer) {
-        const AuthToken = getCookie("User_Authentication_Token") as string;
+        const AuthToken = getCookie("User_Authentication_Token");
         if (!AuthToken) return;
         const serverId = data.Server_Id;
-
         FetchingTheServerInfoByServerId(serverId, AuthToken);
       }
     });
 
     return () => {
-      socket.off("EmitNewMemberJoinedUsingInvitationCode");
+      socket?.off("EmitNewMemberJoinedUsingInvitationCode");
     };
+  }, [socket]);
 
-    // socket
-  }, []);
   useEffect(() => {
-    socket.on("EmitNewServerCreated", (data) => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
-      const serverId = data.server_id;
+    socket?.on("EmitNewServerCreated", (data) => {
+      const AuthToken = getCookie("User_Authentication_Token");
+      const serverId = Pathname?.split("/")[3];
       if (!AuthToken && !serverId) return;
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });
+
     return () => {
-      socket.off("EmitNewServerCreated");
+      socket?.off("EmitNewServerCreated");
     };
-  }, []);
+  }, [socket]);
+
   useEffect(() => {
-    socket.on("EmitMemberRemovedByAdmin", async (data) => {
+    socket?.on("EmitThatMemberRemovedByAdmin", async (data) => {
       const Current_PathName = Pathname?.split("/");
       const response = await Check_The_User_Is_KickedOut(
         data,
@@ -150,7 +151,8 @@ function ServerDetails() {
         }
       }
     });
-    socket.on("EmitServerHasBeenDeleted", async (data) => {
+
+    socket?.on("EmitServerHasBeenDeleted", async (data) => {
       const Current_PathName = Pathname?.split("/");
       const response = await Check_Server_Is_Deleted(data, Current_PathName);
 
@@ -188,22 +190,24 @@ function ServerDetails() {
         }
       }
     });
-    return () => {
-      socket.off("EmitMemberRemovedByAdmin");
-      socket.off("EmitServerHasBeenDeleted");
-    };
-  }, []);
-  useEffect(() => {
-    socket.on("EmitUserStatusChanged", () => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
 
+    return () => {
+      socket?.off("EmitMemberRemovedByAdmin");
+      socket?.off("EmitServerHasBeenDeleted");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    socket?.on("EmitUserStatusChanged", () => {
+      const AuthToken = getCookie("User_Authentication_Token");
       const serverId = Pathname?.split("/")[3];
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });
+
     return () => {
-      socket.off("EmitUserStatusChanged");
+      socket?.off("EmitUserStatusChanged");
     };
-  });
+  }, [socket]);
 
   if (Discord_Loader) {
     return <GlobalDiscordLoader />;

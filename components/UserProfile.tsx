@@ -3,24 +3,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IoIosSettings, IoMdMic } from "react-icons/io";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 function UserProfile({ Position }: { Position: string }) {
-  const { socket, UserInfoFetchingFunction, UserInformation } = useContext(
+  const { UserInfoFetchingFunction, UserInformation } = useContext(
     Context
   ) as any;
+  const socket = UseSocketIO();
   useEffect(() => {
-    
     const AuthToken = getCookie("User_Authentication_Token") as string;
     UserInfoFetchingFunction(AuthToken);
   }, []);
   useEffect(() => {
-    socket.on("EmitUserStatusChanged", () => {
-      
+    socket?.on("EmitUserStatusChanged", () => {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       UserInfoFetchingFunction(AuthToken);
     });
     return () => {
-      socket.off("EmitUserStatusChanged");
+      socket?.off("EmitUserStatusChanged");
     };
   }, []);
   return (

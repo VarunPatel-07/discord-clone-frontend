@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchAllTheServerModal from "../Model/SearchAllTheServerModal";
+import UserProfile from "../UserProfile";
 
 function DashboardSideBar() {
   const [Open, setOpen] = useState(false as boolean);
@@ -15,9 +16,9 @@ function DashboardSideBar() {
   }, []);
   return (
     <>
-      <div className="w-[100%] h-[100%] bg-[#2a2d31]">
-        <div>
-          <div className="search-bar w-[100%] bg-[#2F3136]  px-[12px] py-[15px] sticky top-0 left-0">
+      <div className="w-[100%] h-[100%] bg-[#2a2d31] relative">
+        <div className="w-[100%] h-[100%]">
+          <div className="search-bar  shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] w-[100%] bg-[#2F3136]  px-[12px] py-[10px] absolute top-0 left-0">
             <div className="relative" onClick={() => setOpen((Open) => !Open)}>
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -39,13 +40,15 @@ function DashboardSideBar() {
               <input
                 required
                 placeholder="Search"
-                className="block w-full px-4 py-[5px] ps-10  text-gray-900 border border-gray-300 rounded-lg bg-gray-50  outline-none  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 fs-14 h-[30px]"
+                className="block w-full px-4 py-[5px] ps-10  text-gray-900 border border-gray-300 rounded-lg bg-gray-50  outline-none  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 fs-14 h-[25px]"
                 id="default-search"
                 type="search"
                 autoComplete="off"
               />
             </div>
           </div>
+
+          <UserProfile Position="absolute bottom-[0px] left-[0px]"></UserProfile>
         </div>
       </div>
       <SearchAllTheServerModal Open={Open} setOpen={setOpen} />

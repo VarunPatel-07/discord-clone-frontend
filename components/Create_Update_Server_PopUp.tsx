@@ -27,7 +27,7 @@ function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
   if (Pop_Up_Mode == "Create-PopUp-Mode" && Show_Create_Server_PopUp == true) {
     return (
       <>
-        <div className="absolute top-left-50 w-full h-full bg-back-opacity-10">
+        <div className="absolute top-left-50 w-full h-full bg-back-opacity-10 z-20">
           <div className="w-100 h-100 flex items-center justify-center">
             <div className="server-popup-form-container ">
               <div className="logo-container capitalize global-font-roboto fs-20">

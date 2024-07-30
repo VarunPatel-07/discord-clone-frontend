@@ -76,3 +76,55 @@
 .hover-parent-to-change-child:hover .show-status-on-hover {
   transform: translateY(-22px);
 }
+
+.user-profile-card {
+  background: #fff
+    url("https://storage.googleapis.com/chydlx/codepen/minimalist-profile-card/card-bg.jpg")
+    top -10% center no-repeat;
+  background-size: contain;
+  border-radius: 10px;
+  box-shadow: 0 0.5rem 0.5rem -0.25rem rgba(#000, 0.2);
+  text-align: center;
+  padding: 30px 10px;
+  img {
+    background-color: color(grey);
+    height: 120px;
+    width: 120px;
+    border-radius: 50%;
+    margin: auto auto 15px;
+    display: block;
+  }
+  h1 {
+    font-size: 22px;
+    margin: 10px auto 0;
+    letter-spacing: 1px;
+  }
+  h2 {
+    margin: auto;
+    color: darken(color(grey), 15);
+    font-weight: 300;
+    font-size: 14px;
+  }
+  .button {
+    display: block;
+    text-decoration: none;
+    background: color(prime);
+    color: color(white);
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 200px;
+    transition: 0.2s;
+    span {
+      font-size: 20px;
+      line-height: 1;
+      vertical-align: top;
+    }
+    &:hover {
+      background: darken(color(prime), 7);
+    }
+  }
+}
