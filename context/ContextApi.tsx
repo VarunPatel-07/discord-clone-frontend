@@ -44,12 +44,11 @@ interface ContextApiProps {
   setCurrentChatChannelInfo: React.Dispatch<React.SetStateAction<object>>;
   ChangingTheMemberRole: boolean;
   FetchAllTheOtherUsers: Array<object>;
-  // setFetchAllTheOtherUsers: React.Dispatch<React.SetStateAction<object>>;
-  AllTheUsersRequestSendOrReceived: object;
-  // setAllTheUsersRequestSendOrReceived: React.Dispatch<
-  //   React.SetStateAction<object>
-  // >;
 
+  AllTheSendRequestOfTheUser: Array<object>;
+  AllTheReceivedRequestOfTheUser: Array<object>;
+  AllTheFollowerOfTheUser: Array<object>;
+  AllTheFollowingOfTheUser: Array<object>;
   //
   //? exporting all the functions
   //
@@ -142,6 +141,10 @@ interface ContextApiProps {
     channelId: string
   ) => void;
   FetchTheUserOnTheBaseOfDemand: (AuthToken: string, userType: string) => void;
+  FetchingAllTheSentRequestOfUser: (AuthToken: string) => void;
+  FetchingAllTheReceivedRequestOfUser: (AuthToken: string) => void;
+  FetchAllTheFollowerOfTheUser: (AuthToken: string) => void;
+  FetchAllTheFollowingOfTheUser: (AuthToken: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -150,7 +153,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { push } = useRouter();
 
   const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
-  const Pathname = usePathname();
 
   const socket = UseSocketIO();
   const initialState = [];
@@ -199,13 +201,17 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [FetchAllTheOtherUsers, setFetchAllTheOtherUsers] = useState(
     [] as Array<object>
   );
-  const [
-    AllTheUsersRequestSendOrReceived,
-    setAllTheUsersRequestSendOrReceived,
-  ] = useState({
-    Send: [] as Array<object>,
-    Received: [] as Array<object>,
-  });
+  const [AllTheSendRequestOfTheUser, setAllTheSendRequestOfTheUser] = useState(
+    [] as Array<object>
+  );
+  const [AllTheReceivedRequestOfTheUser, setAllTheReceivedRequestOfTheUser] =
+    useState([] as Array<object>);
+  const [AllTheFollowerOfTheUser, setAllTheFollowerOfTheUser] = useState(
+    [] as Array<object>
+  );
+  const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
+    [] as Array<object>
+  );
   //
   //
   // ? defining all the functions
@@ -814,14 +820,104 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       console.log(response.data);
       if (response.data.success) {
-        if (response.data.It_Is_Pending) {
-          setAllTheUsersRequestSendOrReceived({
-            Send: response.data.RequestSent,
-            Received: response.data.RequestReceived,
-          });
-        } else {
-          setFetchAllTheOtherUsers(response.data.user);
-        }
+        setFetchAllTheOtherUsers(response.data.user);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchingAllTheSentRequestOfUser = async (AuthToken: string) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/follow/FetchAllTheSentRequestsOfUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        setAllTheSendRequestOfTheUser(response.data.sent_requests);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchingAllTheReceivedRequestOfUser = async (AuthToken: string) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/follow/FetchAllTheReceivedRequestsOfUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        setAllTheReceivedRequestOfTheUser(response.data.received_requests);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchAllTheFollowerOfTheUser = async (AuthToken: string) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/follow/FetchAllTheFollowersOfUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheFollowerOfTheUser(response.data.followers);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const FetchAllTheFollowingOfTheUser = async (AuthToken: string) => {
+    try {
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/follow/FetchAllTheFollowingOfUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheFollowingOfTheUser(response.data.following);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const SendTheFollowRequestToTheUser = async (
+    AuthToken: string,
+    UserYouWantToFollow: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("UserYouWantToFollow", UserYouWantToFollow);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/follow/SendFollowRequest`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      // todo
+      if (response.data.success) {
+        //  todo
       }
     } catch (error) {
       console.log(error);
@@ -857,9 +953,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       React.SetStateAction<object>
     >,
     FetchAllTheOtherUsers,
-    AllTheUsersRequestSendOrReceived,
-
+    AllTheSendRequestOfTheUser,
+    AllTheReceivedRequestOfTheUser,
     ChangingTheMemberRole,
+    AllTheFollowerOfTheUser,
+    AllTheFollowingOfTheUser,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -883,6 +981,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     UpdateChannelInfoFunction,
     DeleteChannelFunction,
     FetchTheUserOnTheBaseOfDemand,
+    FetchingAllTheSentRequestOfUser,
+    FetchingAllTheReceivedRequestOfUser,
+    FetchAllTheFollowerOfTheUser,
+    FetchAllTheFollowingOfTheUser,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

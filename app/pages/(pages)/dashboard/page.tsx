@@ -10,6 +10,8 @@ import DashboardSideBar from "@/components/Sidebar/DashboardSideBar";
 import { BsFillPersonFill } from "react-icons/bs";
 import ShowAllTheUserInTheDashboard from "@/components/ShowAllTheUserInTheDashboard";
 import { getCookie } from "cookies-next";
+import { useDebounce } from "@/hooks/debounceHook";
+import UsersFollowerAndFollowingComponent from "@/components/UsersFollowerAndFollowingComponent";
 
 function Dashboard() {
   const { push } = useRouter();
@@ -20,12 +22,21 @@ function Dashboard() {
     FetchAllTheOtherUsers,
     AllTheUsersRequestSendOrReceived,
   } = useContext(Context) as any;
-  const [UsersFriendType, setUserFriendType] = useState("" as string);
-  const [ShowLoader, setShowLoader] = useState(true as boolean);
+  //
+  //
+  //
+  const [UsersFriendType, setUserFriendType] = useState("all" as string);
+  const [ShowLoader, setShowLoader] = useState(false as boolean);
+  //
+  //
+  //
   // ? defining all the state
 
   //   using the useState
   const [Discord_Loader, setDiscord_Loader] = useState(true);
+  //
+  //
+  //
   //   ? using the useEffect
   useEffect(() => {
     const checkStatus = async () => {
@@ -43,22 +54,29 @@ function Dashboard() {
     };
 
     checkStatus();
-  }, []);
-
-  const ClickTheToFetchTheFriendType = async (userState) => {
     setShowLoader(true);
-    setUserFriendType(userState);
-    if (userState === "addFriend") {
-      setShowLoader(false);
-    } else {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    fetchingDataWithDebounce(AuthToken, "all");
+  }, []);
+  const fetchingDataWithDebounce = useDebounce(
+    async (AuthToken: string, userState: string) => {
+      console.log("fetching the data");
       await FetchTheUserOnTheBaseOfDemand(AuthToken, userState);
       setShowLoader(false);
+    },
+    350
+  );
+  const ClickTheToFetchTheFriendType = async (userState: string) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    setShowLoader(true);
+    setUserFriendType(userState);
+    if (userState === "pendingRequest") {
+      setShowLoader(false);
+    } else {
+      fetchingDataWithDebounce(AuthToken, userState);
     }
   };
-  useEffect(() => {
-    setUserFriendType("all");
-  }, []);
+
   if (Discord_Loader) {
     return <GlobalDiscordLoader />;
   } else {
@@ -119,16 +137,16 @@ function Dashboard() {
                           </button>
                           <button
                             className={`text-white  transition px-[5px] py-[1px] rounded-[5px] ${
-                              UsersFriendType === "pending"
+                              UsersFriendType === "pendingRequest"
                                 ? "bg-[#2a2d31]"
                                 : "hover:bg-[#2a2d31]"
                             }`}
                             onClick={() =>
-                              ClickTheToFetchTheFriendType("pending")
+                              ClickTheToFetchTheFriendType("pendingRequest")
                             }
                           >
                             <span className="capitalize global-font-roboto text-[15px]  font-medium">
-                              pending
+                              pending Request
                             </span>
                           </button>
                           <button
@@ -145,20 +163,6 @@ function Dashboard() {
                               blocked
                             </span>
                           </button>
-                          <button
-                            className={` transition px-[5px] py-[1px] rounded-[5px] ${
-                              UsersFriendType === "addFriend"
-                                ? "bg-green-700 text-white "
-                                : " text-green-500 hover:bg-green-700 hover:text-white"
-                            }`}
-                            onClick={() =>
-                              ClickTheToFetchTheFriendType("addFriend")
-                            }
-                          >
-                            <span className="capitalize global-font-roboto text-[15px]  font-medium">
-                              addFriends
-                            </span>
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -171,7 +175,9 @@ function Dashboard() {
                             currentPage={UsersFriendType}
                           />
                         </div>
-                        <div className="w-[32%] border-l-[1px] border-[rgb(255,255,255,0.1)]"></div>
+                        <div className="w-[32%] border-l-[1px] border-[rgb(255,255,255,0.1)] relative overflow-hidden">
+                          <UsersFollowerAndFollowingComponent />
+                        </div>
                       </div>
                     </div>
                   </div>
