@@ -12,8 +12,10 @@ import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
 import FollowerNotFound from "./FollowerNotFound";
 import NoFollowingFound from "./NoFollowingFound";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 function UsersFollowerAndFollowingComponent() {
+  const socket = UseSocketIO();
   const [ShowFollowerMoreActionModal, setShowFollowerMoreActionModal] =
     useState(false as boolean);
   //
@@ -84,8 +86,14 @@ function UsersFollowerAndFollowingComponent() {
   //
   //
   useEffect(() => {
+    socket?.on("EmitYourFollowRequestHasBeenAccepted", async () => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      await FetchAllTheFollowingOfTheUser(AuthToken);
+    });
+  }, [socket]);
+  useEffect(() => {
     setShowLoader(true);
-    FetchTheFollowingDataUsingDebounce;
+    FetchTheFollowingDataUsingDebounce();
   }, []);
 
   return (

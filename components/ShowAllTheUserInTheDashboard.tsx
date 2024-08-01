@@ -7,6 +7,9 @@ import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
 import MouseLoader from "./MouseLoader";
 import RequiredInfoNotFoundSection from "./RequiredInfoNotFoundSection";
+import PendingRequestUserCard from "./PendingRequestUserCard";
+import { ScrollArea } from "./ui/scroll-area";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
 function ShowAllTheUserInTheDashboard({
   ShowLoader,
@@ -25,7 +28,13 @@ function ShowAllTheUserInTheDashboard({
     AllTheReceivedRequestOfTheUser,
     FetchingAllTheSentRequestOfUser,
     FetchingAllTheReceivedRequestOfUser,
+
+    setGlobalTopBarAlertInformation,
+
+    setGlobalFollowRequestNotification,
   } = useContext(Context) as any;
+
+  const socket = UseSocketIO();
   //
   //
   //
@@ -48,6 +57,85 @@ function ShowAllTheUserInTheDashboard({
     setShowLoadingBar(true);
     FetchTheSentRequestUsingDebounce();
   }, []);
+
+  //
+  // ? all the code related to the socket io start from here
+  //
+  useEffect(() => {
+    socket?.on("EmitA_FollowRequestHasBeenWithdrawn", async () => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      await FetchingAllTheSentRequestOfUser(AuthToken);
+      await FetchingAllTheReceivedRequestOfUser(AuthToken);
+    });
+    socket?.on(
+      "EmitNewFollowRequestHasBeenSent",
+      async (data: {
+        success: boolean;
+        message: string;
+        request_sender_info: {
+          id: string;
+          name: string;
+          UserName: string;
+          Profile_Picture: string;
+        };
+        request_receiver_info: {
+          id: string;
+          name: string;
+          UserName: string;
+          Profile_Picture: string;
+        };
+      }) => {
+        const AuthToken = getCookie("User_Authentication_Token") as string;
+        console.log("EmitNewFollowRequestHasBeenSent", data);
+        const sender = data.request_sender_info;
+        const receiver = data.request_receiver_info;
+        if (!sender || !receiver) return;
+        const current_user_info = JSON.parse(getCookie("User__Info") as string);
+        if (receiver.id === current_user_info.id) {
+          setGlobalFollowRequestNotification({
+            ShowAlert: true as boolean,
+            ProfileImage: sender.Profile_Picture as string,
+            FullName: sender.name as string,
+            UserName: sender.UserName as string,
+            Message: '" wants to follow' as string,
+            Type: "FOLLOW" as string,
+          });
+          setTimeout(() => {
+            setGlobalFollowRequestNotification({
+              ShowAlert: false as boolean,
+              ProfileImage: "" as string,
+              FullName: "" as string,
+              UserName: "" as string,
+              Message: "" as string,
+              Type: "" as string,
+            });
+          }, 2500);
+        }
+        await FetchingAllTheSentRequestOfUser(AuthToken);
+        await FetchingAllTheReceivedRequestOfUser(AuthToken);
+      }
+    );
+    socket?.on("EmitA_FollowRequestHasBeenIgnored", async () => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      await FetchingAllTheSentRequestOfUser(AuthToken);
+      await FetchingAllTheReceivedRequestOfUser(AuthToken);
+    });
+    socket?.on("EmitYourFollowRequestHasBeenAccepted", async () => {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      await FetchingAllTheSentRequestOfUser(AuthToken);
+      await FetchingAllTheReceivedRequestOfUser(AuthToken);
+    });
+    return () => {
+      socket?.off("EmitA_FollowRequestHasBeenWithdrawn");
+      socket?.off("EmitNewFollowRequestHasBeenSent");
+      socket?.off("EmitA_FollowRequestHasBeenIgnored");
+      socket?.off("EmitYourFollowRequestHasBeenAccepted");
+    };
+  }, [socket]);
+  //
+  // ? all the code related to the socket io ended from here
+  //
+
   const FetchTheSentRequest = () => {
     setShowLoadingBar(true);
     FetchTheSentRequestUsingDebounce();
@@ -62,7 +150,7 @@ function ShowAllTheUserInTheDashboard({
     return (
       <div className="w-[100%] h-[100%] pt-[45px]">
         <div className="flex flex-col w-[100%] h-[100%] relative">
-          <div className="w-[100%] h-[100%] flex flex-col gap-[10px] mx-auto px-[15px] py-[25px] overflow-auto no-scrollbar">
+          <div className="w-[100%] h-[100%] flex flex-col gap-[10px] mx-auto px-[15px] pt-[25px]  no-scrollbar">
             <Tabs
               defaultValue="SendRequest"
               className="w-[100%] h-[100%] flex flex-col items-center "
@@ -91,17 +179,20 @@ function ShowAllTheUserInTheDashboard({
                     {AllTheSendRequestOfTheUser.length === 0 ? (
                       <RequiredInfoNotFoundSection />
                     ) : (
-                      <div className="w-[100%] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 justify-center gap-[30px]  mx-auto px-[15px] py-[25px] overflow-auto no-scrollbar">
-                        {AllTheSendRequestOfTheUser.map((user: any) => {
-                          return (
-                            <UsersProfileCard
-                              key={user.id}
-                              user={user}
-                              currentPage={currentPage}
-                            />
-                          );
-                        })}
-                      </div>
+                      <ScrollArea className="w-[100%] h-[100%]">
+                        <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
+                          {AllTheSendRequestOfTheUser?.map((user: any) => {
+                            return (
+                              <PendingRequestUserCard
+                                key={user.id}
+                                user={user}
+                                currentPage={currentPage}
+                                requestSent={true}
+                              />
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
                     )}
                   </div>
                 )}
@@ -117,17 +208,20 @@ function ShowAllTheUserInTheDashboard({
                     {AllTheReceivedRequestOfTheUser.length === 0 ? (
                       <RequiredInfoNotFoundSection />
                     ) : (
-                      <div className="w-[100%] grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 justify-center gap-[30px]  mx-auto px-[15px] py-[25px] overflow-auto no-scrollbar">
-                        {AllTheReceivedRequestOfTheUser.map((user: any) => {
-                          return (
-                            <UsersProfileCard
-                              key={user.id}
-                              user={user}
-                              currentPage={currentPage}
-                            />
-                          );
-                        })}
-                      </div>
+                      <ScrollArea className="w-[100%] h-[100%]">
+                        <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
+                          {AllTheReceivedRequestOfTheUser?.map((user: any) => {
+                            return (
+                              <PendingRequestUserCard
+                                key={user.id}
+                                user={user}
+                                currentPage={currentPage}
+                                requestSent={false}
+                              />
+                            );
+                          })}
+                        </div>
+                      </ScrollArea>
                     )}
                   </div>
                 )}
@@ -174,6 +268,7 @@ function ShowAllTheUserInTheDashboard({
                     key={user.id}
                     user={user}
                     currentPage={currentPage}
+                    SentRequest={AllTheSendRequestOfTheUser}
                   />
                 );
               })}

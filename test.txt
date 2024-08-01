@@ -1,112 +1,18 @@
-{/* {ServerInfoById?.members?.map((MemberInfo) => {
-                            const isAllowed =
-                              ["ADMIN", "MODERATOR", "GUEST"].includes(
-                                MemberInfo.role
-                              ) && MemberInfo.userId === UserInformation.id;
-                            const isAdmin =
-                              ["ADMIN"].includes(MemberInfo.role) &&
-                              MemberInfo.userId === UserInformation.id;
-                            const isAuthorized = [
-                              "MODERATOR",
-                              "ADMIN",
-                            ].includes(MemberInfo.role);
-
-                            return (
-                              <React.Fragment key={MemberInfo.userId}>
-                                {isAllowed && (
-                                  <DropdownMenuItem
-                                    className="p-0 bg-black"
-                                    onClick={() => {
-                                      setShowInviteMemberModal(true);
-                                      setCopy(false);
-                                    }}
-                                  >
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-indigo-600 hover:text-indigo-800 py-[10px] px-[12px] ">
-                                      <span>invite people</span>
-                                      <span className="fs-20">
-                                        <BiUserPlus />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                                {isAdmin && (
-                                  <DropdownMenuItem className="p-0">
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                      <span>server settings</span>
-                                      <span className="fs-20">
-                                        <IoIosSettings />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                                {isAdmin && (
-                                  <DropdownMenuItem className="p-0">
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                      <span>manage members</span>
-                                      <span className="fs-18">
-                                        <FaUserFriends />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                                {isAuthorized && (
-                                  <DropdownMenuItem className="p-0">
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                      <span>create channel</span>
-                                      <span className="fs-18">
-                                        <FaCirclePlus />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                                {isAuthorized && (
-                                  <DropdownMenuSeparator className="bg-[#2F3136] m-0" />
-                                )}
-                                {isAdmin && (
-                                  <DropdownMenuItem className="p-0">
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
-                                      <span>delete server</span>
-                                      <span className="fs-16">
-                                        <FaTrash />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                                {!isAdmin && (
-                                  <DropdownMenuItem className="py-0">
-                                    <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
-                                      <span>leave server</span>
-                                      <span className="fs-16">
-                                        <RxExit />
-                                      </span>
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                              </React.Fragment>
-                            );
-                          })} */}
 
 
 
 
-                          {id: '0dcf52a8-1f24-47f3-9da6-32306d0635b4', name: 'the batman', type: 'AUDIO', userId: '3753e1e0-5121-41da-98fc-197177d4e545', serverId: '1396e884-b102-4d6e-ad71-063efa20bccd', …}
-
-
-                          id
-: 
-"d4fa157f-19e9-4ef7-af1b-f824adbca52f"
-name
-: 
-"general"
-serverId
-: 
-"1396e884-b102-4d6e-ad71-063efa20bccd"
-type
-: 
-"TEXT"
-updatedAt
-: 
-"2024-07-22T08:32:51.723Z"
-userId
-: 
-"3753e1e0-5121-41da-98fc-197177d4e545"
+ success: true,
+        message: "Follow request sent successfully",
+        request_sender_info: {
+          id: request_sender.id,
+          name: request_sender.FullName,
+          UserName: request_sender.UserName,
+          Profile_Picture: request_sender.Profile_Picture,
+        },
+        request_receiver_info: {
+          id: request_receiver.id,
+          name: request_receiver.FullName,
+          UserName: request_receiver.UserName,
+          Profile_Picture: request_receiver.Profile_Picture,
+        },

@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { promises } from "dns";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import UseSocketIO from "@/hooks/UseSocketIO";
+import { Type } from "lucide-react";
 
 interface ContextApiProps {
   //
@@ -49,6 +50,22 @@ interface ContextApiProps {
   AllTheReceivedRequestOfTheUser: Array<object>;
   AllTheFollowerOfTheUser: Array<object>;
   AllTheFollowingOfTheUser: Array<object>;
+  GlobalTopBarAlertInformation: {
+    ShowAlert: boolean;
+    Message: string;
+  };
+  setGlobalTopBarAlertInformation: React.Dispatch<React.SetStateAction<object>>;
+  GlobalFollowRequestNotification: {
+    ShowAlert: boolean;
+    ProfileImage: string;
+    FullName: string;
+    UserName: string;
+    Message: string;
+    Type: string;
+  };
+  setGlobalFollowRequestNotification: React.Dispatch<
+    React.SetStateAction<object>
+  >;
   //
   //? exporting all the functions
   //
@@ -145,6 +162,13 @@ interface ContextApiProps {
   FetchingAllTheReceivedRequestOfUser: (AuthToken: string) => void;
   FetchAllTheFollowerOfTheUser: (AuthToken: string) => void;
   FetchAllTheFollowingOfTheUser: (AuthToken: string) => void;
+  SendTheFollowRequestToTheUser: (
+    AuthToken: string,
+    UserYouWantToFollow: string
+  ) => void;
+  WithDrawTheSentFollowRequest: (AuthToken: string, receiverId: string) => void;
+  IgnoreReceivedFollowRequest: (AuthToken: string, senderId: string) => void;
+  AcceptFollowRequestFunction: (AuthToken: string, receiverId: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -182,6 +206,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     showAlert: false as boolean,
     title: "" as string,
   });
+  const [GlobalTopBarAlertInformation, setGlobalTopBarAlertInformation] =
+    useState({
+      ShowAlert: false as boolean,
+      Message: "" as string,
+    });
   const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] =
     useState([] as Array<object>);
   const [AllTheAudioChannelsOfTheServer, setAllTheAudioChannelsOfTheServer] =
@@ -212,6 +241,16 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
     [] as Array<object>
   );
+  const [GlobalFollowRequestNotification, setGlobalFollowRequestNotification] =
+    useState({
+      ShowAlert: false as boolean,
+      ProfileImage: "" as string,
+      FullName: "" as string,
+      UserName: "" as string,
+      Message: "" as string,
+      Type: "" as string,
+    });
+
   //
   //
   // ? defining all the functions
@@ -837,7 +876,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
+
       if (response.data.success) {
         setAllTheSendRequestOfTheUser(response.data.sent_requests);
       }
@@ -905,7 +944,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       const formData = new FormData();
-      formData.append("UserYouWantToFollow", UserYouWantToFollow);
+      formData.append("UserIdYouWantToFollow", UserYouWantToFollow);
       const response = await axios({
         method: "post",
         url: `${Host}/app/api/follow/SendFollowRequest`,
@@ -915,9 +954,103 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
-      // todo
+
+      console.log(response.data);
       if (response.data.success) {
-        //  todo
+        socket?.emit("NewFollowRequestHasBeenSent", response.data);
+        setGlobalTopBarAlertInformation({
+          ShowAlert: true,
+          Message: response.data.message,
+        });
+        setTimeout(() => {
+          setGlobalTopBarAlertInformation({
+            ShowAlert: false,
+            Message: "",
+          });
+        }, 2500);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const WithDrawTheSentFollowRequest = async (
+    AuthToken: string,
+    receiverId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const formData = new FormData();
+      formData.append("receiverId", receiverId);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/WithdrawTheFollowRequest`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        socket?.emit("A_FollowRequestHasBeenWithdrawn");
+        setGlobalTopBarAlertInformation({
+          ShowAlert: true,
+          Message: response.data.message,
+        });
+        setTimeout(() => {
+          setGlobalTopBarAlertInformation({
+            ShowAlert: false,
+            Message: "",
+          });
+        }, 2500);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const IgnoreReceivedFollowRequest = async (
+    AuthToken: string,
+    senderId: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const formData = new FormData();
+      formData.append("senderId", senderId);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/IgnoreTheFollowRequestFromTheUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        socket?.emit("A_FollowRequestHasBeenIgnored");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const AcceptFollowRequestFunction = async (
+    AuthToken: string,
+    receiverId: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("receiverId", receiverId);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/AcceptTheFollowRequestOfTheUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        socket?.emit("YourFollowRequestHasBeenAccepted", response.data);
       }
     } catch (error) {
       console.log(error);
@@ -958,6 +1091,16 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChangingTheMemberRole,
     AllTheFollowerOfTheUser,
     AllTheFollowingOfTheUser,
+    GlobalTopBarAlertInformation,
+    setGlobalTopBarAlertInformation:
+      setGlobalTopBarAlertInformation as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    GlobalFollowRequestNotification,
+    setGlobalFollowRequestNotification:
+      setGlobalFollowRequestNotification as React.Dispatch<
+        React.SetStateAction<object>
+      >,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -985,6 +1128,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FetchingAllTheReceivedRequestOfUser,
     FetchAllTheFollowerOfTheUser,
     FetchAllTheFollowingOfTheUser,
+    SendTheFollowRequestToTheUser,
+    WithDrawTheSentFollowRequest,
+    IgnoreReceivedFollowRequest,
+    AcceptFollowRequestFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };
