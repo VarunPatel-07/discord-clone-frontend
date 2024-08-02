@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 import { useDebounce } from "@/hooks/debounceHook";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
+import SpinnerComponent from "./Loader/SpinnerComponent";
 function PendingRequestUserCard({
   user,
   currentPage,
@@ -15,6 +16,10 @@ function PendingRequestUserCard({
   //
   // ? using The Context Api to get the function
   //
+  const [ShowIgnoreLoader, setShowIgnoreLoader] = useState(false as boolean);
+  const [ShowAcceptLoader, setShowAcceptLoader] = useState(false as boolean);
+  const [ShowLoader, setShowLoader] = useState(false as boolean);
+
   const {
     WithDrawTheSentFollowRequest,
     IgnoreReceivedFollowRequest,
@@ -28,27 +33,27 @@ function PendingRequestUserCard({
   const useDebounceToIgnoreRequest = useDebounce(async (senderId) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     await IgnoreReceivedFollowRequest(AuthToken, senderId);
-    setShowLoader(false);
+    setShowIgnoreLoader(false);
   }, 350);
   const useDebounceHookToAcceptRequest = useDebounce(async (senderId) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     await AcceptFollowRequestFunction(AuthToken, senderId);
-    setShowLoader(false);
+    setShowAcceptLoader(false);
   }, 350);
   //
   //
-  const [ShowLoader, setShowLoader] = useState(false as boolean);
+
   //
   const WithDrawRequest = async (UserId) => {
     setShowLoader(true);
     UseDebounceToWithDrawRequest(UserId);
   };
   const IgnoreRequest = async (userId) => {
-    setShowLoader(true);
+    setShowIgnoreLoader(true);
     useDebounceToIgnoreRequest(userId);
   };
   const AcceptRequest = async (userId) => {
-    setShowLoader(true);
+    setShowAcceptLoader(true);
     useDebounceHookToAcceptRequest(userId);
   };
   //
@@ -82,7 +87,7 @@ function PendingRequestUserCard({
               className="bg-transparent border-[1px] border-red-500  transition-all  px-[15px] py-[8px] w-fit text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-red-500 hover:bg-red-700 hover:text-white hover:border-red-700 capitalize"
               onClick={() => WithDrawRequest(user.id)}
             >
-              {ShowLoader ? "withdrawing..." : "withdraw"}
+              {ShowLoader ? <SpinnerComponent /> : "withdraw"}
             </button>
           ) : (
             <>
@@ -90,13 +95,13 @@ function PendingRequestUserCard({
                 className="bg-transparent border-[1px] border-white  transition-all  px-[15px] py-[8px] w-fit text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-white hover:text-black capitalize  "
                 onClick={() => IgnoreRequest(user.id)}
               >
-                {ShowLoader ? "loading..." : "ignore"}
+                {ShowIgnoreLoader ? <SpinnerComponent /> : "ignore"}
               </button>
               <button
                 className="bg-blue-500 transition-all  px-[15px] py-[8px] w-fit text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-blue-700 hover:text-white capitalize  border-[1px] border-blue-500 hover:border-blue-700"
                 onClick={() => AcceptRequest(user.id)}
               >
-                {ShowLoader ? "sending..." : "accept"}
+                {ShowAcceptLoader ? <SpinnerComponent /> : "accept"}
               </button>
             </>
           )}

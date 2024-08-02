@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import Link from "next/link";
 // importing the css file
 

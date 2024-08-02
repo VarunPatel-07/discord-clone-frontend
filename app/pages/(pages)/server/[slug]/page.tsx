@@ -19,7 +19,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FaCirclePlus } from "react-icons/fa6";
 import { RxExit } from "react-icons/rx";
 import { toast } from "sonner";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import io from "socket.io-client";
 
 import InviteFriendsModel from "@/components/Model/ServerModel/InviteFriendsModel";
@@ -45,7 +45,7 @@ function ServerDetails() {
     UserInfoFetchingFunction,
     UserInformation,
     Check_The_User_Is_KickedOut,
-    setGlobalAlertInformation,
+    setGlobalSuccessNotification,
     Check_Server_Is_Deleted,
   } = useContext(Context) as any;
 
@@ -137,14 +137,16 @@ function ServerDetails() {
 
       if (response?.userKickedOut) {
         if (response?.isInTheCurrentServer) {
-          setGlobalAlertInformation({
-            showAlert: true,
-            title: `You have been removed from the "${response?.serverName}" server`,
+          setGlobalSuccessNotification({
+            ShowAlert: true,
+            Message: `You have been removed from the "${response?.serverName}" server`,
+            Type: "REMOVE_FROM_SERVER",
           });
           setTimeout(() => {
-            setGlobalAlertInformation({
-              showAlert: false,
-              title: "",
+            setGlobalSuccessNotification({
+              ShowAlert: false,
+              Message: "",
+              Type: "NORMAL",
             });
           }, 2500);
           push("/pages/dashboard");
@@ -159,30 +161,30 @@ function ServerDetails() {
       if (response?.serverHasBeenDeleted) {
         if (response?.userIsInTheCurrentServer) {
           if (response?.userIsAdmin) {
-            setGlobalAlertInformation({
-              showAlert: true,
-              title: `You have deleted the Server`,
-              message: `The Server "${response?.serverName}" has been deleted by You`,
+            setGlobalSuccessNotification({
+              ShowAlert: true,
+              Message: `You Deleted the "${response?.serverName}" server Successfully`,
+              Type: "REMOVE_FROM_SERVER",
             });
             setTimeout(() => {
-              setGlobalAlertInformation({
-                showAlert: false,
-                title: "",
-                message: "",
+              setGlobalSuccessNotification({
+                ShowAlert: false,
+                Message: "",
+                Type: "NORMAL",
               });
             }, 2500);
             push("/pages/dashboard");
           } else {
-            setGlobalAlertInformation({
-              showAlert: true,
-              title: `The Server has been deleted`,
-              message: `The Server "${response?.serverName}" has been deleted by the Admin`,
+            setGlobalSuccessNotification({
+              ShowAlert: true,
+              Message: `You have been removed from the "${response?.serverName}" server`,
+              Type: "REMOVE_FROM_SERVER",
             });
             setTimeout(() => {
-              setGlobalAlertInformation({
-                showAlert: false,
-                title: "",
-                message: "",
+              setGlobalSuccessNotification({
+                ShowAlert: false,
+                Message: "",
+                Type: "NORMAL",
               });
             }, 2500);
             push("/pages/dashboard");

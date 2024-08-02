@@ -1,6 +1,10 @@
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 import { Avatar } from "@/components/ui/avatar";
+import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import React, { useEffect, useRef } from "react";
+import { getCookie } from "cookies-next";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 function FollowerMoreActionModal({
   userInfo,
@@ -16,7 +20,14 @@ function FollowerMoreActionModal({
   ShowModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  //
+  const { RemoveASpecificFollowerFunction } = useContext(Context) as any;
+  const [Loader, setLoader] = useState(false as boolean);
+  //
+  //
   const RefBox = useRef<HTMLDivElement>(null);
+  //
+  //
   useEffect(() => {
     // Handler to call on outside click
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,6 +43,23 @@ function FollowerMoreActionModal({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  //
+  //
+  const RemovingAnFollowerUsingDebounce = useDebounce(async (userId) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await RemoveASpecificFollowerFunction(AuthToken, userId);
+    setLoader(false);
+    setShowModal(false);
+  }, 350);
+  //
+  //
+  const RemoveAnFollower = async (user_id) => {
+    setLoader(true);
+    RemovingAnFollowerUsingDebounce(user_id);
+  };
+  //
+  //
+  //
   return (
     <div
       className={`show-more-action-modal w-[100%]  h-[100%]  bg-[rgba(0,0,0,0.15)] backdrop-blur-[3px] absolute bottom-0 left-0 flex flex-col justify-end py-[10px] transition-all duration-[0.1s]  ${
@@ -49,7 +77,7 @@ function FollowerMoreActionModal({
         <div className="user-info-sec bg-[#000000] flex flex-col items-center justify-center gap-[12px]  pt-[15px] rounded-[10px] overflow-hidden">
           <div className="user-profile-info flex flex-col items-center justify-center w-[100%] gap-[15px] px-[20px]">
             <div className="profile">
-              <Avatar className="w-[60px] h-[60px] flex items-center justify-center bg-gray-800 rounded-full">
+              <Avatar className="w-[60px] h-[60px] flex items-center justify-center bg-white rounded-full">
                 <AvatarImage
                   src={userInfo.ProfilePicture}
                   className="w-[100%] h-[100%] "
@@ -68,8 +96,11 @@ function FollowerMoreActionModal({
             </div>
           </div>
           <div className="remove-button w-[100%]">
-            <button className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-rose-500  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]">
-              remove
+            <button
+              className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-rose-500  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]"
+              onClick={() => RemoveAnFollower(userInfo.UserId)}
+            >
+              {Loader ? <SpinnerComponent /> : "Remove"}
             </button>
           </div>
         </div>

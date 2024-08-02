@@ -5,8 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Context } from "@/context/ContextApi";
 import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
-import MouseLoader from "./MouseLoader";
-import RequiredInfoNotFoundSection from "./RequiredInfoNotFoundSection";
+import MouseLoader from "./Loader/MouseLoader";
+import RequiredInfoNotFoundSection from "./NotFoundIndicatorComponent/RequiredInfoNotFoundSection";
 import PendingRequestUserCard from "./PendingRequestUserCard";
 import { ScrollArea } from "./ui/scroll-area";
 import UseSocketIO from "@/hooks/UseSocketIO";
@@ -26,12 +26,10 @@ function ShowAllTheUserInTheDashboard({
   const {
     AllTheSendRequestOfTheUser,
     AllTheReceivedRequestOfTheUser,
+    FetchTheUserOnTheBaseOfDemand,
     FetchingAllTheSentRequestOfUser,
     FetchingAllTheReceivedRequestOfUser,
-
-    setGlobalTopBarAlertInformation,
-
-    setGlobalFollowRequestNotification,
+    setGlobalSuccessNotification,
   } = useContext(Context) as any;
 
   const socket = UseSocketIO();
@@ -86,28 +84,29 @@ function ShowAllTheUserInTheDashboard({
         };
       }) => {
         const AuthToken = getCookie("User_Authentication_Token") as string;
-        console.log("EmitNewFollowRequestHasBeenSent", data);
+
         const sender = data.request_sender_info;
         const receiver = data.request_receiver_info;
         if (!sender || !receiver) return;
         const current_user_info = JSON.parse(getCookie("User__Info") as string);
         if (receiver.id === current_user_info.id) {
-          setGlobalFollowRequestNotification({
+          setGlobalSuccessNotification({
             ShowAlert: true as boolean,
-            ProfileImage: sender.Profile_Picture as string,
+            Profile_Picture: sender.Profile_Picture as string,
             FullName: sender.name as string,
             UserName: sender.UserName as string,
             Message: '" wants to follow' as string,
             Type: "FOLLOW" as string,
           });
+
           setTimeout(() => {
-            setGlobalFollowRequestNotification({
+            setGlobalSuccessNotification({
               ShowAlert: false as boolean,
-              ProfileImage: "" as string,
+              Profile_Picture: "" as string,
               FullName: "" as string,
               UserName: "" as string,
               Message: "" as string,
-              Type: "" as string,
+              Type: "NORMAL" as string,
             });
           }, 2500);
         }
@@ -120,10 +119,55 @@ function ShowAllTheUserInTheDashboard({
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
     });
-    socket?.on("EmitYourFollowRequestHasBeenAccepted", async () => {
+    socket?.on("EmitYourFollowRequestHasBeenAccepted", async (data) => {
+      const sender_info = data.request_sender_info;
+      const receiver_info = data.request_accepter_info;
+      if (!sender_info || !receiver_info) return;
+      const current_user_info = JSON.parse(getCookie("User__Info") as string);
+      if (sender_info.id === current_user_info.id) {
+        setGlobalSuccessNotification({
+          ShowAlert: true as boolean,
+          Profile_Picture: receiver_info.Profile_Picture as string,
+          FullName: receiver_info.name as string,
+          UserName: receiver_info.UserName as string,
+          Message: '" Accepted your follow request' as string,
+          Type: "FOLLOW" as string,
+        });
+
+        setTimeout(() => {
+          setGlobalSuccessNotification({
+            ShowAlert: false as boolean,
+            Profile_Picture: "" as string,
+            FullName: "" as string,
+            UserName: "" as string,
+            Message: "" as string,
+            Type: "NORMAL" as string,
+          });
+        }, 2500);
+      } else if (receiver_info.id === current_user_info.id) {
+        setGlobalSuccessNotification({
+          ShowAlert: true as boolean,
+          Profile_Picture: sender_info.Profile_Picture as string,
+          FullName: sender_info.name as string,
+          UserName: sender_info.UserName as string,
+          Message: '" Started following you' as string,
+          Type: "FOLLOW" as string,
+        });
+        setTimeout(() => {
+          setGlobalSuccessNotification({
+            ShowAlert: false as boolean,
+            Profile_Picture: "" as string,
+            FullName: "" as string,
+            UserName: "" as string,
+            Message: "" as string,
+            Type: "NORMAL" as string,
+          });
+        }, 2500);
+      }
       const AuthToken = getCookie("User_Authentication_Token") as string;
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
     });
     return () => {
       socket?.off("EmitA_FollowRequestHasBeenWithdrawn");
@@ -179,20 +223,28 @@ function ShowAllTheUserInTheDashboard({
                     {AllTheSendRequestOfTheUser.length === 0 ? (
                       <RequiredInfoNotFoundSection />
                     ) : (
-                      <ScrollArea className="w-[100%] h-[100%]">
-                        <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
-                          {AllTheSendRequestOfTheUser?.map((user: any) => {
-                            return (
-                              <PendingRequestUserCard
-                                key={user.id}
-                                user={user}
-                                currentPage={currentPage}
-                                requestSent={true}
-                              />
-                            );
-                          })}
+                      <>
+                      <div className="w-[100%]  border-b-[1px] border-[rgba(255,255,255,0.3)] py-[10px]">
+                          <p className="global-font-roboto text-white capitalize">
+                            request received (
+                            {AllTheSendRequestOfTheUser?.length})
+                          </p>
                         </div>
-                      </ScrollArea>
+                        <ScrollArea className="w-[100%] h-[100%]">
+                          <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
+                            {AllTheSendRequestOfTheUser?.map((user: any) => {
+                              return (
+                                <PendingRequestUserCard
+                                  key={user.id}
+                                  user={user}
+                                  currentPage={currentPage}
+                                  requestSent={true}
+                                />
+                              );
+                            })}
+                          </div>
+                        </ScrollArea>
+                      </>
                     )}
                   </div>
                 )}
@@ -208,20 +260,30 @@ function ShowAllTheUserInTheDashboard({
                     {AllTheReceivedRequestOfTheUser.length === 0 ? (
                       <RequiredInfoNotFoundSection />
                     ) : (
-                      <ScrollArea className="w-[100%] h-[100%]">
-                        <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
-                          {AllTheReceivedRequestOfTheUser?.map((user: any) => {
-                            return (
-                              <PendingRequestUserCard
-                                key={user.id}
-                                user={user}
-                                currentPage={currentPage}
-                                requestSent={false}
-                              />
-                            );
-                          })}
+                      <>
+                        <div className="w-[100%]  border-b-[1px] border-[rgba(255,255,255,0.3)] py-[10px]">
+                          <p className="global-font-roboto text-white capitalize">
+                            request received (
+                            {AllTheReceivedRequestOfTheUser?.length})
+                          </p>
                         </div>
-                      </ScrollArea>
+                        <ScrollArea className="w-[100%] h-[100%]">
+                          <div className="w-[100%] grid grid-cols-1  justify-center gap-[10px]  mx-auto px-[15px] pt-[15px] mb-[60px] overflow-auto no-scrollbar">
+                            {AllTheReceivedRequestOfTheUser?.map(
+                              (user: any) => {
+                                return (
+                                  <PendingRequestUserCard
+                                    key={user.id}
+                                    user={user}
+                                    currentPage={currentPage}
+                                    requestSent={false}
+                                  />
+                                );
+                              }
+                            )}
+                          </div>
+                        </ScrollArea>
+                      </>
                     )}
                   </div>
                 )}

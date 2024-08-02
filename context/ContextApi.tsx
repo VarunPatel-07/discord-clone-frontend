@@ -19,6 +19,17 @@ interface ContextApiProps {
   //? exporting all the state
   //
 
+  GlobalSuccessNotification: {
+    ShowAlert: boolean;
+    Profile_Picture: string;
+    FullName: string;
+    UserName: string;
+    Message: string;
+    Type: string;
+    Notification_Position: string;
+  };
+  setGlobalSuccessNotification: React.Dispatch<React.SetStateAction<object>>;
+
   Global_Server_Profile_Image: {
     Preview__Image__URL: string;
     File_Of_Image: string;
@@ -35,9 +46,6 @@ interface ContextApiProps {
   UpdateServerInfoImage: object;
   setUpdateServerInfoImage: React.Dispatch<React.SetStateAction<object>>;
 
-  GlobalAlertInformation: object;
-  setGlobalAlertInformation: React.Dispatch<React.SetStateAction<object>>;
-
   AllTheTextChannelsOfTheServer: Array<object>;
   AllTheAudioChannelsOfTheServer: Array<object>;
   AllTheVideoChannelsOfTheServer: Array<object>;
@@ -50,22 +58,7 @@ interface ContextApiProps {
   AllTheReceivedRequestOfTheUser: Array<object>;
   AllTheFollowerOfTheUser: Array<object>;
   AllTheFollowingOfTheUser: Array<object>;
-  GlobalTopBarAlertInformation: {
-    ShowAlert: boolean;
-    Message: string;
-  };
-  setGlobalTopBarAlertInformation: React.Dispatch<React.SetStateAction<object>>;
-  GlobalFollowRequestNotification: {
-    ShowAlert: boolean;
-    ProfileImage: string;
-    FullName: string;
-    UserName: string;
-    Message: string;
-    Type: string;
-  };
-  setGlobalFollowRequestNotification: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+
   //
   //? exporting all the functions
   //
@@ -169,6 +162,11 @@ interface ContextApiProps {
   WithDrawTheSentFollowRequest: (AuthToken: string, receiverId: string) => void;
   IgnoreReceivedFollowRequest: (AuthToken: string, senderId: string) => void;
   AcceptFollowRequestFunction: (AuthToken: string, receiverId: string) => void;
+  UnFollowSelectedUser: (AuthToken: string, UserId: string) => void;
+  RemoveASpecificFollowerFunction: (
+    AuthToken: string,
+    FollowerId: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -185,6 +183,17 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ? defining all the state
   //
   //
+
+  const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState({
+    ShowAlert: false as boolean,
+    Profile_Picture: "" as string,
+    FullName: "" as string,
+    UserName: "" as string,
+    Message: "" as string,
+    Type: "NORMAL" as string,
+    Notification_Position: "" as string,
+  });
+
   const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
     useState({
       Preview__Image__URL: "",
@@ -202,15 +211,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Preview_Image: "" as string,
     File_Of_Image: "" as any,
   });
-  const [GlobalAlertInformation, setGlobalAlertInformation] = useState({
-    showAlert: false as boolean,
-    title: "" as string,
-  });
-  const [GlobalTopBarAlertInformation, setGlobalTopBarAlertInformation] =
-    useState({
-      ShowAlert: false as boolean,
-      Message: "" as string,
-    });
+
   const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] =
     useState([] as Array<object>);
   const [AllTheAudioChannelsOfTheServer, setAllTheAudioChannelsOfTheServer] =
@@ -241,21 +242,23 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
     [] as Array<object>
   );
-  const [GlobalFollowRequestNotification, setGlobalFollowRequestNotification] =
-    useState({
-      ShowAlert: false as boolean,
-      ProfileImage: "" as string,
-      FullName: "" as string,
-      UserName: "" as string,
-      Message: "" as string,
-      Type: "" as string,
-    });
 
   //
   //
   // ? defining all the functions
   //
   //
+
+  //
+  // ?  The Function Below Is Used To Handel The Error Globally
+  //
+  const GlobalErrorHandler = (error: any) => {
+    console.log("error From GlobalErrorHandler");
+  };
+  //
+  // ?  The Function Above Is Used To Handel The Error Globally
+  //
+
   const Login_User_Function = async (loginInfo: object) => {
     try {
       if (loginInfo) {
@@ -274,7 +277,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const Register_User_Function = async (user_info: object) => {
@@ -300,7 +303,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const CheckUsersLoginStatus = async () => {
@@ -324,7 +327,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       } catch (error) {
         deleteCookie("User_Authentication_Token");
         deleteCookie("User__Info");
-        console.log(error);
+        GlobalErrorHandler(error);
         return false;
       }
     } else {
@@ -353,7 +356,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         }
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchTheIncludingServer = async (AuthToke: string) => {
@@ -370,12 +373,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const Data = response.data;
 
         if (Data.success) {
-          // console.log(Data.server_info);
           setIncluding_Server_Info_Array(Data.server_info);
         }
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchingTheServerInfoByServerId = async (
@@ -401,7 +403,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const UserInfoFetchingFunction = async (AuthToken: string) => {
@@ -420,7 +422,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCookie("User__Info", JSON.stringify(response.data.user));
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
 
@@ -472,7 +474,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         socket?.emit("NewMemberJoinedUsingInvitationCode", response.data);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
       return { success: false };
     }
   };
@@ -493,11 +495,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        console.log(response.data);
         socket?.emit("newServerCreationOccurred", response.data);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const ChangingMemberRoleFunction = async (
@@ -524,12 +525,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        console.log(response.data);
         socket?.emit("newServerCreationOccurred", response.data);
         setChangingTheMemberRole(false);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const KickOutMemberFromServerFunction = async (
@@ -559,7 +559,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setChangingTheMemberRole(false);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const CreateNewChannelFunction = async (
@@ -588,7 +588,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         socket?.emit("NewChannelHasBeenCreated", response.data.server_id);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const UpdateChannelInfoFunction = async (
@@ -636,11 +636,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        console.log(response.data);
         socket?.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const LeaveFromServerFunction = async (
@@ -667,7 +666,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         socket?.emit("newServerCreationOccurred", response.data.server_id);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const Check_The_User_Is_KickedOut = async (
@@ -708,7 +707,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         };
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const DeleteServerFunction = async (AuthToken: string, serverId: string) => {
@@ -727,7 +726,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         socket?.emit("ServerHasBeenDeleted", response.data);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const Check_Server_Is_Deleted = async (
@@ -774,7 +773,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         };
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchTheTextChannelOfTheServer = async (
@@ -792,11 +791,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        // console.log(response.data);
         setAllTheTextChannelsOfTheServer(response.data.text_channels);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchTheAudioChannelOfTheServer = async (
@@ -814,11 +812,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        // console.log(response.data);
         setAllTheAudioChannelsOfTheServer(response.data.audio_channels);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchTheVideoChannelOfTheServer = async (
@@ -836,11 +833,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
       });
       if (response.data.success) {
-        // console.log(response.data);
         setAllTheVideoChannelsOfTheServer(response.data.video_channels);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchTheUserOnTheBaseOfDemand = async (
@@ -857,12 +853,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
+
       if (response.data.success) {
         setFetchAllTheOtherUsers(response.data.user);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchingAllTheSentRequestOfUser = async (AuthToken: string) => {
@@ -881,7 +877,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setAllTheSendRequestOfTheUser(response.data.sent_requests);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchingAllTheReceivedRequestOfUser = async (AuthToken: string) => {
@@ -895,12 +891,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
+
       if (response.data.success) {
         setAllTheReceivedRequestOfTheUser(response.data.received_requests);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchAllTheFollowerOfTheUser = async (AuthToken: string) => {
@@ -914,11 +910,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
+
       if (response.data.success) {
         setAllTheFollowerOfTheUser(response.data.followers);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const FetchAllTheFollowingOfTheUser = async (AuthToken: string) => {
@@ -931,11 +928,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
+
       if (response.data.success) {
         setAllTheFollowingOfTheUser(response.data.following);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const SendTheFollowRequestToTheUser = async (
@@ -955,22 +953,31 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
 
-      console.log(response.data);
       if (response.data.success) {
         socket?.emit("NewFollowRequestHasBeenSent", response.data);
-        setGlobalTopBarAlertInformation({
+        setGlobalSuccessNotification({
           ShowAlert: true,
           Message: response.data.message,
+          Type: "NORMAL",
+          FullName: "",
+          Notification_Position: "",
+          Profile_Picture: "",
+          UserName: "",
         });
         setTimeout(() => {
-          setGlobalTopBarAlertInformation({
+          setGlobalSuccessNotification({
             ShowAlert: false,
             Message: "",
+            Type: "",
+            FullName: "",
+            Notification_Position: "",
+            Profile_Picture: "",
+            UserName: "",
           });
         }, 2500);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const WithDrawTheSentFollowRequest = async (
@@ -990,22 +997,32 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
-      console.log(response.data);
+
       if (response.data.success) {
         socket?.emit("A_FollowRequestHasBeenWithdrawn");
-        setGlobalTopBarAlertInformation({
+        setGlobalSuccessNotification({
           ShowAlert: true,
           Message: response.data.message,
+          Type: "NORMAL",
+          FullName: "",
+          Notification_Position: "",
+          Profile_Picture: "",
+          UserName: "",
         });
         setTimeout(() => {
-          setGlobalTopBarAlertInformation({
+          setGlobalSuccessNotification({
             ShowAlert: false,
             Message: "",
+            Type: "",
+            FullName: "",
+            Notification_Position: "",
+            Profile_Picture: "",
+            UserName: "",
           });
         }, 2500);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const IgnoreReceivedFollowRequest = async (
@@ -1029,7 +1046,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         socket?.emit("A_FollowRequestHasBeenIgnored");
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
     }
   };
   const AcceptFollowRequestFunction = async (
@@ -1048,18 +1065,71 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
-      console.log(response.data);
+
       if (response.data.success) {
         socket?.emit("YourFollowRequestHasBeenAccepted", response.data);
       }
     } catch (error) {
-      console.log(error);
+      GlobalErrorHandler(error);
+    }
+  };
+  const UnFollowSelectedUser = async (AuthToken: string, UserId: string) => {
+    try {
+      if (!AuthToken || UserId === "undefined") return;
+      const formData = new FormData();
+      formData.append("followerId", UserId);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow//UnfollowTheSpecificUser`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        socket?.emit("UserUnFollowedAnFollower", response.data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const RemoveASpecificFollowerFunction = async (
+    AuthToken: string,
+    FollowerId: string
+  ) => {
+    try {
+      if (!AuthToken || FollowerId === "undefined") return;
+      const formData = new FormData();
+      formData.append("followerId", FollowerId);
+
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/RemoveFollowerFromYourFollowerList`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+
+      if (response.data.success) {
+        socket?.emit("AnFollowerHasBeenRemoved");
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
     }
   };
   //
   // ? defining the context value
   //
   const context_value = {
+    GlobalSuccessNotification,
+    setGlobalSuccessNotification:
+      setGlobalSuccessNotification as React.Dispatch<
+        React.SetStateAction<object>
+      >,
     Global_Server_Profile_Image,
     setGlobal_Server_Profile_Image:
       setGlobal_Server_Profile_Image as React.Dispatch<
@@ -1074,10 +1144,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setUpdateServerInfoImage: setUpdateServerInfoImage as React.Dispatch<
       React.SetStateAction<object>
     >,
-    GlobalAlertInformation,
-    setGlobalAlertInformation: setGlobalAlertInformation as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
     AllTheVideoChannelsOfTheServer,
@@ -1091,16 +1158,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChangingTheMemberRole,
     AllTheFollowerOfTheUser,
     AllTheFollowingOfTheUser,
-    GlobalTopBarAlertInformation,
-    setGlobalTopBarAlertInformation:
-      setGlobalTopBarAlertInformation as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    GlobalFollowRequestNotification,
-    setGlobalFollowRequestNotification:
-      setGlobalFollowRequestNotification as React.Dispatch<
-        React.SetStateAction<object>
-      >,
+
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1132,6 +1190,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     WithDrawTheSentFollowRequest,
     IgnoreReceivedFollowRequest,
     AcceptFollowRequestFunction,
+    UnFollowSelectedUser,
+    RemoveASpecificFollowerFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import "./scss/components.css";
+import "../scss/components.css";
 function GlobalDiscordLoader() {
   return (
     <div className="w-screen h-screen flex items-center bg-black-500 justify-center">

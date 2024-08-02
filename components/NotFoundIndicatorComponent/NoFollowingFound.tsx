@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import illustration from "../public/no-following.png";
+import illustration from "../../public/no-following.png";
 function NoFollowingFound() {
   return (
     <div className="w-[100%]  pt-[50px] flex flex-col items-center justify-center ">

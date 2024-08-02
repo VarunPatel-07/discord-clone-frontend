@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 import { useDebounce } from "@/hooks/debounceHook";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
+import SpinnerComponent from "./Loader/SpinnerComponent";
 
 function UsersProfileCard({
   user,
@@ -70,10 +71,29 @@ function UsersProfileCard({
         <div className="follow-user-button w-[100%]  flex flex-col gap-[10px] ">
           {SentRequest.some((user_info: any) => user_info.id === user.id) ? (
             <button
-              className="bg-transparent border-[1px] border-red-500  transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-red-500 hover:bg-red-700 hover:text-white hover:border-red-700 capitalize"
+              className={`${
+                ShowLoader
+                  ? "bg-red-700 border-[1px] border-red-700"
+                  : "bg-indigo-500 border-[1px] border-indigo-500"
+              }  transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-red-700 hover:text-white hover:border-red-700 capitalize group`}
               onClick={() => WithDrawRequest(user.id)}
             >
-              {ShowLoader ? "withdrawing..." : "withdraw"}
+              {ShowLoader ? (
+                ""
+              ) : (
+                <span className="group-hover:text-[0px] transition  duration-[0.01s]">
+                  requested
+                </span>
+              )}
+              <span
+                className={`capitalize  transition  duration-[0.01s] ${
+                  ShowLoader
+                    ? "visible  "
+                    : "invisible  overflow-hidden text-[0px] group-hover:text-[16px] group-hover:visible"
+                }`}
+              >
+                {ShowLoader ? <SpinnerComponent /> : "Withdraw request"}
+              </span>
             </button>
           ) : (
             <button
@@ -85,7 +105,7 @@ function UsersProfileCard({
               }
             >
               {ShowLoader ? (
-                "sending..."
+                <SpinnerComponent />
               ) : (
                 <>{currentPage === "blocked" ? "Unblock" : "Follow"}</>
               )}

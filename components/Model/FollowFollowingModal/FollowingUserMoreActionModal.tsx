@@ -1,6 +1,10 @@
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 import { Avatar } from "@/components/ui/avatar";
+import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import React, { useEffect, useRef } from "react";
+import { getCookie } from "cookies-next";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 function FollowingUserMoreActionModal({
   userInfo,
@@ -16,6 +20,8 @@ function FollowingUserMoreActionModal({
   ShowModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { UnFollowSelectedUser } = useContext(Context) as any;
+  const [ShowLoader, setShowLoader] = useState(false as boolean);
   const RefBox = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Handler to call on outside click
@@ -32,6 +38,21 @@ function FollowingUserMoreActionModal({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const UnFollowUsingDebounce = useDebounce(async (userId) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await UnFollowSelectedUser(AuthToken, userId);
+    setShowLoader(false);
+    setShowModal(false);
+  }, 350);
+
+  const UnFollowFollowerButton = (user_id) => {
+    console.log("user_id", user_id);
+    console.log("task  started");
+    setShowLoader(true);
+    UnFollowUsingDebounce(user_id);
+  };
+
   return (
     <div
       className={`show-more-action-modal w-[100%]  h-[100%]  bg-[rgba(0,0,0,0.15)] backdrop-blur-[3px] absolute bottom-0 left-0 flex flex-col justify-end py-[10px] transition-all duration-[0.1s]  ${
@@ -46,10 +67,10 @@ function FollowingUserMoreActionModal({
         }`}
         ref={RefBox}
       >
-        <div className="user-info-sec bg-[#000000] flex flex-col items-center justify-center gap-[12px]  pt-[15px] rounded-[10px] overflow-hidden">
+        <div className="user-info-sec w-[100%] bg-[#000000] flex flex-col items-center justify-center gap-[12px]  pt-[15px] rounded-[10px] overflow-hidden">
           <div className="user-profile-info flex flex-col items-center justify-center w-[100%] gap-[15px] px-[20px]">
             <div className="profile">
-              <Avatar className="w-[60px] h-[60px] flex items-center justify-center bg-gray-800 rounded-full">
+              <Avatar className="w-[60px] h-[60px] flex items-center justify-center bg-white rounded-full">
                 <AvatarImage
                   src={userInfo.ProfilePicture}
                   className="w-[100%] h-[100%] "
@@ -60,16 +81,18 @@ function FollowingUserMoreActionModal({
               </Avatar>
             </div>
             <div className="text-section ">
-              <p className="text-[14px] text-center global-font-roboto text-slate-300">
+              <p className="text-[16px] font-medium text-center global-font-roboto text-slate-300">
                 {/*  eslint-disable-next-line react/no-unescaped-entities */}
-                we won't tell {userInfo.UserName} that they where removed from
-                your followers
+                {userInfo.UserName}
               </p>
             </div>
           </div>
           <div className="remove-button w-[100%]">
-            <button className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-rose-500  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]">
-              unFollow
+            <button
+              className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-rose-500  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]"
+              onClick={() => UnFollowFollowerButton(userInfo.UserId)}
+            >
+              {ShowLoader ? <SpinnerComponent /> : "Unfollow"}
             </button>
             <button className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-white  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]">
               Block

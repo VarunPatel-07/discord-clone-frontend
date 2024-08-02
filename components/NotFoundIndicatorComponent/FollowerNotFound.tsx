@@ -1,6 +1,7 @@
 import React from "react";
-import GirlImage from "../public/cute-girl-png.png";
+import GirlImage from "../../public/cute-girl-png.png";
 import Image from "next/image";
+import SpinnerComponent from "../Loader/SpinnerComponent";
 function FollowerNotFound() {
   return (
     <div className="w-[100%]  pt-[50px] flex flex-col items-center justify-center ">
@@ -11,6 +12,7 @@ function FollowerNotFound() {
       />
       <p className="text-[18px] text-center capitalize text-white global-font-roboto">
         no one follow you 🥲
+        
       </p>
     </div>
   );

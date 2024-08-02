@@ -2,7 +2,7 @@
 import { Context } from "@/context/ContextApi";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext, useEffect } from "react";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 
@@ -15,6 +15,7 @@ import UsersFollowerAndFollowingComponent from "@/components/UsersFollowerAndFol
 
 function Dashboard() {
   const { push } = useRouter();
+
   // ? importing the required function from the context api
   const {
     CheckUsersLoginStatus,
@@ -60,7 +61,6 @@ function Dashboard() {
   }, []);
   const fetchingDataWithDebounce = useDebounce(
     async (AuthToken: string, userState: string) => {
-      console.log("fetching the data");
       await FetchTheUserOnTheBaseOfDemand(AuthToken, userState);
       setShowLoader(false);
     },

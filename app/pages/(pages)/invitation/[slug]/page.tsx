@@ -1,5 +1,5 @@
 "use client";
-import GlobalDiscordLoader from "@/components/GlobalDiscordLoader";
+import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import { useRouter, usePathname } from "next/navigation";

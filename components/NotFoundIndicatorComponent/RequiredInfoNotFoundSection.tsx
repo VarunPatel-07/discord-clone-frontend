@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import Illustration from "../public/data-not-found.png";
+import Illustration from "../../public/data-not-found.png";
 function RequiredInfoNotFoundSection() {
   return (
     <div className="w-[100%] h-[100%] pt-[50px] flex flex-col items-center justify-center ">

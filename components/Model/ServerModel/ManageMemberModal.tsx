@@ -9,7 +9,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { Context } from "@/context/ContextApi";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import LineLoader from "@/components/LineLoader";
+import LineLoader from "@/components/Loader/LineLoader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCookie } from "cookies-next";
 
