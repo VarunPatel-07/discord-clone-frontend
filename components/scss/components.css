@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,600");
 .bg-black-500 {
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -173,7 +174,6 @@
   width: 100%;
   padding: 12px 16px;
   gap: 8px;
-  cursor: pointer;
   border-radius: 6px;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.084), 0px 2px 3px rgba(0, 0, 0, 0.168);
 }
@@ -343,4 +343,8 @@
 .line-loader .bar12 {
   transform: rotate(330deg) translate(0, -130%);
   animation-delay: -0.1s;
+}
+
+* {
+  box-sizing: border-box;
 }/*# sourceMappingURL=components.css.map */

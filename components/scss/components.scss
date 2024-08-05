@@ -17,15 +17,6 @@
   box-sizing: border-box;
 }
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #3b70fc;
-  flex-direction: column;
-}
-
 // color map
 $COLOR: (
   prime: #3b70fc,
@@ -38,6 +29,3 @@ $COLOR: (
 @function color($color) {
   @return map-get($COLOR, $color);
 }
-
-
-

@@ -257,6 +257,28 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const GlobalErrorHandler = (error: any) => {
     console.log("error From GlobalErrorHandler");
   };
+  const GlobalSuccessNotificationHandler = (data: any, type: string) => {
+    setGlobalSuccessNotification({
+      ShowAlert: true,
+      Message: data.message,
+      Type: type,
+      FullName: "",
+      Notification_Position: "",
+      Profile_Picture: "",
+      UserName: "",
+    });
+    setTimeout(() => {
+      setGlobalSuccessNotification({
+        ShowAlert: false,
+        Message: "",
+        Type: "",
+        FullName: "",
+        Notification_Position: "",
+        Profile_Picture: "",
+        UserName: "",
+      });
+    }, 2500);
+  };
   //
   // ?  The Function Above Is Used To Handel The Error Globally
   //
@@ -855,7 +877,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      
+
       if (response.data.success) {
         setFetchAllTheOtherUsers(response.data.user);
       }
@@ -957,26 +979,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("NewFollowRequestHasBeenSent", response.data);
-        setGlobalSuccessNotification({
-          ShowAlert: true,
-          Message: response.data.message,
-          Type: "NORMAL",
-          FullName: "",
-          Notification_Position: "",
-          Profile_Picture: "",
-          UserName: "",
-        });
-        setTimeout(() => {
-          setGlobalSuccessNotification({
-            ShowAlert: false,
-            Message: "",
-            Type: "",
-            FullName: "",
-            Notification_Position: "",
-            Profile_Picture: "",
-            UserName: "",
-          });
-        }, 2500);
+        GlobalSuccessNotificationHandler(response.data, "NORMAL");
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1002,26 +1005,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("A_FollowRequestHasBeenWithdrawn");
-        setGlobalSuccessNotification({
-          ShowAlert: true,
-          Message: response.data.message,
-          Type: "NORMAL",
-          FullName: "",
-          Notification_Position: "",
-          Profile_Picture: "",
-          UserName: "",
-        });
-        setTimeout(() => {
-          setGlobalSuccessNotification({
-            ShowAlert: false,
-            Message: "",
-            Type: "",
-            FullName: "",
-            Notification_Position: "",
-            Profile_Picture: "",
-            UserName: "",
-          });
-        }, 2500);
+        GlobalSuccessNotificationHandler(response.data, "NORMAL");
       }
     } catch (error) {
       GlobalErrorHandler(error);

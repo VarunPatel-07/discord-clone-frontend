@@ -59,11 +59,21 @@ function UsersProfileCard({
   //
 
   return (
-    <div className=" bg-[rgba(255,255,255,0.05)] backdrop-blur-[30px] px-[15px] py-[15px] w-[100%] rounded-[10px] border-[1px] border-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.1)] transition-all">
+    <div
+      className={`bg-[rgba(255,255,255,0.1)]  backdrop-blur-[30px] px-[15px] py-[15px] w-[100%] rounded-[10px] border-[1px] border-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.1)] transition-all overflow-hidden`}
+    >
       <div className="inner-section flex flex-col gap-[20px]  items-center">
         <div className="flex flex-col items-center  justify-start gap-[20px] w-[100%]">
           <div className="profile w-[100%]">
-            <Avatar className="w-[70px] h-[70px] flex items-center justify-center bg-gradient-to-r from-slate-500 to-slate-800 rounded-full overflow-hidden">
+            <div
+              className={`w-full h-16 absolute top-0 left-0`}
+              style={{ backgroundColor: user.ProfileBanner_Img_Color }}
+            ></div>
+
+            <Avatar
+              className="w-[70px] h-[70px] flex items-center justify-center rounded-full overflow-hidden relative z-[15] mt-[20px]"
+              style={{ backgroundColor: user.ProfileBgColor }}
+            >
               <AvatarImage
                 src={user.Profile_Picture}
                 className="w-[100%] h-[100%] "

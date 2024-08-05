@@ -4,8 +4,10 @@ import { IoIosSettings, IoMdMic } from "react-icons/io";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import UseSocketIO from "@/hooks/UseSocketIO";
+import { useRouter } from "next/navigation";
 
 function UserProfile({ Position }: { Position: string }) {
+  const { push } = useRouter();
   const { UserInfoFetchingFunction, UserInformation } = useContext(
     Context
   ) as any;
@@ -28,9 +30,17 @@ function UserProfile({ Position }: { Position: string }) {
       className={`${Position} w-[100%] transition-all cursor-pointer bg-[#121314] hover-parent-to-change-child hover:bg-green-900  px-[12px] py-[12px]`}
     >
       <div className="flex items-center justify-between w-[100%]">
-        <div className="profile-username flex items-center justify-center gap-[10px]">
+        <div
+          className="profile-username flex items-center justify-center gap-[10px]"
+          onClick={() => {
+            push(`/pages/profile/${UserInformation.UserName}`);
+          }}
+        >
           <div className="profile">
-            <Avatar className="w-[45px] h-[45px]">
+            <Avatar
+              className="w-[45px] h-[45px]"
+              style={{ backgroundColor: UserInformation.ProfileBgColor }}
+            >
               <AvatarImage src={UserInformation.Profile_Picture} />
               <AvatarFallback>
                 {UserInformation?.FullName?.slice(0, 1)}
@@ -61,11 +71,21 @@ function UserProfile({ Position }: { Position: string }) {
         </div>
         <div className="user-action">
           <div className=" flex items-center justify-center gap-[6px]">
-            <div className="mic-icon">
+            <div
+              className="mic-icon"
+              data-tooltip-id="mic-icon-tooltip"
+              data-tooltip-content="Mic"
+            >
               <IoMdMic className="text-2xl text-white" />
+             
             </div>
-            <div className="setting-icon">
+            <div
+              className="setting-icon"
+              data-tooltip-id="setting-tooltip"
+              data-tooltip-content="Settings"
+            >
               <IoIosSettings className="text-2xl text-white" />
+             
             </div>
           </div>
         </div>

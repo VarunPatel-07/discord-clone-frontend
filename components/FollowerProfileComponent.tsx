@@ -18,6 +18,7 @@ function FollowerProfileComponent({
     UserName: string;
     FullName: string;
     Profile_Picture: string;
+    ProfileBgColor: string;
   };
   CurrentState: string;
   Is_FollowBack: boolean;
@@ -56,7 +57,10 @@ function FollowerProfileComponent({
       <div className="w-[100%] flex items-center justify-between">
         <div className="profile-info flex items-center justify-start gap-[8px] w-[70%]">
           <div className="profile">
-            <Avatar className="w-[45px] h-[45px] flex items-center justify-center bg-gray-800 rounded-full">
+            <Avatar
+              className="w-[45px] h-[45px] flex items-center justify-center  rounded-full"
+              style={{ backgroundColor: userInfo.ProfileBgColor }}
+            >
               <AvatarImage
                 src={userInfo.Profile_Picture}
                 className="w-[100%] h-[100%]"

@@ -62,7 +62,10 @@ function PendingRequestUserCard({
       <div className="inner-section flex  gap-[20px]  items-center justify-between">
         <div className="flex  items-center  justify-start gap-[20px] w-[70%] ">
           <div className="profile ">
-            <Avatar className="w-[70px] h-[70px] flex items-center justify-center bg-gradient-to-r from-slate-500 to-slate-800 rounded-full overflow-hidden">
+            <Avatar
+              className="w-[70px] h-[70px] flex items-center justify-center  rounded-full overflow-hidden"
+              style={{ backgroundColor: user.ProfileBgColor }}
+            >
               <AvatarImage
                 src={user.Profile_Picture}
                 className="w-[100%] h-[100%] "

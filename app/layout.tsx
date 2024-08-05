@@ -4,8 +4,10 @@ import "./css/globals.css";
 import "./css/font.css";
 import { ContextProvider } from "@/context/ContextApi";
 import { Toaster } from "@/components/ui/sonner";
+import "react-tooltip/dist/react-tooltip.css";
 
 import GlobalSuccessNotification from "@/components/Model/GlobalModel/GlobalSuccessNotification";
+import TootlrTipRenderer from "@/components/TootlrTipRenderer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +30,7 @@ export default function RootLayout({
           <section className="min-h-screen h-[100vh] overflow-hidden max-h-[100vh] relative">
             <GlobalSuccessNotification />
             <main className="w-full h-full">{children}</main>
+            <TootlrTipRenderer />
           </section>
         </ContextProvider>
       </body>

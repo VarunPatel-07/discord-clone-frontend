@@ -1,10 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Single_Image_DragDrop from "./Single_Image_DragDrop";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
+import { useDebounce } from "@/hooks/debounceHook";
+import SpinnerComponent from "./Loader/SpinnerComponent";
 function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
+  const boxRef = React.useRef<HTMLInputElement>(null);
   const [Server__Name, setServer__Name] = useState("" as string);
+  const [Loader, setLoader] = useState(false as boolean);
   const {
     Show_Create_Server_PopUp,
     setShow_Create_Server_PopUp,
@@ -14,22 +18,42 @@ function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
   const Close_PopUp_Button = () => {
     setShow_Create_Server_PopUp(false);
   };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (boxRef.current && !boxRef.current.contains(event.target as Node)) {
+        setShow_Create_Server_PopUp(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const Submit_Form_Using_DeBounce = useDebounce(
+    async (formData: FormData, AuthToken: string) => {
+      Create_New_Server_Function(formData, AuthToken);
+      setLoader(false);
+      setShow_Create_Server_PopUp(false);
+    },
+    500
+  );
+
   const Submit__Form__Function = (e: any) => {
-   
+    setLoader(true);
     e.preventDefault();
     const formData = new FormData();
     formData.append("ServerName", Server__Name);
     formData.append("serverImage", Global_Server_Profile_Image.File_Of_Image);
     const AuthToken = getCookie("User_Authentication_Token") as string;
-    Create_New_Server_Function(formData, AuthToken);
-    setShow_Create_Server_PopUp(false);
+    Submit_Form_Using_DeBounce(formData, AuthToken);
   };
   if (Pop_Up_Mode == "Create-PopUp-Mode" && Show_Create_Server_PopUp == true) {
     return (
       <>
         <div className="absolute top-left-50 w-full h-full bg-back-opacity-10 z-20">
           <div className="w-100 h-100 flex items-center justify-center">
-            <div className="server-popup-form-container ">
+            <div className="server-popup-form-container " ref={boxRef}>
               <div className="logo-container capitalize global-font-roboto fs-20">
                 create server
               </div>
@@ -58,16 +82,18 @@ function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
                 </div>
 
                 <button
-                  className="form-submit-btn capitalize fs-18 font-medium global-font-roboto mt-9"
+                  className="form-submit-btn capitalize fs-18 font-medium global-font-roboto mt-9 disabled:opacity-85 disabled:bg-black disabled:hover:bg-black  disabled:hover:text-white disabled:hover:border-white disabled:cursor-not-allowed cursor-pointer"
                   type="submit"
+                  disabled={Loader}
                 >
-                  create server
+                  {Loader ? <SpinnerComponent /> : "create server"}
                 </button>
               </form>
               <button
-                className="border-solid-black font-medium rounded hover-secondary-button py-3 px-4 capitalize fs-18 global-font-roboto"
+                className="border-solid-black font-medium rounded hover-secondary-button py-3 px-4 capitalize fs-18 global-font-roboto disabled:opacity-85 disabled:hover:bg-transparent  disabled:hover:text-black disabled:hover:border-black disabled:cursor-not-allowed"
                 type="button"
                 onClick={Close_PopUp_Button}
+                disabled={Loader}
               >
                 cancel
               </button>

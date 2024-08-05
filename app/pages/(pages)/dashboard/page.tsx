@@ -98,7 +98,7 @@ function Dashboard() {
                   </div>
                   <div className="w-[82%] h-[100%] relative">
                     <div className="w-[100%] bg-[#41464f] z-10 shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] absolute top-0 left-0 h-[45px] px-[15px] py-[10px]">
-                      <div className="flex items-stretch   h-[100%] justify-start">
+                      <div className="flex items-stretch w-[100%]   h-[100%] justify-start">
                         <div className="sec-1 flex items-center justify-start text-white">
                           <span className="mr-[5px] ">
                             <BsFillPersonFill className="w-[25px] h-[25px]" />
@@ -107,7 +107,7 @@ function Dashboard() {
                             friends
                           </span>
                         </div>
-                        <span className="w-[2px] rounded h-[100%] block bg-[#f5f6f888] line mx-[15px]"></span>
+                        <span className="w-[2px] rounded h-[100%] block bg-[#f5f6f888]  mx-[15px]"></span>
                         <div className="action-button-wrapper flex items-center justify-start gap-[20px]">
                           <button
                             className={`text-white  transition px-[5px] py-[1px] rounded-[5px] ${

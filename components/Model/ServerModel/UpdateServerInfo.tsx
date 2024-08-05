@@ -4,6 +4,8 @@ import { useDropzone } from "react-dropzone";
 import { Context } from "@/context/ContextApi";
 import { usePathname } from "next/navigation";
 import { getCookie } from "cookies-next";
+import { useDebounce } from "@/hooks/debounceHook";
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 
 //
 
@@ -35,6 +37,7 @@ function UpdateServerInfo({
 
   const [Preview__Image__URL, setPreview__Image__URL] = useState("" as string);
   const [Server__Name, setServer__Name] = useState("" as string);
+  const [Loading, setLoading] = useState(false as boolean);
 
   //
 
@@ -62,7 +65,18 @@ function UpdateServerInfo({
       File_Of_Image: "",
     });
   };
+  const Submit_form_with_debounce = useDebounce(
+    async (AuthToken: string, formData: FormData) => {
+      await UpdatingServerInformationFunction(AuthToken, formData);
+      setLoading(false);
+      setServer__Name("");
+      setShowUpdateServerInformation(false);
+    },
+    500
+  );
+
   const Submit__Form__Function = async (e: any) => {
+    setLoading(true);
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
@@ -71,10 +85,7 @@ function UpdateServerInfo({
     formData.append("serverId", serverId);
     formData.append("serverImage", UpdateServerInfoImage.File_Of_Image);
     formData.append("ServerName", Server__Name);
-
-    await UpdatingServerInformationFunction(AuthToken, formData);
-    setServer__Name("");
-    setShowUpdateServerInformation(false);
+    Submit_form_with_debounce(AuthToken, formData);
   };
 
   //
@@ -171,7 +182,7 @@ function UpdateServerInfo({
                       className="bg-indigo-500 text-white w-100 px-[15px] py-[12px] rounded-[5px]  capitalize fs-18 font-medium global-font-roboto mt-9 transition hover:bg-indigo-700"
                       type="submit"
                     >
-                      Update Server
+                      {Loading ? <SpinnerComponent /> : "Update Server"}
                     </button>
                   </form>
                 </div>

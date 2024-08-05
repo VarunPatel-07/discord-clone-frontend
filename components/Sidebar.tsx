@@ -9,7 +9,7 @@ import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
 import UseSocketIO from "@/hooks/UseSocketIO";
-
+import { Tooltip as ReactTooltip } from "react-tooltip";
 function Sidebar() {
   const Path = usePathname();
   const { push } = useRouter();
@@ -47,7 +47,11 @@ function Sidebar() {
       <div className="sidebar bg-[#202225] h-100  w-100 overflow-y-auto  overflow-x-visible ">
         <div className="w-100 h-100 flex flex-col items-center justify-start relative ">
           <div className="create-new-server-wrapper flex flex-col items-center mt-1 constant-create-button w-100 sticky top-0 bg-[#202225] z-10">
-            <div className="create-new-server-button my-[10px] hover:bg-green-600">
+            <div
+              className="create-new-server-button my-[10px] hover:bg-green-600"
+              data-tooltip-id="Create-New-Server-tooltip"
+              data-tooltip-content="Create Server"
+            >
               <button
                 className="w-100 h-100 flex items-center justify-center fs-18"
                 onClick={() => setShow_Create_Server_PopUp(true)}
@@ -70,6 +74,8 @@ function Sidebar() {
                 onClick={() => {
                   push(`/pages/dashboard`);
                 }}
+                data-tooltip-id="HomePage-tooltip"
+                data-tooltip-content="Home Page"
               >
                 <div className="clickable-button">
                   <div className="image-section w-100 h-100">
@@ -93,6 +99,8 @@ function Sidebar() {
                     onClick={() => {
                       push(`/pages/server/${Info?.id}`);
                     }}
+                    data-tooltip-id="Server-name-tooltip"
+                    data-tooltip-content={Info?.name}
                   >
                     <div className="clickable-button">
                       <div className="image-section w-100 h-100">
@@ -118,7 +126,11 @@ function Sidebar() {
           <div className="account-detailed-section absolute bottom-0 bg-[#202225] z-10 py-6 w-100 left-0">
             <div className="w-[100%] flex items-center justify-center">
               <Link href="/pages/explorer">
-                <div className="w-[52px] h-[52px] bg-[rgba(255,255,255,0.1)] rounded-full flex flex-col items-center justify-center cursor-pointer transition duration-[0.15s] hover:bg-green-800 hover:rounded-[20px] group">
+                <div
+                  className="w-[52px] h-[52px] bg-[rgba(255,255,255,0.1)] rounded-full flex flex-col items-center justify-center cursor-pointer transition duration-[0.15s] hover:bg-green-800 hover:rounded-[20px] group"
+                  data-tooltip-id="Explorer-tooltip"
+                  data-tooltip-content="Explorer Server" 
+                >
                   <MdExplore className="w-[28px] h-[28px] text-green-700 transition duration-[0.15s] group-hover:text-black" />
                 </div>
               </Link>
