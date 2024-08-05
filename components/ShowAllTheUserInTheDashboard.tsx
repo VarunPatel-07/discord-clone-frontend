@@ -24,12 +24,14 @@ function ShowAllTheUserInTheDashboard({
   //
   //
   const {
+    AllTheFollowerOfTheUser,
     AllTheSendRequestOfTheUser,
     AllTheReceivedRequestOfTheUser,
     FetchTheUserOnTheBaseOfDemand,
     FetchingAllTheSentRequestOfUser,
     FetchingAllTheReceivedRequestOfUser,
     setGlobalSuccessNotification,
+    FetchAllTheFollowerOfTheUser,
   } = useContext(Context) as any;
 
   const socket = UseSocketIO();
@@ -51,17 +53,24 @@ function ShowAllTheUserInTheDashboard({
     setShowLoadingBar(false);
   }, 350);
 
+  const FetchTheFollowerDataUsingDebounce = useDebounce(async () => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await FetchAllTheFollowerOfTheUser(AuthToken);
+    setShowLoadingBar(false);
+  }, 350);
+
   useEffect(() => {
     setShowLoadingBar(true);
     FetchTheSentRequestUsingDebounce();
+    FetchTheFollowerDataUsingDebounce();
   }, []);
 
   //
   // ? all the code related to the socket io start from here
   //
   useEffect(() => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     socket?.on("EmitA_FollowRequestHasBeenWithdrawn", async () => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
     });
@@ -83,8 +92,6 @@ function ShowAllTheUserInTheDashboard({
           Profile_Picture: string;
         };
       }) => {
-        const AuthToken = getCookie("User_Authentication_Token") as string;
-
         const sender = data.request_sender_info;
         const receiver = data.request_receiver_info;
         if (!sender || !receiver) return;
@@ -115,7 +122,6 @@ function ShowAllTheUserInTheDashboard({
       }
     );
     socket?.on("EmitA_FollowRequestHasBeenIgnored", async () => {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
     });
@@ -164,16 +170,24 @@ function ShowAllTheUserInTheDashboard({
           });
         }, 2500);
       }
-      const AuthToken = getCookie("User_Authentication_Token") as string;
+
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
       await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
+    });
+    socket?.on("EmitAnUser_UnBlocked_Successfully", async () => {
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, "blocked");
+    });
+    socket?.on("EmitAnUserBlockedSuccessfully", async () => {
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, "blocked");
     });
     return () => {
       socket?.off("EmitA_FollowRequestHasBeenWithdrawn");
       socket?.off("EmitNewFollowRequestHasBeenSent");
       socket?.off("EmitA_FollowRequestHasBeenIgnored");
       socket?.off("EmitYourFollowRequestHasBeenAccepted");
+      socket?.off("EmitAnUser_UnBlocked_Successfully");
+      socket?.off("EmitAnUserBlockedSuccessfully");
     };
   }, [socket]);
   //
@@ -224,7 +238,7 @@ function ShowAllTheUserInTheDashboard({
                       <RequiredInfoNotFoundSection />
                     ) : (
                       <>
-                      <div className="w-[100%]  border-b-[1px] border-[rgba(255,255,255,0.3)] py-[10px]">
+                        <div className="w-[100%]  border-b-[1px] border-[rgba(255,255,255,0.3)] py-[10px]">
                           <p className="global-font-roboto text-white capitalize">
                             request received (
                             {AllTheSendRequestOfTheUser?.length})
@@ -331,6 +345,7 @@ function ShowAllTheUserInTheDashboard({
                     user={user}
                     currentPage={currentPage}
                     SentRequest={AllTheSendRequestOfTheUser}
+                    All_The_Follower_Of_The_User={AllTheFollowerOfTheUser}
                   />
                 );
               })}

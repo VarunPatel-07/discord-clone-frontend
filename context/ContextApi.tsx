@@ -167,6 +167,8 @@ interface ContextApiProps {
     AuthToken: string,
     FollowerId: string
   ) => void;
+  Block_A_Specific_User: (AuthToken: string, BlockUserId: string) => void;
+  UnBlock_A_Specific_User: (AuthToken: string, UnBlockUserId: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -853,7 +855,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-
+      
       if (response.data.success) {
         setFetchAllTheOtherUsers(response.data.user);
       }
@@ -1121,6 +1123,50 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+  const Block_A_Specific_User = async (
+    AuthToken: string,
+    BlockUserId: string
+  ) => {
+    try {
+      if (!AuthToken || BlockUserId === "undefined") return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/BlockASpecificUser/${BlockUserId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        socket?.emit("AnUserBlockedSuccessfully");
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const UnBlock_A_Specific_User = async (
+    AuthToken: string,
+    unBlockUserId: string
+  ) => {
+    try {
+      if (!AuthToken || unBlockUserId === "undefined") return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/follow/UnBlockASpecificUser/${unBlockUserId}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.success) {
+        socket?.emit("AnUser_UnBlocked_Successfully");
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -1192,6 +1238,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     AcceptFollowRequestFunction,
     UnFollowSelectedUser,
     RemoveASpecificFollowerFunction,
+    Block_A_Specific_User,
+    UnBlock_A_Specific_User,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

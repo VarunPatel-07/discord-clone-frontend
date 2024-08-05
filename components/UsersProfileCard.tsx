@@ -9,14 +9,19 @@ function UsersProfileCard({
   user,
   currentPage,
   SentRequest,
+  All_The_Follower_Of_The_User,
 }: {
   SentRequest: Array<object>;
   user: any;
   currentPage: string;
+  All_The_Follower_Of_The_User: Array<object>;
 }) {
   const [ShowLoader, setShowLoader] = useState(false as boolean);
-  const { SendTheFollowRequestToTheUser, WithDrawTheSentFollowRequest } =
-    useContext(Context) as any;
+  const {
+    SendTheFollowRequestToTheUser,
+    WithDrawTheSentFollowRequest,
+    UnBlock_A_Specific_User,
+  } = useContext(Context) as any;
   //
   // ? code related to the debouncing written the below
   //
@@ -30,6 +35,11 @@ function UsersProfileCard({
     await WithDrawTheSentFollowRequest(AuthToken, userId);
     setShowLoader(false);
   }, 350);
+  const UnBlockUserWithDebounce = useDebounce(async (userId) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await UnBlock_A_Specific_User(AuthToken, userId);
+    setShowLoader(false);
+  }, 350);
   //
   // ? code related to the debouncing written the above
   //
@@ -40,6 +50,10 @@ function UsersProfileCard({
   const WithDrawRequest = async (UserId) => {
     setShowLoader(true);
     UseDebounceToWithDrawRequest(UserId);
+  };
+  const UnblockUserButton = async (UserId) => {
+    setShowLoader(true);
+    UnBlockUserWithDebounce(UserId);
   };
   //
   //
@@ -96,20 +110,48 @@ function UsersProfileCard({
               </span>
             </button>
           ) : (
-            <button
-              className="bg-green-700 transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-green-800 hover:text-white capitalize"
-              onClick={
-                currentPage === "blocked"
-                  ? () => {}
-                  : () => SendTheFollowRequest(user.id)
-              }
-            >
-              {ShowLoader ? (
-                <SpinnerComponent />
+            <>
+              {currentPage === "blocked" ? (
+                <button
+                  className="bg-rose-700 transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-rose-600  hover:text-white capitalize"
+                  onClick={() => UnblockUserButton(user.id)}
+                >
+                  {ShowLoader ? (
+                    <SpinnerComponent />
+                  ) : (
+                    <span className="block">unblock</span>
+                  )}
+                </button>
               ) : (
-                <>{currentPage === "blocked" ? "Unblock" : "Follow"}</>
+                <>
+                  {All_The_Follower_Of_The_User.some(
+                    (info: any) => info.id === user.id
+                  ) ? (
+                    <button
+                      className="bg-[#3978f2] transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-[#2662d8] hover:text-white capitalize"
+                      onClick={() => SendTheFollowRequest(user.id)}
+                    >
+                      {ShowLoader ? (
+                        <SpinnerComponent />
+                      ) : (
+                        <span className="block">Follow back</span>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-green-700 transition-all  px-[15px] py-[8px] w-[100%] text-center rounded-[10px] global-font-roboto text-[16px] font-medium text-white hover:bg-green-800 hover:text-white capitalize"
+                      onClick={() => SendTheFollowRequest(user.id)}
+                    >
+                      {ShowLoader ? (
+                        <SpinnerComponent />
+                      ) : (
+                        <span className="block">Follow</span>
+                      )}
+                    </button>
+                  )}
+                </>
               )}
-            </button>
+            </>
           )}
         </div>
       </div>

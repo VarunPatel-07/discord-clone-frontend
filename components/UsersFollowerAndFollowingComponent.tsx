@@ -96,7 +96,6 @@ function UsersFollowerAndFollowingComponent() {
   const OnClickFetchFollowing = () => {
     setShowLoader(true);
     FetchTheFollowingDataUsingDebounce();
-    console.log(AllTheFollowerOfTheUser);
   };
   //
   //
@@ -107,22 +106,30 @@ function UsersFollowerAndFollowingComponent() {
       await FetchAllTheFollowerOfTheUser(AuthToken);
     });
     socket?.on("EmitUserUnFollowedAnFollower", async (data) => {
-      
-
       await FetchAllTheFollowerOfTheUser(AuthToken);
       await FetchAllTheFollowingOfTheUser(AuthToken);
       await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
     });
     socket?.on("EmitAnFollowerHasBeenRemoved", async () => {
-      
       await FetchAllTheFollowerOfTheUser(AuthToken);
       await FetchAllTheFollowingOfTheUser(AuthToken);
       await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
+    });
+    socket?.on("EmitAnUserBlockedSuccessfully", async () => {
+      await FetchAllTheFollowerOfTheUser(AuthToken);
+      await FetchAllTheFollowingOfTheUser(AuthToken);
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, "blocked");
+    });
+    socket?.on("EmitAnUser_UnBlocked_Successfully", async () => {
+      await FetchAllTheFollowerOfTheUser(AuthToken);
+      await FetchAllTheFollowingOfTheUser(AuthToken);
     });
     return () => {
       socket?.off("EmitYourFollowRequestHasBeenAccepted");
       socket?.off("EmitUserUnFollowedAnFollower");
       socket?.off("EmitAnFollowerHasBeenRemoved");
+      socket?.off("EmitAnUserBlockedSuccessfully");
+      socket?.off("EmitAnUser_UnBlocked_Successfully");
     };
   }, [socket]);
   useEffect(() => {

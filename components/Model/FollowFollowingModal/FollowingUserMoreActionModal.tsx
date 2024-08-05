@@ -20,8 +20,11 @@ function FollowingUserMoreActionModal({
   ShowModal: boolean;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { UnFollowSelectedUser } = useContext(Context) as any;
+  const { UnFollowSelectedUser, Block_A_Specific_User } = useContext(
+    Context
+  ) as any;
   const [ShowLoader, setShowLoader] = useState(false as boolean);
+  const [ShowBlockLoader, setShowBlockLoader] = useState(false as boolean);
   const RefBox = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Handler to call on outside click
@@ -46,11 +49,20 @@ function FollowingUserMoreActionModal({
     setShowModal(false);
   }, 350);
 
+  const BlockUserUsingDebounce = useDebounce(async (userId) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await Block_A_Specific_User(AuthToken, userId);
+    setShowBlockLoader(false);
+    setShowModal(false);
+  }, 350);
+
   const UnFollowFollowerButton = (user_id) => {
-    console.log("user_id", user_id);
-    console.log("task  started");
     setShowLoader(true);
     UnFollowUsingDebounce(user_id);
+  };
+  const BlockUserButton = (user_id) => {
+    setShowBlockLoader(true);
+    BlockUserUsingDebounce(user_id);
   };
 
   return (
@@ -94,8 +106,11 @@ function FollowingUserMoreActionModal({
             >
               {ShowLoader ? <SpinnerComponent /> : "Unfollow"}
             </button>
-            <button className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-white  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]">
-              Block
+            <button
+              className="bg-[#000000] flex fle-col items-center justify-center px-[20px] py-[12px] text-white  font-medium capitalize  w-[100%] border-t-[1px] border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.05)]"
+              onClick={() => BlockUserButton(userInfo.UserId)}
+            >
+              {ShowBlockLoader ? <SpinnerComponent /> : "Block"}
             </button>
           </div>
         </div>
