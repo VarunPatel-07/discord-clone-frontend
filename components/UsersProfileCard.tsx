@@ -4,6 +4,7 @@ import { useDebounce } from "@/hooks/debounceHook";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import SpinnerComponent from "./Loader/SpinnerComponent";
+import isValidUrl from "@/hooks/Is_Valid_URL";
 
 function UsersProfileCard({
   user,
@@ -65,10 +66,25 @@ function UsersProfileCard({
       <div className="inner-section flex flex-col gap-[20px]  items-center">
         <div className="flex flex-col items-center  justify-start gap-[20px] w-[100%]">
           <div className="profile w-[100%]">
-            <div
-              className={`w-full h-16 absolute top-0 left-0`}
-              style={{ backgroundColor: user.ProfileBanner_Img_Color }}
-            ></div>
+            {isValidUrl(user.ProfileBanner_Img) ? (
+              <div className={`w-full h-[65px] absolute top-0 left-0`}>
+                <picture>
+                  <source src={user.ProfileBanner_Img} type="" />
+                  <img
+                    src={user.ProfileBanner_Img}
+                    className="w-[100%] h-[100%] "
+                    alt="banner image"
+                  />
+                </picture>
+              </div>
+            ) : (
+              <div
+                className={`w-full h-[65px] absolute top-0 left-0`}
+                style={{
+                  backgroundColor: user.ProfileBanner_Color,
+                }}
+              ></div>
+            )}
 
             <Avatar
               className="w-[70px] h-[70px] flex items-center justify-center rounded-full overflow-hidden relative z-[15] mt-[20px]"

@@ -169,6 +169,10 @@ interface ContextApiProps {
   ) => void;
   Block_A_Specific_User: (AuthToken: string, BlockUserId: string) => void;
   UnBlock_A_Specific_User: (AuthToken: string, UnBlockUserId: string) => void;
+  UpdatingTheUserProfileDetails: (
+    AuthToken: string,
+    formData: FormData
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -433,6 +437,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const UserInfoFetchingFunction = async (AuthToken: string) => {
     try {
       if (!AuthToken) return;
+      deleteCookie("User__Info");
       const response = await axios({
         method: "get",
         url: `${Host}/app/api/auth/userDetails`,
@@ -1151,6 +1156,29 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+  const UpdatingTheUserProfileDetails = async (
+    AuthToken: string,
+    formData: FormData
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/auth/updateUserDetails`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        socket?.emit("UserProfileUpdatedSuccessfully", response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //
   // ? defining the context value
   //
@@ -1224,6 +1252,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     RemoveASpecificFollowerFunction,
     Block_A_Specific_User,
     UnBlock_A_Specific_User,
+    UpdatingTheUserProfileDetails,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

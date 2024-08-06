@@ -3,7 +3,13 @@ import React, { useCallback, useState, useContext, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { IoIosCloseCircle } from "react-icons/io";
 import "./scss/components.css";
-function Single_Image_DragDrop() {
+function Single_Image_DragDrop({
+  MainText = "Drag and Drop an Image",
+  AlternateText = "Drop the files here ...",
+}: {
+  MainText?: string;
+  AlternateText?: string;
+}) {
   // getting the context
   const { Global_Server_Profile_Image, setGlobal_Server_Profile_Image } =
     useContext(Context) as any;
@@ -20,7 +26,7 @@ function Single_Image_DragDrop() {
       });
     });
   }, []);
-  
+
   const Remove_Selected_Image = () => {
     setPreview__Image__URL("");
     setGlobal_Server_Profile_Image("");
@@ -35,11 +41,7 @@ function Single_Image_DragDrop() {
           className="drag-drop-image__uploader cursor-pointer"
         >
           <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag n drop some files </p>
-          )}
+          {isDragActive ? <p>{AlternateText}</p> : <p>{MainText}</p>}
         </div>
       ) : (
         <div className="drag-drop-image__content pt-4 flex items-center justify-center">
