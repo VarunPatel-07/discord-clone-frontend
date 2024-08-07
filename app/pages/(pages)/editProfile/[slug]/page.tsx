@@ -5,14 +5,15 @@ import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 import ProfileBannerImageUploader from "@/components/Model/ProfileBannerImageUploader";
 import UploadProfileImageModal from "@/components/Model/UploadProfileImageModal";
-import Single_Image_DragDrop from "@/components/Single_Image_DragDrop";
+
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Context } from "@/context/ContextApi";
+import { Helmet } from "react-helmet";
 import { useDebounce } from "@/hooks/debounceHook";
 import isValidUrl from "@/hooks/Is_Valid_URL";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { profile } from "console";
+
 import { deleteCookie, getCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,18 +22,28 @@ import { FaPen } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
 
 function Profile() {
+  //
+  //
   const { push } = useRouter();
+  //
+  //
   const {
     UserInfoFetchingFunction,
     UserInformation,
     UpdatingTheUserProfileDetails,
     CheckUsersLoginStatus,
   } = useContext(Context) as any;
+  //
+  //
   const socket = UseSocketIO();
+  //
+  //
   const ColorPickerRefOne =
     useRef() as React.MutableRefObject<HTMLInputElement>;
   const ColorPickerRefTwo =
     useRef() as React.MutableRefObject<HTMLInputElement>;
+  //
+  //
   const [Discord_Loader, setDiscord_Loader] = useState(true);
   const [Is_Editable, setIs_Editable] = useState(false as boolean);
   const [ShowColorPicker, setShowColorPicker] = useState(false);
@@ -73,7 +84,10 @@ function Profile() {
     UserInformation.ProfileBanner_Img as string
   );
   const [Loader, setLoader] = useState(false as boolean);
-
+  //
+  //
+  //
+  //
   const OnChange = (e: any) => {
     const { name, value } = e.target;
     setProfileChangeDoneByEditing({
@@ -81,6 +95,8 @@ function Profile() {
       [name]: value,
     });
   };
+  //
+  //
   useEffect(() => {
     const checkStatus = async () => {
       try {
@@ -103,6 +119,8 @@ function Profile() {
     UserInfoFetchingFunction(AuthToken);
     setDiscord_Loader(false);
   }, []);
+  //
+  //
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -117,6 +135,8 @@ function Profile() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  //
+  //
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -132,6 +152,8 @@ function Profile() {
     };
   }, []);
 
+  //
+  //
   const FetchingTheUserInfoWithDebounce = useDebounce(
     async (AuthToken: string, formData: FormData) => {
       await UpdatingTheUserProfileDetails(AuthToken, formData);
@@ -144,6 +166,8 @@ function Profile() {
     },
     500
   );
+  //
+  //
   const OnFormSubmit = async (e: any) => {
     setLoader(true);
     e.preventDefault();
@@ -163,7 +187,8 @@ function Profile() {
 
     FetchingTheUserInfoWithDebounce(AuthToken, formData);
   };
-
+  //
+  //
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     socket?.on("EmitUserProfileUpdatedSuccessfully", () => {
@@ -171,7 +196,8 @@ function Profile() {
       setDiscord_Loader(false);
     });
   }, [socket]);
-
+  //
+  //
   const LogOutWithDebounce = useDebounce(async () => {
     deleteCookie("User_Authentication_Token");
     deleteCookie("User__Info");
@@ -192,16 +218,29 @@ function Profile() {
     checkStatus();
     setLogOutLoader(false);
   }, 350);
+  //
+  //
   const LogOutButton = () => {
     setLogOutLoader(true);
     LogOutWithDebounce();
   };
-
+  //
+  //
   if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
+    return  <>
+    <Helmet>
+      <title>My Page Title</title>
+      <meta name="description" content="Page description" />
+    </Helmet>
+    <GlobalDiscordLoader />
+  </>;
   } else {
     return (
       <>
+        <Helmet>
+          <title>My Page Title</title>
+          <meta name="description" content="Page description" />
+        </Helmet>
         <div className="bg-[#36393F] w-[100%] h-[100%] px-[15px] overflow-auto no-scrollbar">
           <div className="back-button pt-[40px] xl:max-w-[80%] mx-auto">
             <Link href="/pages/dashboard" className="w-fit block">

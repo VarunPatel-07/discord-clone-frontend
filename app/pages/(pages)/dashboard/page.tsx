@@ -1,4 +1,5 @@
 "use client";
+
 import { Context } from "@/context/ContextApi";
 import { useRouter } from "next/navigation";
 import React, { useState, useContext, useEffect } from "react";
@@ -13,6 +14,8 @@ import { getCookie } from "cookies-next";
 import { useDebounce } from "@/hooks/debounceHook";
 import UsersFollowerAndFollowingComponent from "@/components/UsersFollowerAndFollowingComponent";
 
+import { Helmet, HelmetProvider } from "react-helmet-async";
+
 function Dashboard() {
   const { push } = useRouter();
 
@@ -21,7 +24,7 @@ function Dashboard() {
     CheckUsersLoginStatus,
     FetchTheUserOnTheBaseOfDemand,
     FetchAllTheOtherUsers,
-    AllTheUsersRequestSendOrReceived,
+    setGlobalMetaTagHandler,
   } = useContext(Context) as any;
   //
   //
@@ -40,6 +43,11 @@ function Dashboard() {
   //
   //   ? using the useEffect
   useEffect(() => {
+    setGlobalMetaTagHandler({
+      Title: "Dashboard" as string,
+      Description: "This is the Dashboard Page" as string,
+      Keywords: "" as string,
+    });
     const checkStatus = async () => {
       try {
         const status = await CheckUsersLoginStatus();
@@ -58,7 +66,7 @@ function Dashboard() {
     setShowLoader(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     fetchingDataWithDebounce(AuthToken, "all");
-  }, []);
+  }, [setGlobalMetaTagHandler]);
   const fetchingDataWithDebounce = useDebounce(
     async (AuthToken: string, userState: string) => {
       await FetchTheUserOnTheBaseOfDemand(AuthToken, userState);
@@ -78,10 +86,22 @@ function Dashboard() {
   };
 
   if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
+    return (
+      <HelmetProvider>
+        <Helmet>
+          <title>Dashboard</title>
+          <meta name="description" content="Page description" />
+        </Helmet>
+        <GlobalDiscordLoader />
+      </HelmetProvider>
+    );
   } else {
     return (
-      <>
+      <HelmetProvider>
+        <Helmet>
+          <title>Dashboard</title>
+          <meta name="description" content="Page description" />
+        </Helmet>
         <div className="w-[100%] h-[100vh] flex bg-[#36393F]">
           <div className="w-[15%] max-w-[72px]">
             <Sidebar />
@@ -186,7 +206,7 @@ function Dashboard() {
             </div>
           </div>
         </div>
-      </>
+      </HelmetProvider>
     );
   }
 }

@@ -58,6 +58,8 @@ interface ContextApiProps {
   AllTheReceivedRequestOfTheUser: Array<object>;
   AllTheFollowerOfTheUser: Array<object>;
   AllTheFollowingOfTheUser: Array<object>;
+  GlobalMetaTagHandler: object;
+  setGlobalMetaTagHandler: React.Dispatch<React.SetStateAction<object>>;
 
   //
   //? exporting all the functions
@@ -189,7 +191,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ? defining all the state
   //
   //
-
+  const [GlobalMetaTagHandler, setGlobalMetaTagHandler] = useState({
+    Title: "Discord Clone" as string,
+    Description: "" as string,
+    Keywords: "" as string,
+  });
   const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState({
     ShowAlert: false as boolean,
     Profile_Picture: "" as string,
@@ -497,10 +503,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           inviteCode: InvitationCode,
         },
       });
-
+      console.log(response.data);
       if (response.data.success) {
+        socket?.emit("New_UserJoined_The_Server", response.data);
+        console.log(response.data);
         push(`/pages/server/${response.data.Server_Id}`);
-        socket?.emit("NewMemberJoinedUsingInvitationCode", response.data);
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1183,6 +1190,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ? defining the context value
   //
   const context_value = {
+    GlobalMetaTagHandler,
+    setGlobalMetaTagHandler: setGlobalMetaTagHandler as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+
     GlobalSuccessNotification,
     setGlobalSuccessNotification:
       setGlobalSuccessNotification as React.Dispatch<
@@ -1210,6 +1222,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<
       React.SetStateAction<object>
     >,
+
     FetchAllTheOtherUsers,
     AllTheSendRequestOfTheUser,
     AllTheReceivedRequestOfTheUser,

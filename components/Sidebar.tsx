@@ -65,15 +65,14 @@ function Sidebar() {
           </div>
           <div className="fetching-servers-wrapper h-100 mt-6 overflow-auto w-100">
             <div className="flex flex-col justify-between w-100">
-              <div
+              <Link
+                prefetch={false}
+                href={"/pages/dashboard"}
                 className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
                   Path.split("/").includes("dashboard")
                     ? "active-server"
                     : "server-logo-wrapper"
                 }`}
-                onClick={() => {
-                  push(`/pages/dashboard`);
-                }}
                 data-tooltip-id="HomePage-tooltip"
                 data-tooltip-content="Home Page"
               >
@@ -85,51 +84,45 @@ function Sidebar() {
                   </div>
                 </div>
                 <span className={`absolute active-server-indicator  `}></span>
-              </div>
+              </Link>
 
               {Including_Server_Info_Array?.map((Info: any) => {
                 return (
-                  <div
+                  <Link
+                    prefetch={false}
+                    href={`/pages/server/${Info?.id}`}
                     key={Info.id}
                     className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
                       Path.split("/").includes(Info.id)
                         ? "active-server"
                         : "server-logo-wrapper"
                     }`}
-                    onClick={() => {
-                      push(`/pages/server/${Info?.id}`);
-                    }}
                     data-tooltip-id="Server-name-tooltip"
                     data-tooltip-content={Info?.name}
                   >
                     <div className="clickable-button">
                       <div className="image-section w-100 h-100">
-                        <picture>
-                          <source src={Info.imageUrl} type="" />
-                          <img
-                            src={Info.imageUrl}
-                            alt=""
-                            className="w-100 h-100 object-cover"
-                            loading="lazy"
-                          />
-                        </picture>
+                        <video autoPlay muted loop poster={Info.imageUrl}>
+                          <source src={Info.imageUrl} type="video/mp4" />
+                          <source src={Info.imageUrl} type="video/ogg" />
+                        </video>
                       </div>
                     </div>
                     <span
                       className={`absolute active-server-indicator  `}
                     ></span>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
           </div>
           <div className="account-detailed-section absolute bottom-0 bg-[#202225] z-10 py-6 w-100 left-0">
             <div className="w-[100%] flex items-center justify-center">
-              <Link href="/pages/explorer">
+              <Link href="/pages/explorer" prefetch={false}>
                 <div
                   className="w-[52px] h-[52px] bg-[rgba(255,255,255,0.1)] rounded-full flex flex-col items-center justify-center cursor-pointer transition duration-[0.15s] hover:bg-green-800 hover:rounded-[20px] group"
                   data-tooltip-id="Explorer-tooltip"
-                  data-tooltip-content="Explorer Server" 
+                  data-tooltip-content="Explorer Server"
                 >
                   <MdExplore className="w-[28px] h-[28px] text-green-700 transition duration-[0.15s] group-hover:text-black" />
                 </div>

@@ -5,6 +5,7 @@ import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function UserProfile({ Position }: { Position: string }) {
   const { push } = useRouter();
@@ -30,11 +31,10 @@ function UserProfile({ Position }: { Position: string }) {
       className={`${Position} w-[100%] transition-all cursor-pointer bg-[#121314] hover-parent-to-change-child hover:bg-green-900  px-[12px] py-[12px]`}
     >
       <div className="flex items-center justify-between w-[100%]">
-        <div
+        <Link
+          prefetch={false}
+          href={`/pages/editProfile/${UserInformation.UserName}`}
           className="profile-username flex items-center justify-center gap-[10px]"
-          onClick={() => {
-            push(`/pages/profile/${UserInformation.UserName}`);
-          }}
         >
           <div className="profile">
             <Avatar
@@ -68,7 +68,7 @@ function UserProfile({ Position }: { Position: string }) {
               </div>
             </div>
           </div>
-        </div>
+        </Link>
         <div className="user-action">
           <div className=" flex items-center justify-center gap-[6px]">
             <div
@@ -77,7 +77,6 @@ function UserProfile({ Position }: { Position: string }) {
               data-tooltip-content="Mic"
             >
               <IoMdMic className="text-2xl text-white" />
-             
             </div>
             <div
               className="setting-icon"
@@ -85,7 +84,6 @@ function UserProfile({ Position }: { Position: string }) {
               data-tooltip-content="Settings"
             >
               <IoIosSettings className="text-2xl text-white" />
-             
             </div>
           </div>
         </div>

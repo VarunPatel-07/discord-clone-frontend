@@ -18,10 +18,7 @@ import { Context } from "@/context/ContextApi";
 import { usePathname, useRouter } from "next/navigation";
 import { FaCirclePlus } from "react-icons/fa6";
 import { RxExit } from "react-icons/rx";
-import { toast } from "sonner";
 import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
-import io from "socket.io-client";
-
 import InviteFriendsModel from "@/components/Model/ServerModel/InviteFriendsModel";
 import ManageMemberModal from "@/components/Model/ServerModel/ManageMemberModal";
 import UpdateServerInfo from "@/components/Model/ServerModel/UpdateServerInfo";
@@ -32,10 +29,9 @@ import ServerSideBarChannelContent from "@/components/ServerSideBarChannalConten
 import { getCookie } from "cookies-next";
 import ServerChatsPlayground from "@/components/ServerChatsSection/ServerChatsPlayground";
 import UseSocketIO from "@/hooks/UseSocketIO";
-
+import { Helmet, HelmetProvider } from "react-helmet-async";
 function ServerDetails() {
-  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
-
+  const socket = UseSocketIO();
   const { push } = useRouter();
   const Pathname = usePathname();
   const {
@@ -96,23 +92,6 @@ function ServerDetails() {
     FetchingTheServerInfoByServerId(serverId, AuthToke);
     UserInfoFetchingFunction(AuthToke);
   }, []);
-  const socket = UseSocketIO();
-
-  useEffect(() => {
-    socket?.on("EmitNewMemberJoinedUsingInvitationCode", (data) => {
-      if (!data.Server_Id) return;
-      if (!data.allReadyInServer) {
-        const AuthToken = getCookie("User_Authentication_Token");
-        if (!AuthToken) return;
-        const serverId = data.Server_Id;
-        FetchingTheServerInfoByServerId(serverId, AuthToken);
-      }
-    });
-
-    return () => {
-      socket?.off("EmitNewMemberJoinedUsingInvitationCode");
-    };
-  }, [socket]);
 
   useEffect(() => {
     socket?.on("EmitNewServerCreated", (data) => {
@@ -122,8 +101,44 @@ function ServerDetails() {
       FetchingTheServerInfoByServerId(serverId, AuthToken);
     });
 
+    socket?.on("EmitNew_UserJoined_The_Server", async (data: any) => {
+      console.log("EmitNewMemberJoinedUsingInvitationCode", data);
+      if (!data.Server_Id) return;
+      if (!data.allReadyInServer) {
+        try {
+          const AuthToken = getCookie("User_Authentication_Token");
+          if (!AuthToken) return;
+          const userInfo = JSON.parse(getCookie("User__Info") as string);
+          const serverId = data.Server_Id;
+          await FetchingTheServerInfoByServerId(serverId, AuthToken);
+          setGlobalSuccessNotification({
+            ShowAlert: true,
+            Profile_Picture: data.UserInfo.Profile_Picture as string,
+            FullName: data.UserInfo.FullName as string,
+            UserName: data.UserInfo.UserName as string,
+            Message: "joined the server",
+            Type: "FOLLOW",
+            Notification_Position: "",
+          });
+          setTimeout(() => {
+            setGlobalSuccessNotification({
+              ShowAlert: false,
+              Profile_Picture: "",
+              FullName: "",
+              UserName: "",
+              Message: "",
+              Type: "NORMAL",
+              Notification_Position: "",
+            });
+          }, 25000);
+        } catch (error) {
+          console.error("Error handling new member joined event:", error);
+        }
+      }
+    });
     return () => {
       socket?.off("EmitNewServerCreated");
+      socket?.off("EmitNew_UserJoined_The_Server");
     };
   }, [socket]);
 
@@ -177,7 +192,7 @@ function ServerDetails() {
           } else {
             setGlobalSuccessNotification({
               ShowAlert: true,
-              Message: `You have been removed from the "${response?.serverName}" server`,
+              Message: `The "${response?.serverName}" server has been deleted by the admin`,
               Type: "REMOVE_FROM_SERVER",
             });
             setTimeout(() => {
@@ -212,10 +227,22 @@ function ServerDetails() {
   }, [socket]);
 
   if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
+    return (
+      <HelmetProvider>
+        <Helmet>
+          <title>My Page Title</title>
+          <meta name="description" content="Page description" />
+        </Helmet>
+        <GlobalDiscordLoader />
+      </HelmetProvider>
+    );
   } else {
     return (
-      <>
+      <HelmetProvider>
+        <Helmet>
+          <title>My Page Title</title>
+          <meta name="description" content="Page description" />
+        </Helmet>
         <div className="flex w-full h-full  flex-col bg-[#202225]">
           <div className="w-100 h-100">
             <div className="w-100 h-100 flex">
@@ -229,7 +256,7 @@ function ServerDetails() {
                   </div>
                   <div className="w-100 h-100 flex items-stretch">
                     <div className="server-configuration w-[18%] h-full overflow-hidden  min-w-[200px] bg-[#2a2d31] relative flex flex-col items-start justify-start">
-                      <div className="server-setting-and-modification absolute top-0  z-10 left-0 w-100 bg-[#2a2d31] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
+                      <div className="server-setting-and-modification absolute top-0   left-0 w-100 bg-[#2a2d31] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="curser-pointer text-white border-0 outline-none h-[45px] ">
@@ -418,7 +445,7 @@ function ServerDetails() {
           setShowDeleteServerModal={setShowDeleteServerModal}
           ServerInfoById={ServerInfoById}
         />
-      </>
+      </HelmetProvider>
     );
   }
 }
