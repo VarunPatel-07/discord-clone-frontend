@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/select";
 import { usePathname } from "next/navigation";
 import { getCookie } from "cookies-next";
+import { useDebounce } from "@/hooks/debounceHook";
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 function CreateChannelModal({
   ShowCreateNewChannelModal,
   setShowCreateNewChannelModal,
@@ -31,21 +33,43 @@ function CreateChannelModal({
 
   const Pathname = usePathname();
   const { CreateNewChannelFunction } = useContext(Context) as any;
+  const [ShowLoader, setShowLoader] = useState(false);
+  //
+  //
+  //
+  const CreateChannelUsingDebounce = useDebounce(
+    async (
+      AuthToken: String,
+      serverId: String,
+      ChannelName: String,
+      ChannelType: String
+    ) => {
+      await CreateNewChannelFunction(
+        AuthToken,
+        serverId,
+        ChannelName,
+        ChannelType
+      );
+      setShowLoader(false);
+      setShowCreateNewChannelModal(false);
+    },
+    350
+  );
   //
   //
   //
   const Create__New__Channel__Function = async (e: any) => {
+    setShowLoader(true);
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     setShowCreateNewChannelModal(true);
-    await CreateNewChannelFunction(
+    CreateChannelUsingDebounce(
       AuthToken,
       serverId,
       CreateChanelInfoChannelName,
       CreateChanelInfoChannelType
     );
-    setShowCreateNewChannelModal(false);
   };
   //
   //
@@ -141,7 +165,7 @@ function CreateChannelModal({
                       type="submit"
                       disabled={CreateChanelInfoChannelName === "general"}
                     >
-                      Create Channel
+                      {ShowLoader ? <SpinnerComponent /> : "create channel"}
                     </button>
                   </form>
                 </div>

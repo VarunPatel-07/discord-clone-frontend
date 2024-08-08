@@ -1,5 +1,7 @@
 import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { getCookie } from "cookies-next";
 import { Edit } from "lucide-react";
 import React, { useContext, useEffect } from "react";
 import { AiOutlineAudio } from "react-icons/ai";
@@ -27,6 +29,8 @@ function ListOfAllTheServerChannel({
     AllTheVideoChannelsOfTheServer,
     CurrentChatChannelInfo,
     setCurrentChatChannelInfo,
+    CreateAnOneToOneConversation,
+    UserInformation,
   } = useContext(Context) as any;
 
   useEffect(() => {
@@ -43,6 +47,21 @@ function ListOfAllTheServerChannel({
       }
     });
   }, [AllTheTextChannelsOfTheServer, setCurrentChatChannelInfo]);
+
+  const CreatingConversation_With_Debounce = useDebounce(
+    async (AuthToken: String, receiver_id: String) => {
+      await CreateAnOneToOneConversation(AuthToken, receiver_id);
+      console.log("done");
+    },
+    350
+  );
+
+  const CreateNewConversation = (receiver_id: string) => {
+
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    CreatingConversation_With_Debounce(AuthToken, receiver_id);
+  };
+
   return (
     <div className="w-[100%] flex flex-col items-start justify-start gap-[10px]">
       {AllTheTextChannelsOfTheServer?.length > 0 && (
@@ -345,6 +364,7 @@ function ListOfAllTheServerChannel({
             <div
               className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[15px] rounded-[5px] cursor-pointer  hover:text-white"
               key={MemberInfo.userId}
+              onClick={() => CreateNewConversation(MemberInfo.userId)}
             >
               <div className="w-100 flex items-center justify-between">
                 <div className="left-part">
@@ -363,36 +383,13 @@ function ListOfAllTheServerChannel({
                     </div>
                     <div className="members-information flex flex-col items-start justify-start gap-[2px]">
                       <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium text-white ">
-                        {MemberInfo?.user?.FullName}
+                        {MemberInfo?.user?.id === UserInformation?.id
+                          ? "You"
+                          : MemberInfo?.user?.FullName}
                       </p>
                     </div>
                   </div>
                 </div>
-                {/* <div className="right-part flex items-center justify-center gap-[5px]">
-                <div className="role-of-member ">
-                  {MemberInfo?.role === "ADMIN" ? (
-                    <p className="global-font-roboto uppercase text-[10px] font-medium rounded-[5px] bg-orange-200 px-[3px] py-[3px] text-center text-orange-900 ">
-                      ADMIN
-                    </p>
-                  ) : (
-                    ""
-                  )}
-                  {MemberInfo?.role === "MODERATOR" ? (
-                    <p className="global-font-roboto uppercase text-[10px] font-medium rounded-[5px] bg-green-200 px-[3px] py-[3px] text-center text-green-900 ">
-                      moderator
-                    </p>
-                  ) : (
-                    ""
-                  )}
-                  {MemberInfo?.role === "GUEST" ? (
-                    <p className="global-font-roboto uppercase text-[10px] font-medium rounded-[5px] bg-blue-200 px-[3px] py-[3px] text-center text-blue-900 ">
-                      GUEST
-                    </p>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </div> */}
               </div>
             </div>
           ))}

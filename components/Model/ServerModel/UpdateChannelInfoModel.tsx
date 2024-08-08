@@ -1,3 +1,4 @@
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 import {
   Select,
   SelectContent,
@@ -6,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
 import React, { useContext, useState } from "react";
@@ -24,7 +26,31 @@ function UpdateChannelInfoModel({
   const { UpdateChannelInfoFunction } = useContext(Context) as any;
   const [ChanelInfoChannelName, setChanelInfoChannelName] = useState("");
   const [ChanelInfoChannelType, setChanelInfoChannelType] = useState("");
+  const [Loading, setLoading] = useState(false);
+
+  const UpdatingTheChannelInfo_With_Debounce = useDebounce(
+    async (
+      AuthToken: String,
+      serverId: String,
+      ChannelName: String,
+      ChannelType: String,
+      channelId: String
+    ) => {
+      await UpdateChannelInfoFunction(
+        AuthToken,
+        serverId,
+        ChannelName,
+        ChannelType,
+        channelId
+      );
+      setLoading(false);
+      setShowModal(false);
+    },
+    350
+  );
+
   const Update__Channel__Function = (e) => {
+    setLoading(true);
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
@@ -35,14 +61,13 @@ function UpdateChannelInfoModel({
       ? ChanelInfoChannelType
       : ChannalInfo.type;
 
-    UpdateChannelInfoFunction(
+    UpdatingTheChannelInfo_With_Debounce(
       AuthToken,
       serverId,
       Channel_Name,
       Channel_Type,
       ChannalInfo.id
     );
-    setShowModal(false);
   };
   return (
     <div
@@ -136,9 +161,9 @@ function UpdateChannelInfoModel({
                     <button
                       className="bg-indigo-500 text-white w-100 px-[15px] py-[12px] rounded-[5px]  capitalize fs-18 font-medium global-font-roboto mt-[30px] transition hover:bg-indigo-700 disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       type="submit"
-                      disabled={ChanelInfoChannelName === "general"}
+                      disabled={ChanelInfoChannelName === "general" || Loading}
                     >
-                      Update Channel
+                      {Loading ? <SpinnerComponent /> : " Update Channel"}
                     </button>
                   </form>
                 </div>

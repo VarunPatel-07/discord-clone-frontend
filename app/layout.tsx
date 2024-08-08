@@ -7,6 +7,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import GlobalSuccessNotification from "@/components/Model/GlobalModel/GlobalSuccessNotification";
 import TootlrTipRenderer from "@/components/TootlrTipRenderer";
 import NextTopLoader from "nextjs-toploader";
+import Sidebar from "@/components/Sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,11 +35,11 @@ export default function RootLayout({
             speed={600}
             zIndex={999999}
           />
-          <section className="min-h-screen h-[100vh] overflow-hidden max-h-[100vh] relative">
+          <main className="min-h-screen h-[100vh] overflow-hidden max-h-[100vh] relative">
             <GlobalSuccessNotification />
-            <main className="w-full h-full">{children}</main>
+            <section className="w-full h-full">{children}</section>
             <TootlrTipRenderer />
-          </section>
+          </main>
         </ContextProvider>
       </body>
     </html>

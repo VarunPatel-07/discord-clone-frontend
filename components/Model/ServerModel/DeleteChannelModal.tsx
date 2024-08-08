@@ -1,4 +1,6 @@
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
 import React, { useContext } from "react";
@@ -15,16 +17,32 @@ function DeleteChannelModal({
 }) {
   const Pathname = usePathname();
   const { DeleteChannelFunction } = useContext(Context) as any;
+
+  const [ShowLoading, setShowLoading] = React.useState(false);
+
+  //
+  //
+  const Deleting_Channel_With_Debounce = useDebounce(
+    async (AuthToken: string, serverId: string, ChannalId: string) => {
+      await DeleteChannelFunction(AuthToken, serverId, ChannalId);
+      setShowLoading(false);
+      setShowModal(false);
+    },
+    350
+  );
+  //
+  //
+
   const Delete_Channel = () => {
+    setShowLoading(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
-    DeleteChannelFunction(AuthToken, serverId, ChannalId);
-    setShowModal(false);
+    Deleting_Channel_With_Debounce(AuthToken, serverId, ChannalId);
   };
   return (
     <div
-      className={`w-[100vw] h-[100vh] fixed top-0 left-0 bg-[rgba(0,0,0,0.5)] backdrop-blur z-20 ${
+      className={`w-[100vw] h-[100vh] fixed top-0 left-0 bg-[rgba(0,0,0,0.5)] transition duration-150 backdrop-blur z-20 ${
         ShowModal ? "scale-100 opacity-100" : "scale-0 opacity-0"
       }`}
     >
@@ -51,9 +69,9 @@ function DeleteChannelModal({
                 </p>
               </div>
               <div className=" mt-8">
-                <div className="flex items-stretch justify-between px-[15px] gap-[30px]">
+                <div className="flex items-center justify-between px-[15px] gap-[30px]">
                   <button
-                    className="bg-transparent text-indigo-700 w-100 px-[15px] py-[8px] max-w-[150px]   rounded-[5px]  capitalize fs-18 font-medium global-font-roboto  transition hover:bg-indigo-700   border-[2px] border-indigo-700  hover:text-white"
+                    className="bg-transparent text-indigo-700 w-100 px-[15px] py-[8px] max-w-[150px]   rounded-[5px]  capitalize fs-18 font-medium global-font-roboto  transition hover:bg-indigo-700   border-[2px] border-indigo-700  hover:text-white min-h-[45px]"
                     type="submit"
                     onClick={() => {
                       setShowModal(false);
@@ -62,11 +80,12 @@ function DeleteChannelModal({
                     cancel
                   </button>
                   <button
-                    className="bg-rose-600 text-white w-100 px-[15px] py-[8x] max-w-[150px] rounded-[5px]  capitalize fs-18 font-medium global-font-roboto  transition hover:bg-rose-800 disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed "
+                    className="bg-rose-600 text-white w-100 px-[15px] py-[8x] max-w-[150px] rounded-[5px] flex items-center justify-center  capitalize fs-18 font-medium global-font-roboto  transition hover:bg-rose-800 disabled:hover:bg-indigo-500 disabled:opacity-50  min-h-[45px]  disabled:cursor-not-allowed  hover:text-white"
                     type="submit"
                     onClick={Delete_Channel}
+                    disabled={ShowLoading}
                   >
-                    delete
+                    {ShowLoading ? <SpinnerComponent /> : "delete"}
                   </button>
                 </div>
               </div>

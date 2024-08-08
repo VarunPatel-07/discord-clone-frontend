@@ -12,6 +12,8 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import LineLoader from "@/components/Loader/LineLoader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCookie } from "cookies-next";
+import { useDebounce } from "@/hooks/debounceHook";
+import SpinnerComponent from "@/components/Loader/SpinnerComponent";
 
 //
 
@@ -30,7 +32,7 @@ function ManageMemberModal({
 }) {
   //
   const Pathname = usePathname();
-
+  const [ShowLoader, setShowLoader] = useState(false as boolean);
   const {
     ChangingMemberRoleFunction,
     UserInformation,
@@ -39,19 +41,59 @@ function ManageMemberModal({
   } = useContext(Context) as any;
 
   //
+  // Using the useDebounce Hook
   //
+  const KickOutMemberUsingDebounce = useDebounce(
+    async (
+      AuthToken: string,
+      serverId: string,
+      userId: string,
+      memberId: string
+    ) => {
+      await KickOutMemberFromServerFunction(
+        AuthToken,
+        serverId,
+        userId,
+        memberId
+      );
 
+      setShowLoader(false);
+    },
+    350
+  );
+  const ChangingMemberRoleWithDebounce = useDebounce(
+    async (
+      AuthToken: string,
+      serverId: string,
+      MemberId: string,
+      MemberRole: string,
+      user_Id: string
+    ) => {
+      await ChangingMemberRoleFunction(
+        AuthToken,
+        serverId,
+        MemberId,
+        MemberRole,
+        user_Id
+      );
+
+      setShowLoader(false);
+    },
+    350
+  );
   //
-
+  //
+  //
   const Change___Member__Role = async (
     MemberId: string,
     MemberRole: string,
     user_Id: string
   ) => {
+    setShowLoader(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
-    await ChangingMemberRoleFunction(
+    ChangingMemberRoleWithDebounce(
       AuthToken,
       serverId,
       MemberId,
@@ -59,16 +101,13 @@ function ManageMemberModal({
       user_Id
     );
   };
+
   const KickOutMemberFromServer = async (userId: string, memberId: string) => {
+    setShowLoader(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
 
-    await KickOutMemberFromServerFunction(
-      AuthToken,
-      serverId,
-      userId,
-      memberId
-    );
+    KickOutMemberUsingDebounce(AuthToken, serverId, userId, memberId);
   };
   return (
     <div
@@ -94,7 +133,7 @@ function ManageMemberModal({
                 </h3>
               </div>
               <div className="members-information-wrapper mt-8 flex flex-col items-start justify-start w-100 ">
-                {ChangingTheMemberRole ? (
+                {ShowLoader ? (
                   <div className="w-100 mx-auto flex items-center justify-center">
                     <LineLoader />
                   </div>

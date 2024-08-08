@@ -60,7 +60,7 @@ interface ContextApiProps {
   AllTheFollowingOfTheUser: Array<object>;
   GlobalMetaTagHandler: object;
   setGlobalMetaTagHandler: React.Dispatch<React.SetStateAction<object>>;
-
+  AllTheMessageOfTheChannel: Array<object>;
   //
   //? exporting all the functions
   //
@@ -175,6 +175,21 @@ interface ContextApiProps {
     AuthToken: string,
     formData: FormData
   ) => void;
+  CreateAnOneToOneConversation: (
+    AuthToken: string,
+    receiver_id: string
+  ) => void;
+  SendMessageInTheSelectedChannelOfServer: (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string,
+    content: string
+  ) => void;
+  FetchTheMessageOFTheChannel: (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -254,6 +269,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
     [] as Array<object>
   );
+  const [AllTheMessageOfTheChannel, setAllTheMessageOfTheChannel] = useState(
+    [] as Array<object>
+  );
 
   //
   //
@@ -265,17 +283,21 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // ?  The Function Below Is Used To Handel The Error Globally
   //
   const GlobalErrorHandler = (error: any) => {
-    console.log("error From GlobalErrorHandler");
+    console.log("error From GlobalErrorHandler", error);
   };
-  const GlobalSuccessNotificationHandler = (data: any, type: string) => {
+  const GlobalSuccessNotificationHandler = (
+    data: any,
+    type: string,
+    ...OtherData: any
+  ) => {
     setGlobalSuccessNotification({
       ShowAlert: true,
       Message: data.message,
       Type: type,
-      FullName: "",
-      Notification_Position: "",
-      Profile_Picture: "",
-      UserName: "",
+      FullName: OtherData.FullName,
+      Notification_Position: OtherData.Notification_Position,
+      Profile_Picture: OtherData.Profile_Picture,
+      UserName: OtherData.UserName,
     });
     setTimeout(() => {
       setGlobalSuccessNotification({
@@ -621,7 +643,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        socket?.emit("NewChannelHasBeenCreated", response.data.server_id);
+        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -649,8 +672,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
+      console.log(response.data);
       if (response.data.success) {
-        socket?.emit("NewChannelHasBeenCreated", response.data.server_id);
+        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {}
   };
@@ -672,6 +697,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
+        GlobalSuccessNotificationHandler(response.data, "NORMAL");
         socket?.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
@@ -1186,6 +1212,84 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       console.log(error);
     }
   };
+
+  const CreateAnOneToOneConversation = async (
+    AuthToken: string,
+    receiver_id: string
+  ) => {
+    try {
+      console.log(receiver_id);
+      if (!AuthToken || receiver_id === "undefined") return;
+      const formData = new FormData();
+      formData.append("receiver_id", receiver_id);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/Messages/CreateOneToOneChat`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+
+  const SendMessageInTheSelectedChannelOfServer = async (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string,
+    content: string
+  ) => {
+    try {
+      if (!AuthToken || server_id === "undefined") return;
+      const formData = new FormData();
+      formData.append("server_id", server_id);
+      formData.append("channel_id", channel_id);
+      formData.append("content", content);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/Messages/sendMessageInTheSelectedChannel`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const FetchTheMessageOFTheChannel = async (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string
+  ) => {
+    try {
+      console.log(server_id, channel_id, AuthToken);
+      if (!AuthToken || server_id === "undefined" || channel_id === "undefined")
+        return;
+
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/Messages/FetchingMessagesOfChannel?server_id=${server_id}&channel_id=${channel_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        setAllTheMessageOfTheChannel(response.data.Data);
+        // socket?.emit("NewMessageHasBeenSent", response.data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+
   //
   // ? defining the context value
   //
@@ -1229,7 +1333,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     ChangingTheMemberRole,
     AllTheFollowerOfTheUser,
     AllTheFollowingOfTheUser,
-
+    AllTheMessageOfTheChannel,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1266,6 +1370,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Block_A_Specific_User,
     UnBlock_A_Specific_User,
     UpdatingTheUserProfileDetails,
+    CreateAnOneToOneConversation,
+    SendMessageInTheSelectedChannelOfServer,
+    FetchTheMessageOFTheChannel,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

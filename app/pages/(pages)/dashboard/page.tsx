@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import React, { useState, useContext, useEffect } from "react";
 import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
-
 import DashboardSideBar from "@/components/Sidebar/DashboardSideBar";
 import { BsFillPersonFill } from "react-icons/bs";
 import ShowAllTheUserInTheDashboard from "@/components/ShowAllTheUserInTheDashboard";
@@ -14,7 +12,6 @@ import { getCookie } from "cookies-next";
 import { useDebounce } from "@/hooks/debounceHook";
 import UsersFollowerAndFollowingComponent from "@/components/UsersFollowerAndFollowingComponent";
 
-import { Helmet, HelmetProvider } from "react-helmet-async";
 
 function Dashboard() {
   const { push } = useRouter();
@@ -86,26 +83,11 @@ function Dashboard() {
   };
 
   if (Discord_Loader) {
-    return (
-      <HelmetProvider>
-        <Helmet>
-          <title>Dashboard</title>
-          <meta name="description" content="Page description" />
-        </Helmet>
-        <GlobalDiscordLoader />
-      </HelmetProvider>
-    );
+    return <GlobalDiscordLoader />;
   } else {
     return (
-      <HelmetProvider>
-        <Helmet>
-          <title>Dashboard</title>
-          <meta name="description" content="Page description" />
-        </Helmet>
+      <>
         <div className="w-[100%] h-[100vh] flex bg-[#36393F]">
-          <div className="w-[15%] max-w-[72px]">
-            <Sidebar />
-          </div>
           <div className="w-[100%] h-[100%] bg-[#36393F] rounded overflow-hidden">
             <div className="w-[100%] h-[100%] flex flex-col">
               <div className="w-100 navbar">
@@ -206,7 +188,7 @@ function Dashboard() {
             </div>
           </div>
         </div>
-      </HelmetProvider>
+      </>
     );
   }
 }

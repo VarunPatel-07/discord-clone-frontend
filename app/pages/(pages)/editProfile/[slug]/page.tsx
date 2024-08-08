@@ -8,7 +8,7 @@ import UploadProfileImageModal from "@/components/Model/UploadProfileImageModal"
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Context } from "@/context/ContextApi";
-import { Helmet } from "react-helmet";
+
 import { useDebounce } from "@/hooks/debounceHook";
 import isValidUrl from "@/hooks/Is_Valid_URL";
 import UseSocketIO from "@/hooks/UseSocketIO";
@@ -227,20 +227,10 @@ function Profile() {
   //
   //
   if (Discord_Loader) {
-    return  <>
-    <Helmet>
-      <title>My Page Title</title>
-      <meta name="description" content="Page description" />
-    </Helmet>
-    <GlobalDiscordLoader />
-  </>;
+    return <GlobalDiscordLoader />;
   } else {
     return (
       <>
-        <Helmet>
-          <title>My Page Title</title>
-          <meta name="description" content="Page description" />
-        </Helmet>
         <div className="bg-[#36393F] w-[100%] h-[100%] px-[15px] overflow-auto no-scrollbar">
           <div className="back-button pt-[40px] xl:max-w-[80%] mx-auto">
             <Link href="/pages/dashboard" className="w-fit block">

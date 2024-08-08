@@ -2,7 +2,7 @@ import React from "react";
 import "../scss/components.css";
 function GlobalDiscordLoader() {
   return (
-    <div className="w-screen h-screen flex items-center bg-black-500 justify-center">
+    <div className="w-screen h-screen flex items-center fixed z-10 top-0 left-0 bg-black backdrop-blur-[10px] justify-center">
       <div className="w-auto h-fit">
         <div className="loader">
           <svg

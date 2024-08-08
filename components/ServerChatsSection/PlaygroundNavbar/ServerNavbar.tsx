@@ -19,7 +19,7 @@ function ServerNavbar() {
   const [OpenSidebar, setOpenSidebar] = useState(false);
   return (
     <>
-      <div className="w-[100%] bg-[#41464f] shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] absolute top-0 left-0 h-[45px]  ">
+      <div className="w-[100%] bg-[#41464f] shadow-[0_0px_5px_0_rgba(0,0,0,0.1)]   h-[45px]  ">
         <div className="w-[100%] h-[100%] px-[12px] py-[10px]">
           <div className="server_info">
             <div className="slider-button"></div>
@@ -59,7 +59,7 @@ function ServerNavbar() {
           </div>
         </div>
       </div>
-      <Sheet open={OpenSidebar} onOpenChange={setOpenSidebar}>
+      {/* <Sheet open={OpenSidebar} onOpenChange={setOpenSidebar}>
         <SheetTrigger>Open</SheetTrigger>
         <SheetContent>
           <SheetHeader>
@@ -70,7 +70,7 @@ function ServerNavbar() {
             </SheetDescription>
           </SheetHeader>
         </SheetContent>
-      </Sheet>
+      </Sheet> */}
     </>
   );
 }
