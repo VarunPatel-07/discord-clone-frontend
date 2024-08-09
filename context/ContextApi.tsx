@@ -60,7 +60,23 @@ interface ContextApiProps {
   AllTheFollowingOfTheUser: Array<object>;
   GlobalMetaTagHandler: object;
   setGlobalMetaTagHandler: React.Dispatch<React.SetStateAction<object>>;
-  AllTheMessageOfTheChannel: Array<object>;
+  AllTheMessageOfTheChannel: {
+    HasMoreData: boolean;
+    Message: Array<object>;
+    TotalPage: number;
+  };
+  Edit_Message_State: {
+    Is_Editing: boolean;
+    MessageId: string;
+    Message: string;
+    ChannelId: string;
+    UserId: string;
+    UserName: string;
+    FullName: string;
+    Profile_Picture: string;
+    current_page: number;
+  };
+  setEdit_Message_State: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -188,7 +204,20 @@ interface ContextApiProps {
   FetchTheMessageOFTheChannel: (
     AuthToken: string,
     server_id: string,
-    channel_id: string
+    channel_id: string,
+    Page: number,
+    Limit: number
+  ) => void;
+  EditMessageFunction: (
+    AuthToken: string,
+    message_id: string,
+    content: string,
+    Current_Page: number
+  ) => void;
+  DeleteMessageFunction: (
+    AuthToken: string,
+    message_id: string,
+    Current_Page: number
   ) => void;
 }
 
@@ -219,6 +248,18 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Message: "" as string,
     Type: "NORMAL" as string,
     Notification_Position: "" as string,
+  });
+
+  const [Edit_Message_State, setEdit_Message_State] = useState({
+    Is_Editing: false as boolean,
+    MessageId: "" as string,
+    Message: "" as string,
+    ChannelId: "" as string,
+    UserId: "" as string,
+    UserName: "" as string,
+    FullName: "" as string,
+    Profile_Picture: "" as string,
+    current_page: 0 as number,
   });
 
   const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
@@ -269,9 +310,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
     [] as Array<object>
   );
-  const [AllTheMessageOfTheChannel, setAllTheMessageOfTheChannel] = useState(
-    [] as Array<object>
-  );
+  const [AllTheMessageOfTheChannel, setAllTheMessageOfTheChannel] = useState({
+    HasMoreData: false as boolean,
+    Message: [] as Array<object>,
+    TotalPage: 0 as number,
+  });
 
   //
   //
@@ -465,7 +508,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const UserInfoFetchingFunction = async (AuthToken: string) => {
     try {
       if (!AuthToken) return;
-      deleteCookie("User__Info");
+      // deleteCookie("User__Info");
       const response = await axios({
         method: "get",
         url: `${Host}/app/api/auth/userDetails`,
@@ -1258,7 +1301,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
-      console.log(response.data);
+      if (response.data.success) {
+        socket?.emit("NewMessageHasBeenSent", response.data);
+      }
     } catch (error) {
       GlobalErrorHandler(error);
     }
@@ -1266,30 +1311,101 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const FetchTheMessageOFTheChannel = async (
     AuthToken: string,
     server_id: string,
-    channel_id: string
+    channel_id: string,
+    Page: number,
+    Limit: number
   ) => {
+    console.log("fetching message");
     try {
-      console.log(server_id, channel_id, AuthToken);
-      if (!AuthToken || server_id === "undefined" || channel_id === "undefined")
+      if (
+        !AuthToken ||
+        server_id === "undefined" ||
+        channel_id === "undefined"
+      ) {
         return;
+      }
 
       const response = await axios({
         method: "get",
-        url: `${Host}/app/api/Messages/FetchingMessagesOfChannel?server_id=${server_id}&channel_id=${channel_id}`,
+        url: `${Host}/app/api/Messages/FetchingMessagesOfChannel?server_id=${server_id}&channel_id=${channel_id}&page=${Page}&limit=${Limit}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data.Data.messages);
+      if (response.data.success) {
+        setAllTheMessageOfTheChannel((prevState: any) => ({
+          HasMoreData: response.data.Data.hasMoreData,
+          Message: [
+            ...(prevState?.Message || []),
+            ...response.data.Data.messages,
+          ],
+          TotalPage: response.data.Data.totalPages,
+        }));
+        return response.data.Data.messages;
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const EditMessageFunction = async (
+    AuthToken: string,
+    message_id: string,
+    content: string,
+    Current_Page: number
+  ) => {
+    try {
+      if (!AuthToken || message_id === "undefined") return;
+      const formData = new FormData();
+      formData.append("message", content);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/Messages/EditMessage?message_id=${message_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        const Data = {
+          response: response.data,
+          currentPage: Current_Page,
+        };
+        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const DeleteMessageFunction = async (
+    AuthToken: string,
+    message_id: string,
+    Current_Page: number
+  ) => {
+    try {
+      if (!AuthToken || message_id === "undefined") return;
+
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/Messages/DeleteMessage?message_id=${message_id}`,
         headers: {
           Authorization: AuthToken,
           "Content-Type": "multipart/form-data",
         },
       });
       if (response.data.success) {
-        setAllTheMessageOfTheChannel(response.data.Data);
-        // socket?.emit("NewMessageHasBeenSent", response.data);
+        const Data = {
+          response: response.data,
+          currentPage: Current_Page,
+        };
+        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
       }
     } catch (error) {
       GlobalErrorHandler(error);
     }
   };
-
   //
   // ? defining the context value
   //
@@ -1334,6 +1450,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     AllTheFollowerOfTheUser,
     AllTheFollowingOfTheUser,
     AllTheMessageOfTheChannel,
+
+    Edit_Message_State,
+    setEdit_Message_State: setEdit_Message_State as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1373,6 +1495,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     CreateAnOneToOneConversation,
     SendMessageInTheSelectedChannelOfServer,
     FetchTheMessageOFTheChannel,
+    EditMessageFunction,
+    DeleteMessageFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

@@ -1,18 +1,59 @@
-
-
-
-
- success: true,
-        message: "Follow request sent successfully",
-        request_sender_info: {
-          id: request_sender.id,
-          name: request_sender.FullName,
-          UserName: request_sender.UserName,
-          Profile_Picture: request_sender.Profile_Picture,
-        },
-        request_receiver_info: {
-          id: request_receiver.id,
-          name: request_receiver.FullName,
-          UserName: request_receiver.UserName,
-          Profile_Picture: request_receiver.Profile_Picture,
-        },
+NewMessageHasOccurred {
+  success: true,
+  message: 'Message sent successfully',
+  data: {
+    id: '949ba212-71ea-4f94-996d-06a5885e4823',
+    content: 'hi',
+    FileURL: '',
+    IsEdited: false,
+    IsDeleted: false,
+    DeletedBy: '',
+    Is_Reply: false,
+    ReplyingContent: '',
+    memberId: 'a66669c1-abd7-4b60-8b45-3816057a8dd4',
+    channelId: '7d37e9e2-0e90-4219-b811-80abb9742cc8',
+    createdAt: '2024-08-09T06:23:48.405Z',
+    updatedAt: '2024-08-09T06:23:48.405Z',
+    member: {
+      id: 'a66669c1-abd7-4b60-8b45-3816057a8dd4',
+      role: 'ADMIN',
+      userId: 'b6f67a7c-b142-4bcb-b852-df65aa67f4b8',
+      serverId: '8a99aca5-d719-4d81-8cd4-7d522a0ce3c7',
+      createdAt: '2024-08-07T10:57:54.409Z',
+      updatedAt: '2024-08-07T10:57:54.409Z',
+      user: [Object]
+    },
+    channel: {
+      id: '7d37e9e2-0e90-4219-b811-80abb9742cc8',
+      name: 'general',
+      type: 'TEXT',
+      userId: 'b6f67a7c-b142-4bcb-b852-df65aa67f4b8',
+      serverId: '8a99aca5-d719-4d81-8cd4-7d522a0ce3c7',
+      createdAt: '2024-08-07T10:57:54.409Z',
+      updatedAt: '2024-08-07T10:57:54.409Z'
+    }
+  }
+}
+MessageHasBeenEditedSuccessfully {
+  response: {
+    success: true,
+    message: 'Message updated successfully',
+    data: {
+      id: 'fdc4586f-c74a-4de0-bf56-3852317952d1',
+      content: 'hello. bewkkjbbkbk',
+      FileURL: '',
+      IsEdited: true,
+      IsDeleted: false,
+      DeletedBy: '',
+      Is_Reply: false,
+      ReplyingContent: '',
+      memberId: 'a66669c1-abd7-4b60-8b45-3816057a8dd4',
+      channelId: '7d37e9e2-0e90-4219-b811-80abb9742cc8',
+      createdAt: '2024-08-09T06:23:14.843Z',
+      updatedAt: '2024-08-09T12:14:26.427Z',
+      member: [Object],
+      channel: [Object]
+    }
+  },
+  currentPage: 1
+}

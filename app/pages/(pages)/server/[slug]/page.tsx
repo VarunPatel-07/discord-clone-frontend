@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, Suspense } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

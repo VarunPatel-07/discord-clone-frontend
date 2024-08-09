@@ -122,3 +122,16 @@ body {
 .remove-scrollbar::-webkit-scrollbar {
   display: none;
 }
+.connecting-arrow-left {
+  clip-path: polygon(100% 0, 100% 100%, 100% 100%, 0 0, 0% 0%);
+  width: 50px;
+  height: 50px;
+}
+.parent {
+  filter: url("#goo");
+  overflow: hidden;
+
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}

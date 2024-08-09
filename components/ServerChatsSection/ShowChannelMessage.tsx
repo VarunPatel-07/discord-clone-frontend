@@ -1,95 +1,182 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Context } from "@/context/ContextApi";
-import { AiOutlineAudio } from "react-icons/ai";
-import { IoMdVideocam } from "react-icons/io";
-import { FaHashtag, FaPen } from "react-icons/fa";
+
 import Message from "./Message";
 import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
+import UseSocketIO from "@/hooks/UseSocketIO";
 
+import { useDebounce } from "@/hooks/debounceHook";
+import { useInView } from "react-intersection-observer";
+
+import ChatDefaultScreen from "./ChatDefaultScreen";
 function ShowChannelMessage() {
+  const BottomDiv = useRef<HTMLDivElement>(null);
   const Pathname = usePathname();
+  const socket = UseSocketIO();
+  const [Page, setPage] = useState(1);
+  const [Limit, setLimit] = useState(10);
+
+  const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
+  const { ref, inView } = useInView();
+  //
+  //
+  //
   const {
     CurrentChatChannelInfo,
     FetchTheMessageOFTheChannel,
     AllTheMessageOfTheChannel,
   } = useContext(Context) as any;
-  useEffect(() => {
-    const AuthToken = getCookie("User_Authentication_Token") as string;
-    const serverId = Pathname?.split("/")[3];
-    const channel_id = CurrentChatChannelInfo?.ChatId;
-    FetchTheMessageOFTheChannel(AuthToken, serverId, channel_id);
-  }, []);
-  return (
-    <div className="w-[100%] h-[100%] relative transition-all duration-300  overflow-auto">
-      <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] py-[20px] transition-all duration-300">
-        <div className="default-section w-[100%]">
-          <div className="server_name flex flex-col items-start justify-start gap-[5px]">
-            {CurrentChatChannelInfo.ChatType === "TEXT" ? (
-              <span className=" w-[60px] h-[60px] flex flex-col items-center justify-center bg-gray-600 rounded-full mb-[10px]">
-                <span className="block text-white">
-                  <FaHashtag className="w-[35px] h-[35px] " />
-                </span>
-              </span>
-            ) : (
-              ""
-            )}
+  //
+  //
+  const FetchTheMessagesWithDebounce = useDebounce(
+    async (AuthToken, serverId, channel_id, Page = 1, Limit = 10) => {
+      console.log("fetching messages");
+      const newMessages = await FetchTheMessageOFTheChannel(
+        AuthToken,
+        serverId,
+        channel_id,
+        Page,
+        Limit
+      );
 
-            {CurrentChatChannelInfo.ChatType === "AUDIO" ? (
-              <span className=" w-[60px] h-[60px] flex flex-col items-center justify-center bg-gray-600 rounded-full mb-[10px] ">
-                <span className="block text-white">
-                  <AiOutlineAudio className="w-[35px] h-[35px] " />
-                </span>
-              </span>
-            ) : (
-              ""
-            )}
-            {CurrentChatChannelInfo.ChatType === "VIDEO" ? (
-              <span className=" w-[60px] h-[60px] flex flex-col items-center justify-center bg-gray-600 rounded-full mb-[10px]">
-                <span className="block text-white">
-                  <IoMdVideocam className="w-[35px] h-[35px] " />
-                </span>
-              </span>
-            ) : (
-              ""
-            )}
-            <p className="global-font-roboto  text-[30px] font-medium text-white flex items-center gap-[5px]">
-              <span className="capitalize inline-block"> welcome to </span>
-              <span>#{CurrentChatChannelInfo.ChatName}</span>
-            </p>
-            <p className="global-font-roboto  text-[16px] font-light text-slate-300 flex items-center gap-[5px]">
-              <span className="capitalize inline-block">
-                this is the start of
-              </span>
-              <span> #{CurrentChatChannelInfo.ChatName}</span>
-              <span className="capitalize inline-block">the channel</span>
-            </p>
-            <button className="flex items-center gap-[5px] text-blue-400 px-[10px] py-[5px] transition-all duration-150 rounded-[5px] hover:bg-[#2f3136] mt-[5px]">
-              <span>
-                <FaPen className="w-[14px] h-[14px] " />
-              </span>
-              <span className="capitalize">edit channel</span>
-            </button>
-          </div>
-        </div>
+      setChannalMessages((prevMessages) => [...prevMessages, ...newMessages]);
+    },
+    150
+  );
+
+  const scrollToBottom = () => {
+    BottomDiv.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [CurrentChatChannelInfo]);
+
+  //
+  useEffect(() => {
+    console.log(ChannalMessages.length);
+    if (ChannalMessages.length <= 0) {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const serverId = Pathname?.split("/")[3];
+      const channel_id = CurrentChatChannelInfo?.ChatId;
+
+      FetchTheMessagesWithDebounce(AuthToken, serverId, channel_id);
+    }
+  }, [CurrentChatChannelInfo]);
+  //
+  //
+  //
+
+  const FetchMoreDataFunction = async () => {
+    console.log("fetching more data");
+    try {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const serverId = Pathname?.split("/")[3];
+      const channel_id = CurrentChatChannelInfo?.ChatId;
+
+      // Fetch data for the next page
+      FetchTheMessagesWithDebounce(
+        AuthToken,
+        serverId,
+        channel_id,
+        Page + 1,
+        Limit
+      );
+
+      // Increment page number after fetching
+      setPage((prevPage) => prevPage + 1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //
+  //
+  //
+  useEffect(() => {
+    if (inView) {
+      FetchMoreDataFunction();
+    }
+  }, [inView]);
+  //
+  //
+  //
+  useEffect(() => {
+    socket?.on("EmitNewMessageHasBeenSent", async (data) => {
+      if (data?.success) {
+        if (!AllTheMessageOfTheChannel?.HasMoreData) {
+          const message = data?.data;
+          setChannalMessages((prevMessages) => [...prevMessages, message]);
+          scrollToBottom();
+        }
+      }
+    });
+    socket?.on("EmitMessageHasBeenEditedSuccessfully", async (data) => {
+      if (data?.response?.success) {
+        const AuthToken = getCookie("User_Authentication_Token") as string;
+        const serverId = data?.response?.data?.channel?.serverId;
+        const channel_id = data?.response?.data?.channel?.id;
+        const current_page = Page;
+        console.log("fetching updated messages");
+        const newMessages = await FetchTheMessageOFTheChannel(
+          AuthToken,
+          serverId,
+          channel_id,
+          current_page,
+          Limit
+        );
+
+        setChannalMessages(newMessages);
+      }
+    });
+    return () => {
+      socket?.off("EmitNewMessageHasBeenSent");
+      socket?.off("EmitMessageHasBeenEditedSuccessfully");
+    };
+  }, [socket]);
+  //
+  //
+  //
+  return (
+    <div className="w-[100%] min-h-[100%] h-[100%] relative transition-all duration-300  overflow-auto">
+      <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] pt-[30px] pb-[10px] transition-all duration-300">
+        <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
         <div className="message-fetching transition-all duration-300 w-[100%] ">
-          <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
-          <div className="w-[100%]  ">
-            {AllTheMessageOfTheChannel?.map((message: any) => {
-              return (
-                <Message
-                  key={message._id}
-                  FullName={message?.member?.user?.FullName}
-                  Profile_Picture={message?.member?.user?.Profile_Picture}
-                  UserName={message?.member?.user?.UserName}
-                  message={message?.content}
-                  Is_Edited={message?.Is_Edited}
-                  Time={message?.createdAt}
-                />
-              );
-            })}
-          </div>
+          {ChannalMessages.length > 0 && (
+            <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
+          )}
+
+          {ChannalMessages.length > 0 && (
+            <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
+              {ChannalMessages?.map((message: any) => {
+                return (
+                  <Message
+                    key={message?.id}
+                    FullName={message?.member?.user?.FullName}
+                    Profile_Picture={message?.member?.user?.Profile_Picture}
+                    UserName={message?.member?.user?.UserName}
+                    message={message?.content}
+                    Is_Edited={message?.IsEdited}
+                    Time={message?.createdAt}
+                    UserId={message?.member?.user?.id}
+                    channel_id={message?.channel?.id}
+                    message_id={message?.id}
+                    AdminId={message?.channel?.userId}
+                    Current_Page={Page}
+                    Is_Deleted={message?.IsDeleted}
+                  />
+                );
+              })}
+            </div>
+          )}
+          {AllTheMessageOfTheChannel?.HasMoreData ? (
+            <div ref={ref}>loading...</div>
+          ) : (
+            ""
+          )}
+          <div ref={BottomDiv}></div>
         </div>
       </div>
     </div>
