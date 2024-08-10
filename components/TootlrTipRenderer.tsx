@@ -4,6 +4,9 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 function TootlrTipRenderer() {
   return (
     <>
+      <ReactTooltip id="Reply-Chat-icon-tooltip" place="top" />
+      <ReactTooltip id="Edit-Chat-icon-tooltip" place="top" />
+      <ReactTooltip id="Delete-Chat-icon-tooltip" place="top" />
       <ReactTooltip id="mic-icon-tooltip" />
       <ReactTooltip id="setting-tooltip" />
       <ReactTooltip id="Server-name-tooltip" />

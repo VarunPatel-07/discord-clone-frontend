@@ -17,6 +17,9 @@ function ServerFooterBar() {
     setEdit_Message_State,
     UserInformation,
     EditMessageFunction,
+    Reply_A_Specific_Message_State,
+    setReply_A_Specific_Message_State,
+    Reply_A_SpecificMessageFunction,
   } = useContext(Context) as any;
   const [Message, setMessage] = useState("");
   const [Loading, setLoading] = useState(false);
@@ -54,9 +57,43 @@ function ServerFooterBar() {
     },
     200
   );
+
+  const ReplayMessageWithDebounce = useDebounce(
+    async (
+      AuthToken: string,
+      serverId: string,
+      channelId: string,
+      message: string,
+      message_id: string
+    ) => {
+      await Reply_A_SpecificMessageFunction(
+        AuthToken,
+        serverId,
+        channelId,
+        message,
+
+        message_id
+      );
+      setLoading(false);
+      setMessage("");
+      remove_Edit_Message_State_StateInfo();
+    },
+    350
+  );
+
   const remove_Edit_Message_State_StateInfo = () => {
     setEdit_Message_State({
       Is_Editing: false as boolean,
+      MessageId: "" as string,
+      Message: "" as string,
+      ChannelId: "" as string,
+      UserId: "" as string,
+      UserName: "" as string,
+      FullName: "" as string,
+      Profile_Picture: "" as string,
+    });
+    setReply_A_Specific_Message_State({
+      Is_Replying: false as boolean,
       MessageId: "" as string,
       Message: "" as string,
       ChannelId: "" as string,
@@ -89,23 +126,47 @@ function ServerFooterBar() {
     EditMessageWithDebounce(AuthToken, message_id, message, Current_Page);
   };
 
+  const Replay_Message_OnSubmit = async (e) => {
+    setLoading(true);
+    e.preventDefault();
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    const message_id = Reply_A_Specific_Message_State?.MessageId;
+    const serverId = Pathname?.split("/")[3];
+    const channel_id = CurrentChatChannelInfo?.ChatId;
+    const message = Message;
+    ReplayMessageWithDebounce(
+      AuthToken,
+      serverId,
+      channel_id,
+      message,
+      message_id
+    );
+  };
+
   useEffect(() => {
     setMessage(Edit_Message_State?.Message);
   }, [Edit_Message_State]);
 
   return (
     <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px] relative backdrop-blur-[10px] bg-[rgba(0,0,0,0.3)]">
-      {Edit_Message_State.Is_Editing && (
+      {(Edit_Message_State.Is_Editing ||
+        Reply_A_Specific_Message_State?.Is_Replying) && (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
           <div className="flex items-start">
             <div className="profile">
               <Avatar className="w-[40px] h-[40px] ">
                 <AvatarImage
-                  src={Edit_Message_State?.Profile_Picture}
+                  src={
+                    Edit_Message_State.Is_Editing
+                      ? Edit_Message_State?.Profile_Picture
+                      : Reply_A_Specific_Message_State?.Profile_Picture
+                  }
                   className="w-[100%] h-[100%]"
                 />
                 <AvatarFallback className="capitalize font-medium text-[15px]">
-                  {Edit_Message_State?.FullName?.split("")[0]}
+                  {Edit_Message_State.Is_Editing
+                    ? Edit_Message_State?.FullName?.split("")[0]
+                    : Reply_A_Specific_Message_State?.FullName?.split("")[0]}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -114,15 +175,22 @@ function ServerFooterBar() {
                 <div className="head   flex items-center justify-start gap-[10px]">
                   <div className="username">
                     <p className="text-white global-font-roboto text-[14px] font-[400]  capitalize ">
-                      {Edit_Message_State?.UserId === UserInformation?.id
+                      {Edit_Message_State.Is_Editing
+                        ? Edit_Message_State?.UserId === UserInformation?.id
+                          ? "You"
+                          : Edit_Message_State?.UserName
+                        : Reply_A_Specific_Message_State?.UserId ===
+                          UserInformation?.id
                         ? "You"
-                        : Edit_Message_State?.UserName}
+                        : Reply_A_Specific_Message_State?.UserName}
                     </p>
                   </div>
                 </div>
                 <div className="message">
                   <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
-                    {Edit_Message_State?.Message}
+                    {Edit_Message_State.Is_Editing
+                      ? Edit_Message_State?.Message
+                      : Reply_A_Specific_Message_State?.Message}
                   </p>
                 </div>
               </div>
@@ -148,6 +216,8 @@ function ServerFooterBar() {
               onSubmit={
                 Edit_Message_State.Is_Editing
                   ? Edit_SpecificMessage
+                  : Reply_A_Specific_Message_State?.Is_Replying
+                  ? Replay_Message_OnSubmit
                   : OnFormSubmit
               }
               className="w-[100%] h-[100%]"

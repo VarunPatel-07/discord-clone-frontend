@@ -77,6 +77,20 @@ interface ContextApiProps {
     current_page: number;
   };
   setEdit_Message_State: React.Dispatch<React.SetStateAction<object>>;
+  Reply_A_Specific_Message_State: {
+    Is_Replying: boolean;
+    MessageId: string;
+    Message: string;
+    ChannelId: string;
+    UserId: string;
+    UserName: string;
+    FullName: string;
+    Profile_Picture: string;
+    current_page: number;
+  };
+  setReply_A_Specific_Message_State: React.Dispatch<
+    React.SetStateAction<object>
+  >;
   //
   //? exporting all the functions
   //
@@ -219,6 +233,13 @@ interface ContextApiProps {
     message_id: string,
     Current_Page: number
   ) => void;
+  Reply_A_SpecificMessageFunction: (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string,
+    content: string,
+    message_id: string
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -261,6 +282,19 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Profile_Picture: "" as string,
     current_page: 0 as number,
   });
+  const [Reply_A_Specific_Message_State, setReply_A_Specific_Message_State] =
+    useState({
+      Is_Replying: false as boolean,
+      MessageId: "" as string,
+      Message: "" as string,
+      ChannelId: "" as string,
+      UserId: "" as string,
+      UserName: "" as string,
+      FullName: "" as string,
+      Profile_Picture: "" as string,
+      current_page: 0 as number,
+      Is_Deleted: false as boolean,
+    });
 
   const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
     useState({
@@ -1406,6 +1440,45 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+
+  const Reply_A_SpecificMessageFunction = async (
+    AuthToken: string,
+    server_id: string,
+    channel_id: string,
+    content: string,
+
+    message_id: string
+  ) => {
+    try {
+      if (!AuthToken || server_id === "undefined") return;
+      const formData = new FormData();
+      formData.append("server_id", server_id);
+      formData.append("channel_id", channel_id);
+      formData.append("content", content);
+
+      formData.append("message_id", message_id);
+
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/Messages/ReplayMessage`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data.success) {
+        const Data = {
+          response: response.data,
+          currentPage: 1,
+        };
+        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+
   //
   // ? defining the context value
   //
@@ -1455,6 +1528,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setEdit_Message_State: setEdit_Message_State as React.Dispatch<
       React.SetStateAction<object>
     >,
+    Reply_A_Specific_Message_State,
+    setReply_A_Specific_Message_State:
+      setReply_A_Specific_Message_State as React.Dispatch<
+        React.SetStateAction<object>
+      >,
 
     Login_User_Function,
     CheckUsersLoginStatus,
@@ -1497,6 +1575,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FetchTheMessageOFTheChannel,
     EditMessageFunction,
     DeleteMessageFunction,
+    Reply_A_SpecificMessageFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

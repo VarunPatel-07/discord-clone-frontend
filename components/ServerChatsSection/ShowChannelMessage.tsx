@@ -19,6 +19,7 @@ function ShowChannelMessage() {
   const [Limit, setLimit] = useState(10);
 
   const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
+  const [Previous_ChannelId, setPrevious_ChannelId] = useState("" as string);
   const { ref, inView } = useInView();
   //
   //
@@ -31,8 +32,14 @@ function ShowChannelMessage() {
   //
   //
   const FetchTheMessagesWithDebounce = useDebounce(
-    async (AuthToken, serverId, channel_id, Page = 1, Limit = 10) => {
-      console.log("fetching messages");
+    async (
+      AuthToken,
+      serverId,
+      channel_id,
+      Page = 1,
+      Limit = 10,
+      All_Data_Again: boolean
+    ) => {
       const newMessages = await FetchTheMessageOFTheChannel(
         AuthToken,
         serverId,
@@ -40,7 +47,8 @@ function ShowChannelMessage() {
         Page,
         Limit
       );
-
+      console.log("All_Data_Again", All_Data_Again);
+      if (All_Data_Again) return setChannalMessages(newMessages);
       setChannalMessages((prevMessages) => [...prevMessages, ...newMessages]);
     },
     150
@@ -56,21 +64,28 @@ function ShowChannelMessage() {
 
   //
   useEffect(() => {
-    console.log(ChannalMessages.length);
-    if (ChannalMessages.length <= 0) {
-      const AuthToken = getCookie("User_Authentication_Token") as string;
-      const serverId = Pathname?.split("/")[3];
-      const channel_id = CurrentChatChannelInfo?.ChatId;
+    if (CurrentChatChannelInfo?.ChatId === Previous_ChannelId) return;
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    const serverId = Pathname?.split("/")[3];
+    const channel_id = CurrentChatChannelInfo?.ChatId;
+    const All_Data_Again = true;
 
-      FetchTheMessagesWithDebounce(AuthToken, serverId, channel_id);
-    }
+    FetchTheMessagesWithDebounce(
+      AuthToken,
+      serverId,
+      channel_id,
+      1,
+      10,
+      All_Data_Again
+    );
+
+    setPrevious_ChannelId(CurrentChatChannelInfo?.ChatId as string);
   }, [CurrentChatChannelInfo]);
   //
   //
   //
 
   const FetchMoreDataFunction = async () => {
-    console.log("fetching more data");
     try {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       const serverId = Pathname?.split("/")[3];
@@ -82,7 +97,8 @@ function ShowChannelMessage() {
         serverId,
         channel_id,
         Page + 1,
-        Limit
+        Limit,
+        false
       );
 
       // Increment page number after fetching
@@ -115,20 +131,13 @@ function ShowChannelMessage() {
     });
     socket?.on("EmitMessageHasBeenEditedSuccessfully", async (data) => {
       if (data?.response?.success) {
-        const AuthToken = getCookie("User_Authentication_Token") as string;
-        const serverId = data?.response?.data?.channel?.serverId;
-        const channel_id = data?.response?.data?.channel?.id;
-        const current_page = Page;
-        console.log("fetching updated messages");
-        const newMessages = await FetchTheMessageOFTheChannel(
-          AuthToken,
-          serverId,
-          channel_id,
-          current_page,
-          Limit
+        const updatedMessage = data?.response?.data;
+        console.log(data);
+        setChannalMessages((prevMessages) =>
+          prevMessages.map((msg: any) =>
+            msg.id === updatedMessage.id ? updatedMessage : msg
+          )
         );
-
-        setChannalMessages(newMessages);
       }
     });
     return () => {
@@ -144,13 +153,14 @@ function ShowChannelMessage() {
       <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] pt-[30px] pb-[10px] transition-all duration-300">
         <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
         <div className="message-fetching transition-all duration-300 w-[100%] ">
-          {ChannalMessages.length > 0 && (
+          {ChannalMessages?.length > 0 && (
             <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
           )}
 
-          {ChannalMessages.length > 0 && (
+          {ChannalMessages?.length > 0 && (
             <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
               {ChannalMessages?.map((message: any) => {
+                console.log("message", message);
                 return (
                   <Message
                     key={message?.id}
@@ -166,6 +176,8 @@ function ShowChannelMessage() {
                     AdminId={message?.channel?.userId}
                     Current_Page={Page}
                     Is_Deleted={message?.IsDeleted}
+                    Is_Replied={message?.Is_Reply}
+                    MessageReplies={message?.ServerGroupMessageReplies}
                   />
                 );
               })}
