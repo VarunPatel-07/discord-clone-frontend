@@ -3,15 +3,33 @@ import ServerNavbar from "./PlaygroundNavbar/ServerNavbar";
 import ServerFooterBar from "./PlaygroundNavbar/ServerFooterBar";
 import ShowChannelMessage from "./ShowChannelMessage";
 import { ScrollArea } from "../ui/scroll-area";
+import AudioAndVideoCallSection from "../AudioAndVideoCall/AudioAndVideoCallSection";
 
-function ServerChatsPlayground() {
+function ServerChatsPlayground({
+  CurrentChatChannelInfo,
+}: {
+  CurrentChatChannelInfo: {
+    ChatId: string;
+    ChatName: string;
+    ChatType: string;
+    ChatUserId: string;
+  };
+}) {
   return (
-    <div className="w-[100%] h-[100%]  overflow-hidden relative flex flex-col">
+    <div className="w-[100%] h-[100%]  overflow-hidden relative  transition-all duration-200 ease-in-out">
       <ServerNavbar />
-      <ScrollArea className="w-[100%] h-[100%]">
-        <ShowChannelMessage />
-      </ScrollArea>
-      <ServerFooterBar />
+      {CurrentChatChannelInfo.ChatType === "TEXT" && (
+        <ScrollArea className="w-[100%] h-[100%]">
+          <ShowChannelMessage />
+        </ScrollArea>
+      )}
+      {(CurrentChatChannelInfo.ChatType === "AUDIO" ||
+        CurrentChatChannelInfo.ChatType === "VIDEO") && (
+        <div className="w-[100%] h-[100%]">
+          <AudioAndVideoCallSection />
+        </div>
+      )}
+      {CurrentChatChannelInfo.ChatType === "TEXT" && <ServerFooterBar />}
     </div>
   );
 }

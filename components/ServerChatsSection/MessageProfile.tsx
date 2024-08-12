@@ -87,7 +87,7 @@ function MessageProfile({
 
   return (
     <div
-      className={`w-[100%] flex items-start justify-between ${Other_ClassName} `}
+      className={`w-[100%] flex items-start justify-between transition-all duration-150 ${Other_ClassName} `}
     >
       <div className="message-container w-[100%] flex items-start  justify-start">
         <div className="profile">

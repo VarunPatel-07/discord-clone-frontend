@@ -43,6 +43,7 @@ function ServerDetails() {
     Check_The_User_Is_KickedOut,
     setGlobalSuccessNotification,
     Check_Server_Is_Deleted,
+    CurrentChatChannelInfo,
   } = useContext(Context) as any;
 
   const [ShowInviteMemberModal, setShowInviteMemberModal] = useState(
@@ -386,7 +387,9 @@ function ServerDetails() {
                     </div>
                   </div>
                   <div className="chats w-[82%] bg-[#36393F]">
-                    <ServerChatsPlayground />
+                    <ServerChatsPlayground
+                      CurrentChatChannelInfo={CurrentChatChannelInfo}
+                    />
                   </div>
                 </div>
               </div>

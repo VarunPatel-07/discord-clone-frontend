@@ -50,14 +50,7 @@ function Message({
     setEdit_Message_State,
     setReply_A_Specific_Message_State,
   } = useContext(Context) as any;
-  const GetLocalTimeFrom_UTC = (Time: string) => {
-    const date = new Date(Time);
-    const localTime = date.toLocaleString();
-    const __time = localTime.split(",")[1].split(":");
-    const AM_PM = Number(__time[0]) >= 12 ? "PM" : "AM";
 
-    return `${__time[0]}:${__time[1]} ${AM_PM}`;
-  };
   const DeleteMessage_With_Debounce = useDebounce(
     async (AuthToken: string, messageId: string, CurrentPage: number) => {
       await DeleteMessageFunction(AuthToken, messageId, CurrentPage);

@@ -1,9 +1,10 @@
 import { Context } from "@/context/ContextApi";
 import { useDebounce } from "@/hooks/debounceHook";
+import UseSocketIO from "@/hooks/UseSocketIO";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { getCookie } from "cookies-next";
 import { Edit } from "lucide-react";
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { AiOutlineAudio } from "react-icons/ai";
 import { FaHashtag } from "react-icons/fa";
 import { IoIosLock, IoMdVideocam } from "react-icons/io";
@@ -23,6 +24,7 @@ function ListOfAllTheServerChannel({
   setChannalId: React.Dispatch<React.SetStateAction<any>>;
   ServerInfoById: any;
 }) {
+  const socket = UseSocketIO();
   const {
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
@@ -57,9 +59,33 @@ function ListOfAllTheServerChannel({
   );
 
   const CreateNewConversation = (receiver_id: string) => {
-
     const AuthToken = getCookie("User_Authentication_Token") as string;
     CreatingConversation_With_Debounce(AuthToken, receiver_id);
+  };
+
+  const StartCallFunctionWithDebounce = useDebounce(
+    useCallback(async () => {
+      const Room_Id = CurrentChatChannelInfo?.ChatId;
+      const RoomName = CurrentChatChannelInfo?.ChatName;
+      const Call_Type = CurrentChatChannelInfo?.ChatType;
+      const Data = {
+        RoomId: Room_Id,
+        RoomName: RoomName,
+        CallType: Call_Type,
+        userInfo: UserInformation,
+      };
+      socket?.emit("StartTheCallAndJoinRoom", Data);
+    }, [CurrentChatChannelInfo, UserInformation, socket]),
+    300
+  );
+  const HandelVideoCallFunction = (channel_info) => {
+    StartCallFunctionWithDebounce();
+    setCurrentChatChannelInfo({
+      ChatId: channel_info.id,
+      ChatName: channel_info.name,
+      ChatType: channel_info.type,
+      ChatUserId: channel_info.userId,
+    });
   };
 
   return (
@@ -276,14 +302,7 @@ function ListOfAllTheServerChannel({
                         : "hover:bg-[rgba(255,255,255,0.08)]"
                     }`}
                     key={channel_info.id}
-                    onClick={() => {
-                      setCurrentChatChannelInfo({
-                        ChatId: channel_info.id,
-                        ChatName: channel_info.name,
-                        ChatType: channel_info.type,
-                        ChatUserId: channel_info.userId,
-                      });
-                    }}
+                    onClick={() => HandelVideoCallFunction(channel_info)}
                   >
                     <span
                       className={`flex items-center gap-[5px] w-[70%]  ${
@@ -385,7 +404,7 @@ function ListOfAllTheServerChannel({
                       <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium text-white ">
                         {MemberInfo?.user?.id === UserInformation?.id
                           ? "You"
-                          : MemberInfo?.user?.FullName}
+                          : MemberInfo?.user?.UserName}
                       </p>
                     </div>
                   </div>

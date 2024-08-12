@@ -187,7 +187,7 @@ function ServerFooterBar() {
   }, [Edit_Message_State]);
 
   return (
-    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px] relative backdrop-blur-[10px] bg-[rgba(0,0,0,0.3)]">
+    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.3)] absolute bottom-0 left-0 ">
       {(Edit_Message_State.Is_Editing ||
         Reply_A_Specific_Message_State?.Is_Replying) && (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
