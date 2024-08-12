@@ -57,3 +57,88 @@ MessageHasBeenEditedSuccessfully {
   },
   currentPage: 1
 }
+
+data
+Object
+
+data: Object
+
+DeletedBy: ""
+
+FileURL: ""
+
+IsDeleted: false
+
+IsEdited: false
+
+Is_Reply: false
+
+ServerGroupMessageReplies: [] (0)
+
+channel: Object
+
+createdAt: "2024-08-10T12:39:03.686Z"
+
+id: "b69bc298-2bb5-4f6f-adca-666897f2ebba"
+
+name: "general"
+
+server: Object
+
+ServerBannerColor: "#3357FF"
+
+ServerBannerImg: ""
+
+createdAt: "2024-08-10T12:39:03.686Z"
+
+id: "0b525d57-5ab2-42ea-911a-7a7f9fc02742"
+
+imageUrl: "https://res.cloudinary.com/dmsx4sde9/image/upload/v1723293543/qps6dsx68mncct6xfx1r.webp"
+
+inviteCode: "0aacbda3-409c-4542-a423-b18083ab2168"
+
+members: Array (2)
+0 {id: "125cd4f3-426a-492b-ab97-a96d2920766e", role: "GUEST", userId: "b89d27ee-d31c-4279-89b0-3cf58d74a9c0", serverId: "0b525d57-5ab2-42ea-911a-7a7f9fc02742", createdAt: "2024-08-12T05:06:15.694Z", …}
+1 {id: "202b4ea2-6fcf-42c0-8007-a5b0bdf82d36", role: "ADMIN", userId: "208e04b3-e47a-43bd-b532-7661cb560d71", serverId: "0b525d57-5ab2-42ea-911a-7a7f9fc02742", createdAt: "2024-08-10T12:39:03.686Z", …}
+
+Array Prototype
+
+name: "the batman"
+
+public: false
+
+updatedAt: "2024-08-10T12:39:03.686Z"
+
+usersId: "208e04b3-e47a-43bd-b532-7661cb560d71"
+
+Object Prototype
+
+serverId: "0b525d57-5ab2-42ea-911a-7a7f9fc02742"
+
+type: "TEXT"
+
+updatedAt: "2024-08-10T12:39:03.686Z"
+
+userId: "208e04b3-e47a-43bd-b532-7661cb560d71"
+
+Object Prototype
+
+channelId: "b69bc298-2bb5-4f6f-adca-666897f2ebba"
+
+content: "d"
+
+createdAt: "2024-08-12T05:17:13.943Z"
+
+id: "3e9a2cbc-2c4d-475d-9516-112b8e424804"
+
+member: {id: "202b4ea2-6fcf-42c0-8007-a5b0bdf82d36", role: "ADMIN", userId: "208e04b3-e47a-43bd-b532-7661cb560d71", serverId: "0b525d57-5ab2-42ea-911a-7a7f9fc02742", createdAt: "2024-08-10T12:39:03.686Z", …}
+
+memberId: "202b4ea2-6fcf-42c0-8007-a5b0bdf82d36"
+
+updatedAt: "2024-08-12T05:17:13.943Z"
+
+Object Prototype
+
+message: "Message sent successfully"
+
+success: true

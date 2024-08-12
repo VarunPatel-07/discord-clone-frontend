@@ -38,36 +38,43 @@ function Sidebar() {
 
   useEffect(() => {
     socket?.on("EmitNewMessageHasBeenSent", async (data) => {
+      console.log("data", data);
+      const current_user_id = JSON.parse(getCookie("User__Info") as string);
+
       if (data?.success) {
-        const socket_serverId = data?.data?.channel?.serverId;
+        if (
+          data?.data?.channel?.server?.members?.some(
+            (member) => member?.userId === current_user_id?.id
+          )
+        ) {
+          const socket_serverId = data?.data?.channel?.serverId;
 
-        // now we send a notification if user is not in the current server
-        const current_server_id = Path.split("/")[3];
-        console.log(Path.split("/"));
-        console.log(current_server_id, socket_serverId);
-        if (current_server_id !== socket_serverId) {
-          const current_user_id = JSON.parse(getCookie("User__Info") as string);
-
-          if (data?.data?.member?.userId !== current_user_id?.id) {
-            setGlobalSuccessNotification({
-              ShowAlert: true as boolean,
-              Profile_Picture: data?.data?.member?.user
-                ?.Profile_Picture as string,
-              FullName: data?.data?.member?.user?.FullName as string,
-              UserName: data?.data?.member?.user?.UserName as string,
-              Message: `sent you a message` as string,
-              Type: "FOLLOW" as string,
-            });
-            setTimeout(() => {
+          // now we send a notification if user is not in the current server
+          const current_server_id = Path.split("/")[3];
+          console.log(Path.split("/"));
+          console.log(current_server_id, socket_serverId);
+          if (current_server_id !== socket_serverId) {
+            if (data?.data?.member?.userId !== current_user_id?.id) {
               setGlobalSuccessNotification({
-                ShowAlert: false as boolean,
-                Profile_Picture: "" as string,
-                FullName: "" as string,
-                UserName: "" as string,
-                Message: "" as string,
-                Type: "NORMAL" as string,
+                ShowAlert: true as boolean,
+                Profile_Picture: data?.data?.member?.user
+                  ?.Profile_Picture as string,
+                FullName: data?.data?.member?.user?.FullName as string,
+                UserName: data?.data?.member?.user?.UserName as string,
+                Message: `sent you a message` as string,
+                Type: "FOLLOW" as string,
               });
-            }, 2500);
+              setTimeout(() => {
+                setGlobalSuccessNotification({
+                  ShowAlert: false as boolean,
+                  Profile_Picture: "" as string,
+                  FullName: "" as string,
+                  UserName: "" as string,
+                  Message: "" as string,
+                  Type: "NORMAL" as string,
+                });
+              }, 2500);
+            }
           }
         }
       }

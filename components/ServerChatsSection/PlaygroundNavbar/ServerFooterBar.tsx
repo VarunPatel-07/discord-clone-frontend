@@ -20,6 +20,7 @@ function ServerFooterBar() {
     Reply_A_Specific_Message_State,
     setReply_A_Specific_Message_State,
     Reply_A_SpecificMessageFunction,
+    Edit_MessageReplayFunction,
   } = useContext(Context) as any;
   const [Message, setMessage] = useState("");
   const [Loading, setLoading] = useState(false);
@@ -64,21 +65,41 @@ function ServerFooterBar() {
       serverId: string,
       channelId: string,
       message: string,
-      message_id: string
+      message_id: string,
+      Replying_To_UserName: string
     ) => {
       await Reply_A_SpecificMessageFunction(
         AuthToken,
         serverId,
         channelId,
         message,
-
-        message_id
+        message_id,
+        Replying_To_UserName
       );
       setLoading(false);
       setMessage("");
       remove_Edit_Message_State_StateInfo();
     },
     350
+  );
+  const EditMessageRepliesWithDebounce = useDebounce(
+    async (
+      AuthToken: string,
+      message_id: string,
+      message_replay_id: string,
+      content: string
+    ) => {
+      await Edit_MessageReplayFunction(
+        AuthToken,
+        message_id,
+        message_replay_id,
+        content
+      );
+      setLoading(false);
+      setMessage("");
+      remove_Edit_Message_State_StateInfo();
+    },
+    200
   );
 
   const remove_Edit_Message_State_StateInfo = () => {
@@ -131,6 +152,7 @@ function ServerFooterBar() {
     e.preventDefault();
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const message_id = Reply_A_Specific_Message_State?.MessageId;
+    const Replying_To_UserName = Reply_A_Specific_Message_State?.UserName;
     const serverId = Pathname?.split("/")[3];
     const channel_id = CurrentChatChannelInfo?.ChatId;
     const message = Message;
@@ -139,8 +161,25 @@ function ServerFooterBar() {
       serverId,
       channel_id,
       message,
-      message_id
+      message_id,
+      Replying_To_UserName
     );
+  };
+
+  const Edit_A_Replied_Message = async (e) => {
+    e.preventDefault();
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    const message_id = Edit_Message_State?.MessageId;
+    const message_replay_id = Edit_Message_State?.Edit_Replay_Message_Id;
+    const content = Message;
+
+    EditMessageRepliesWithDebounce(
+      AuthToken,
+      message_id,
+      message_replay_id,
+      content
+    );
+    console.log("Edit_A_Replied_Message");
   };
 
   useEffect(() => {
@@ -215,7 +254,9 @@ function ServerFooterBar() {
             <form
               onSubmit={
                 Edit_Message_State.Is_Editing
-                  ? Edit_SpecificMessage
+                  ? Edit_Message_State.Editing_Replay
+                    ? Edit_A_Replied_Message
+                    : Edit_SpecificMessage
                   : Reply_A_Specific_Message_State?.Is_Replying
                   ? Replay_Message_OnSubmit
                   : OnFormSubmit

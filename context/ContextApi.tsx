@@ -75,6 +75,8 @@ interface ContextApiProps {
     FullName: string;
     Profile_Picture: string;
     current_page: number;
+    Editing_Replay: boolean;
+    Edit_Replay_Message_Id: string;
   };
   setEdit_Message_State: React.Dispatch<React.SetStateAction<object>>;
   Reply_A_Specific_Message_State: {
@@ -238,7 +240,19 @@ interface ContextApiProps {
     server_id: string,
     channel_id: string,
     content: string,
-    message_id: string
+    message_id: string,
+    Replying_To_UserName: string
+  ) => void;
+  Delete_MessageReplayFunction: (
+    AuthToken: string,
+    message_id: string,
+    message_replay_id: string
+  ) => void;
+  Edit_MessageReplayFunction: (
+    AuthToken: string,
+    message_id: string,
+    message_replay_id: string,
+    content: string
   ) => void;
 }
 
@@ -281,6 +295,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     FullName: "" as string,
     Profile_Picture: "" as string,
     current_page: 0 as number,
+    Editing_Replay: false as boolean,
+    Edit_Replay_Message_Id: "" as string,
   });
   const [Reply_A_Specific_Message_State, setReply_A_Specific_Message_State] =
     useState({
@@ -1446,8 +1462,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     server_id: string,
     channel_id: string,
     content: string,
-
-    message_id: string
+    message_id: string,
+    Replying_To_UserName: string
   ) => {
     try {
       if (!AuthToken || server_id === "undefined") return;
@@ -1457,6 +1473,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       formData.append("content", content);
 
       formData.append("message_id", message_id);
+
+      formData.append("Replying_To_UserName", Replying_To_UserName);
 
       const response = await axios({
         method: "put",
@@ -1471,6 +1489,70 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const Data = {
           response: response.data,
           currentPage: 1,
+        };
+        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+
+  const Delete_MessageReplayFunction = async (
+    AuthToken: string,
+    message_id: string,
+    message_replay_id: string
+  ) => {
+    try {
+      if (!AuthToken || message_id === "undefined") return;
+
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/Messages/DeleteMessageReply?message_id=${message_id}&message_replay_id=${message_replay_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+      if (response.data.success) {
+        const Data = {
+          response: response.data,
+        };
+        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const Edit_MessageReplayFunction = async (
+    AuthToken: string,
+    message_id: string,
+    message_replay_id: string,
+    content: string
+  ) => {
+    try {
+      if (
+        !AuthToken ||
+        message_id === "undefined" ||
+        message_replay_id === "undefined" ||
+        content === ""
+      )
+        return;
+      const formData = new FormData();
+      formData.append("content", content);
+      const response = await axios({
+        method: "put",
+        url: `${Host}/app/api/Messages/EditMessageReply?message_id=${message_id}&message_replay_id=${message_replay_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+
+      if (response.data.success) {
+        const Data = {
+          response: response.data,
         };
         socket?.emit("MessageHasBeenEditedSuccessfully", Data);
       }
@@ -1576,6 +1658,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     EditMessageFunction,
     DeleteMessageFunction,
     Reply_A_SpecificMessageFunction,
+    Delete_MessageReplayFunction,
+    Edit_MessageReplayFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

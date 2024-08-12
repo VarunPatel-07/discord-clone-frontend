@@ -132,7 +132,7 @@ function ShowChannelMessage() {
     socket?.on("EmitMessageHasBeenEditedSuccessfully", async (data) => {
       if (data?.response?.success) {
         const updatedMessage = data?.response?.data;
-        console.log(data);
+        
         setChannalMessages((prevMessages) =>
           prevMessages.map((msg: any) =>
             msg.id === updatedMessage.id ? updatedMessage : msg

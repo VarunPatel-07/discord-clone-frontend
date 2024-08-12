@@ -1,6 +1,10 @@
+import { Context } from "@/context/ContextApi";
+import { useDebounce } from "@/hooks/debounceHook";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { getCookie } from "cookies-next";
 import { Edit } from "lucide-react";
-import React from "react";
+import React, { useContext } from "react";
+import { FaReply } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
 function MessageProfile({
@@ -16,6 +20,12 @@ function MessageProfile({
   Current_Page,
   AdminId,
   Is_Deleted,
+  Other_ClassName,
+  DeleteMessage,
+  Is_Replied,
+  replayMessage_Id_To_Delete,
+  ReplyingUser_UserName,
+  Editing_Replay,
 }: {
   Profile_Picture: string;
   FullName: string;
@@ -29,19 +39,59 @@ function MessageProfile({
   Current_Page: number;
   AdminId: string;
   Is_Deleted: boolean;
+  Other_ClassName?: string;
+  DeleteMessage: (message_id: string, current_page: number) => void;
+  Is_Replied?: boolean;
+  replayMessage_Id_To_Delete?: string;
+  ReplyingUser_UserName?: string;
+  Editing_Replay?: boolean;
 }) {
   const {
     UserInformation,
-    DeleteMessageFunction,
     setEdit_Message_State,
     setReply_A_Specific_Message_State,
+    Delete_MessageReplayFunction,
   } = useContext(Context) as any;
 
+  const GetLocalTimeFrom_UTC = (Time: string) => {
+    const date = new Date(Time);
+    const localTime = date.toLocaleString();
+    const __time = localTime.split(",")[1].split(":");
+    const AM_PM = Number(__time[0]) >= 12 ? "PM" : "AM";
+
+    return `${__time[0]}:${__time[1]} ${AM_PM}`;
+  };
+
+  const DeleteMessageWithDebounce = useDebounce(
+    async (
+      AuthToken: string,
+      message_id: string,
+      message_replay_id: string
+    ) => {
+      await Delete_MessageReplayFunction(
+        AuthToken,
+        message_id,
+        message_replay_id
+      );
+    },
+    200
+  );
+
+  const Delete_Message_Replay = async (
+    message_id: string,
+    message_replay_id: string
+  ) => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    DeleteMessageWithDebounce(AuthToken, message_id, message_replay_id);
+  };
+
   return (
-    <div className="w-[100%] flex items-start justify-between">
-      <div className="message-container w-[100%] flex items-start">
+    <div
+      className={`w-[100%] flex items-start justify-between ${Other_ClassName} `}
+    >
+      <div className="message-container w-[100%] flex items-start  justify-start">
         <div className="profile">
-          <Avatar className="w-[40px] h-[40px] ">
+          <Avatar className="w-[45px] h-[45px] block rounded-full overflow-hidden ">
             <AvatarImage src={Profile_Picture} className="w-[100%] h-[100%]" />
             <AvatarFallback className="capitalize font-medium text-[15px]">
               {FullName.split("")[0]}
@@ -69,7 +119,20 @@ function MessageProfile({
                 )}
               </div>
             </div>
-            <div className="message">
+            <div
+              className={`message w-[100%] flex items-center ${
+                ReplyingUser_UserName ? "gap-[10px]" : ""
+              } `}
+            >
+              {!Is_Deleted && (
+                <p
+                  className="text-[#0fa7ff]
+                  global-font-roboto text-[15px] font-[500] py-[3px]"
+                >
+                  {ReplyingUser_UserName}
+                </p>
+              )}
+
               <p
                 className={`${
                   Is_Deleted ? "text-gray-400 italic" : "text-white"
@@ -90,6 +153,7 @@ function MessageProfile({
               data-tooltip-id="Edit-Chat-icon-tooltip"
               data-tooltip-content="Edit Message"
               onClick={() => {
+                console.log(Editing_Replay);
                 setEdit_Message_State({
                   Is_Editing: true as boolean,
                   MessageId: message_id as string,
@@ -100,6 +164,8 @@ function MessageProfile({
                   FullName: FullName as string,
                   Profile_Picture: Profile_Picture as string,
                   current_page: Current_Page as number,
+                  Editing_Replay: Editing_Replay as boolean,
+                  Edit_Replay_Message_Id: replayMessage_Id_To_Delete as string,
                 });
               }}
             >
@@ -109,7 +175,16 @@ function MessageProfile({
               className="w-[18px] h-[18px] invisible text-[rgb(255,255,255,0.9)]  group-hover:visible"
               data-tooltip-id="Delete-Chat-icon-tooltip"
               data-tooltip-content="Delete Message"
-              onClick={() => DeleteMessage(message_id, Current_Page)}
+              onClick={
+                Is_Replied
+                  ? () => {
+                      Delete_Message_Replay(
+                        message_id,
+                        replayMessage_Id_To_Delete as string
+                      );
+                    }
+                  : () => DeleteMessage(message_id, Current_Page)
+              }
             >
               <MdDelete className="w-[18px] h-[18px]" />
             </button>
@@ -121,7 +196,16 @@ function MessageProfile({
                 className="w-[18px] h-[18px] invisible text-[rgb(255,255,255,0.9)]  group-hover:visible"
                 data-tooltip-id="Delete-Chat-icon-tooltip"
                 data-tooltip-content="Delete Message"
-                onClick={() => DeleteMessage(message_id, Current_Page)}
+                onClick={
+                  Is_Replied
+                    ? () => {
+                        Delete_Message_Replay(
+                          message_id,
+                          replayMessage_Id_To_Delete as string
+                        );
+                      }
+                    : () => DeleteMessage(message_id, Current_Page)
+                }
               >
                 <MdDelete className="w-[18px] h-[18px]" />
               </button>
