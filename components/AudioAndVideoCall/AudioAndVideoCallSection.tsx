@@ -10,6 +10,11 @@ import CallActionFooterBar from "./CallActionFooterBar";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { useDebounce } from "@/hooks/debounceHook";
 
+import peerService from "@/services/peer";
+import App from "../TestTest";
+import { get } from "http";
+import { getCookie } from "cookies-next";
+
 function AudioAndVideoCallSection() {
   //
   //
@@ -18,9 +23,11 @@ function AudioAndVideoCallSection() {
   //
   //
   //
-  const { CurrentChatChannelInfo, UserInformation } = useContext(
-    Context
-  ) as any;
+  const {
+    CurrentChatChannelInfo,
+    UserInformation,
+    SendVideoCallInfoSdp_To_Backend,
+  } = useContext(Context) as any;
   //
   //
   //
@@ -30,89 +37,62 @@ function AudioAndVideoCallSection() {
   const [TurnMicOff, setTurnMicOff] = useState(false);
   const [CallStarted, setCallStarted] = useState(false);
 
-  // const getUserMedia = useCallback(async () => {
-  //   try {
-  //     const devices = await navigator.mediaDevices.enumerateDevices();
-  //     const videoDevice = devices.find(
-  //       (device) => device.kind === "videoinput"
-  //     );
-  //     const audioDevice = devices.find(
-  //       (device) => device.kind === "audioinput"
-  //     );
+  const getUserMedia = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevice = devices.find(
+        (device) => device.kind === "videoinput"
+      );
+      const audioDevice = devices.find(
+        (device) => device.kind === "audioinput"
+      );
 
-  //     if (!videoDevice || !audioDevice) {
-  //       throw new Error("No suitable video or audio device found");
-  //     }
-  //     if (TurnVideoOff) {
-  //       const stream = await navigator.mediaDevices.getUserMedia({
-  //         audio: { deviceId: audioDevice.deviceId },
-  //       });
-  //       console.log(stream);
+      if (!videoDevice || !audioDevice) {
+        throw new Error("No suitable video or audio device found");
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: videoDevice.deviceId },
+        audio: { deviceId: audioDevice.deviceId },
+      });
 
-  //       setYourStream(stream);
+      setYourStream(stream);
 
-  //       if (videoRef.current) {
-  //         videoRef.current.srcObject = stream;
-  //       }
-  //     } else if (TurnVideoOff) {
-  //       const stream = await navigator.mediaDevices.getUserMedia({});
-  //       console.log(stream);
-
-  //       setYourStream(stream);
-
-  //       if (videoRef.current) {
-  //         videoRef.current.srcObject = stream;
-  //       }
-  //     } else {
-  //       const stream = await navigator.mediaDevices.getUserMedia({
-  //         video: { deviceId: videoDevice.deviceId },
-  //         audio: { deviceId: audioDevice.deviceId },
-  //       });
-  //       console.log(stream);
-
-  //       setYourStream(stream);
-
-  //       if (videoRef.current) {
-  //         videoRef.current.srcObject = stream;
-  //       }
-  //     }
-  //     setCallStarted(true);
-  //   } catch (err) {
-  //     console.error("Error accessing media devices.", err);
-  //   }
-  // }, [TurnVideoOff]);
-
-  // useEffect(() => {
-  //   getUserMedia();
-  // }, [CurrentChatChannelInfo, getUserMedia]);
-
-
-  const StartCallFunction = () => {};
-
-  const HandelTheStartCallFunctionBySocket = (data: any) => {
-    console.log(data);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCallStarted(true);
+    } catch (err) {
+      console.error("Error accessing media devices.", err);
+    }
   };
 
+  const Handel_Peer_Negotiation_Needed_Event = async (peer: any) => {
+    await peer.generateOffer();
 
-
-  useEffect(() => {
-    socket?.on("StartTheCallAndJoinRoom", (data) => {
-      HandelTheStartCallFunctionBySocket(data);
-    });
-    socket?.on("NewUserJoinedTheCall", (data) => {
-      console.log("NewUserJoinedTheCall", data);
-    });
-
-    return () => {
-      socket?.off("EmitUserStatusChanged");
-      socket?.off("NewUserJoinedTheCall");
+    const Payload = {
+      sdp: peer.peer.localDescription,
     };
-  }, [socket]);
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    await SendVideoCallInfoSdp_To_Backend(AuthToken, Payload);
+    console.log("completed");
+  };
+
+  const StartCallFunction = async () => {
+    getUserMedia();
+    const peer = peerService;
+    if (!YourStream) return;
+    YourStream.getTracks().forEach((track: MediaStreamTrack) => {
+      console.log(track);
+      peer.peer.addTrack(track, YourStream);
+    });
+    peer.peer.onnegotiationneeded = () => {
+      Handel_Peer_Negotiation_Needed_Event(peer);
+    };
+  };
 
   return (
     <>
       <div className="pt-[50px] pb-[30px] px-[20px]">
-        <button onClick={() => setTurnVideoOff(!TurnVideoOff)}></button>
         {YourStream ? (
           <video
             ref={videoRef}

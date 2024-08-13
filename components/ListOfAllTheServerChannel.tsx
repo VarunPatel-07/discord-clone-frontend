@@ -63,23 +63,7 @@ function ListOfAllTheServerChannel({
     CreatingConversation_With_Debounce(AuthToken, receiver_id);
   };
 
-  const StartCallFunctionWithDebounce = useDebounce(
-    useCallback(async () => {
-      const Room_Id = CurrentChatChannelInfo?.ChatId;
-      const RoomName = CurrentChatChannelInfo?.ChatName;
-      const Call_Type = CurrentChatChannelInfo?.ChatType;
-      const Data = {
-        RoomId: Room_Id,
-        RoomName: RoomName,
-        CallType: Call_Type,
-        userInfo: UserInformation,
-      };
-      socket?.emit("StartTheCallAndJoinRoom", Data);
-    }, [CurrentChatChannelInfo, UserInformation, socket]),
-    300
-  );
   const HandelVideoCallFunction = (channel_info) => {
-    StartCallFunctionWithDebounce();
     setCurrentChatChannelInfo({
       ChatId: channel_info.id,
       ChatName: channel_info.name,

@@ -254,6 +254,7 @@ interface ContextApiProps {
     message_replay_id: string,
     content: string
   ) => void;
+  SendVideoCallInfoSdp_To_Backend: (AuthToken: string, Payload: any) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -1560,6 +1561,29 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+  const SendVideoCallInfoSdp_To_Backend = async (
+    AuthToken: string,
+    Payload: any
+  ) => {
+    try {
+      if (!AuthToken) return;
+      console.log(Payload);
+      const formData = new FormData();
+      formData.append("Payload", Payload);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/webrtc/StartVideoCall`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      console.log(response.data);
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
 
   //
   // ? defining the context value
@@ -1660,6 +1684,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Reply_A_SpecificMessageFunction,
     Delete_MessageReplayFunction,
     Edit_MessageReplayFunction,
+    SendVideoCallInfoSdp_To_Backend,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };
