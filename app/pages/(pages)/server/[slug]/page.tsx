@@ -389,6 +389,7 @@ function ServerDetails() {
                   <div className="chats w-[82%] bg-[#36393F]">
                     <ServerChatsPlayground
                       CurrentChatChannelInfo={CurrentChatChannelInfo}
+                      UserInformation={UserInformation}
                     />
                   </div>
                 </div>

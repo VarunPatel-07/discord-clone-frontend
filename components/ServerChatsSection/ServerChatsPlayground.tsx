@@ -3,16 +3,20 @@ import ServerNavbar from "./PlaygroundNavbar/ServerNavbar";
 import ServerFooterBar from "./PlaygroundNavbar/ServerFooterBar";
 import ShowChannelMessage from "./ShowChannelMessage";
 import { ScrollArea } from "../ui/scroll-area";
-import AudioAndVideoCallSection from "../AudioAndVideoCall/AudioAndVideoCallSection";
+import AudioVideoCall from "../AudioVideoCall/AudioVideoCall";
 
 function ServerChatsPlayground({
   CurrentChatChannelInfo,
+  UserInformation,
 }: {
   CurrentChatChannelInfo: {
     ChatId: string;
     ChatName: string;
     ChatType: string;
     ChatUserId: string;
+  };
+  UserInformation: {
+    id: string;
   };
 }) {
   return (
@@ -25,8 +29,8 @@ function ServerChatsPlayground({
       )}
       {(CurrentChatChannelInfo.ChatType === "AUDIO" ||
         CurrentChatChannelInfo.ChatType === "VIDEO") && (
-        <div className="w-[100%] h-[100%]">
-          <AudioAndVideoCallSection />
+        <div className="w-[100%] h-[100%] py-[50px]">
+          <AudioVideoCall />
         </div>
       )}
       {CurrentChatChannelInfo.ChatType === "TEXT" && <ServerFooterBar />}
