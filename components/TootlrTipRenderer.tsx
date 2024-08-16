@@ -13,6 +13,9 @@ function TootlrTipRenderer() {
       <ReactTooltip id="Create-New-Server-tooltip" />
       <ReactTooltip id="HomePage-tooltip" />
       <ReactTooltip id="Explorer-tooltip" />
+      <ReactTooltip id="start-call-screen-mic-icon-tooltip" />
+      <ReactTooltip id="start-call-screen-video-icon-tooltip" />
+      <ReactTooltip id="start-call-screen-call-icon-tooltip" />
     </>
   );
 }

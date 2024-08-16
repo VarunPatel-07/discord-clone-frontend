@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useCallback } from "react";
 import { FaDiscord, FaPlus } from "react-icons/fa";
 import "./scss/components.css";
 import { Context } from "@/context/ContextApi";
@@ -20,19 +20,51 @@ function Sidebar() {
     UserInfoFetchingFunction,
     FetchTheMessageOFTheChannel,
     setGlobalSuccessNotification,
+    A_New_Meeting_Started,
+    setA_New_Meeting_Started,
+    UserInformation,
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
     false as boolean
   );
   const socket = UseSocketIO();
+
+  const A_New_CallHasBeen_Started = useCallback(
+    (data) => {
+      const serverId = Path?.split("/")[3];
+      const User_Info = UserInformation
+        ? UserInformation
+        : JSON?.parse(getCookie("User__Info") as string);
+      if (serverId === data?.ServerInfo?.id) {
+        if (
+          data.ServerInfo.members.some(
+            (member: any) => member.userId === User_Info?.id
+          )
+        ) {
+          setA_New_Meeting_Started({
+            Call_Started: true,
+            Meeting_Initiator_Info: data?.CallInitiatorInfo,
+            Server_Info: data?.ServerInfo,
+            MeetingId: data?.RoomId,
+          });
+        }
+      }
+    },
+    [UserInformation]
+  );
+
   useEffect(() => {
     socket?.on("EmitNewServerCreated", (data) => {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       FetchTheIncludingServer(AuthToken);
     });
+    socket?.on("EmitSendMeetingIdToTheMemberOfTheServer", (data) => {
+      A_New_CallHasBeen_Started(data);
+    });
     return () => {
       socket?.off("EmitNewServerCreated");
+      socket?.off("EmitSendMeetingIdToTheMemberOfTheServer");
     };
   }, [socket]);
 

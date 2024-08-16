@@ -4,6 +4,8 @@ import ServerFooterBar from "./PlaygroundNavbar/ServerFooterBar";
 import ShowChannelMessage from "./ShowChannelMessage";
 import { ScrollArea } from "../ui/scroll-area";
 import AudioVideoCall from "../AudioVideoCall/AudioVideoCall";
+import AudioAndVideoCallLayout from "../Audio_Video_Call/AudioAndVideoCallLayout";
+import { VideoAudioCallContextProvider } from "@/context/CallContextApi";
 
 function ServerChatsPlayground({
   CurrentChatChannelInfo,
@@ -29,9 +31,11 @@ function ServerChatsPlayground({
       )}
       {(CurrentChatChannelInfo.ChatType === "AUDIO" ||
         CurrentChatChannelInfo.ChatType === "VIDEO") && (
-        <div className="w-[100%] h-[100%] py-[50px]">
-          <AudioVideoCall />
-        </div>
+        <VideoAudioCallContextProvider>
+          <div className="w-[100%] h-[100%] py-[50px]">
+            <AudioAndVideoCallLayout />
+          </div>
+        </VideoAudioCallContextProvider>
       )}
       {CurrentChatChannelInfo.ChatType === "TEXT" && <ServerFooterBar />}
     </div>

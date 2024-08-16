@@ -93,6 +93,13 @@ interface ContextApiProps {
   setReply_A_Specific_Message_State: React.Dispatch<
     React.SetStateAction<object>
   >;
+  A_New_Meeting_Started: {
+    Call_Started: boolean;
+    Meeting_Initiator_Info: object;
+    Server_Info: object;
+    MeetingId: string;
+  };
+  setA_New_Meeting_Started: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -365,6 +372,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     HasMoreData: false as boolean,
     Message: [] as Array<object>,
     TotalPage: 0 as number,
+  });
+  const [A_New_Meeting_Started, setA_New_Meeting_Started] = useState({
+    Call_Started: false as boolean,
+    Meeting_Initiator_Info: {} as object,
+    Server_Info: {} as object,
+    MeetingId: "" as string,
   });
 
   //
@@ -1639,6 +1652,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setReply_A_Specific_Message_State as React.Dispatch<
         React.SetStateAction<object>
       >,
+
+    A_New_Meeting_Started,
+    setA_New_Meeting_Started: setA_New_Meeting_Started as React.Dispatch<
+      React.SetStateAction<object>
+    >,
 
     Login_User_Function,
     CheckUsersLoginStatus,

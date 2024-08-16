@@ -5,7 +5,7 @@ import {
   useMeeting,
   useParticipant,
 } from "@videosdk.live/react-sdk";
-import { authToken, createMeeting } from "./API"; 
+import { authToken, createMeeting } from "./API";
 import ReactPlayer from "react-player";
 
 function JoinScreen({
@@ -137,7 +137,7 @@ function MeetingView({
       {joined && joined == "JOINED" ? (
         <div>
           <Controls />
-          //For rendering all the participants in the meeting
+
           {Array.from(participants.keys()).map((participantId) => (
             <ParticipantView
               participantId={participantId}
