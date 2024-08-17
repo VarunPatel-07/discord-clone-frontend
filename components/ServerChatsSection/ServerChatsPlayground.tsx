@@ -32,7 +32,7 @@ function ServerChatsPlayground({
       {(CurrentChatChannelInfo.ChatType === "AUDIO" ||
         CurrentChatChannelInfo.ChatType === "VIDEO") && (
         <VideoAudioCallContextProvider>
-          <div className="w-[100%] h-[100%] ">
+          <div className="w-[100%] h-[100%] pt-[50px]">
             <AudioAndVideoCallLayout />
           </div>
         </VideoAudioCallContextProvider>

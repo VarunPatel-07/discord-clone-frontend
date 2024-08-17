@@ -100,6 +100,14 @@ interface ContextApiProps {
     MeetingId: string;
   };
   setA_New_Meeting_Started: React.Dispatch<React.SetStateAction<object>>;
+  AnIncomingCallOccurred: {
+    An_Incoming_Call: boolean;
+    Meeting_Initiator_Info: object;
+    Server_Info: object;
+    MeetingId: string;
+    You_Joined: boolean;
+  };
+  setAnIncomingCallOccurred: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -378,6 +386,13 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Meeting_Initiator_Info: {} as object,
     Server_Info: {} as object,
     MeetingId: "" as string,
+  });
+  const [AnIncomingCallOccurred, setAnIncomingCallOccurred] = useState({
+    An_Incoming_Call: false as boolean,
+    Meeting_Initiator_Info: {} as object,
+    Server_Info: {} as object,
+    MeetingId: "" as string,
+    You_Joined: false as boolean,
   });
 
   //
@@ -1655,6 +1670,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     A_New_Meeting_Started,
     setA_New_Meeting_Started: setA_New_Meeting_Started as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+    AnIncomingCallOccurred,
+    setAnIncomingCallOccurred: setAnIncomingCallOccurred as React.Dispatch<
       React.SetStateAction<object>
     >,
 

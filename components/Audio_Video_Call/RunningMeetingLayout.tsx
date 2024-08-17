@@ -1,5 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { MeetingProvider, useMediaDevice } from "@videosdk.live/react-sdk";
+import {
+  MeetingProvider,
+  useMediaDevice,
+  useMeeting,
+} from "@videosdk.live/react-sdk";
 import { GenerateCallToken } from "./GenerateToken";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 
@@ -8,36 +12,19 @@ import ReactPlayer from "react-player";
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import MeetingController from "./Controller/MeetingController";
-import MeetingView from "./MeetingView/MeetingView";
+import MeetingView from "./MeetingView/ParticipantProfile";
+import MeetingViewGridLayout from "./MeetingView/MeetingViewGridLayout";
 function RunningMeetingLayout() {
-  const { UserInfoFetchingFunction, UserInformation } = useContext(
-    Context
-  ) as any;
-  const {
-    audioRef,
-    Loader,
-    MeetingID,
-    Video_Stream,
-    Audio_Stream,
-    MicOn,
-    VideoOn,
+  const { UserInfoFetchingFunction, UserInformation, A_New_Meeting_Started } =
+    useContext(Context) as any;
 
-    GetAudioTrackFunction,
-    SelectedMicrophone,
-  } = useContext(VideoAudioCallContext) as any;
   const [Token, setToken] = useState("" as string);
 
-  useEffect(() => {
-    if (!audioRef.current) {
-      GetAudioTrackFunction(SelectedMicrophone.deviceId);
-    }
-  }, [GetAudioTrackFunction, SelectedMicrophone, audioRef]);
   useEffect(() => {
     (async () => {
       const token = await GenerateCallToken();
       setToken(token);
     })();
-    console.log(Video_Stream);
   }, []);
 
   useEffect(() => {
@@ -51,32 +38,19 @@ function RunningMeetingLayout() {
   return (
     <MeetingProvider
       config={{
-        customCameraVideoTrack: Video_Stream,
-        customMicrophoneAudioTrack: Audio_Stream,
-        micEnabled: MicOn,
-        webcamEnabled: VideoOn,
+        micEnabled: true,
+        webcamEnabled: true,
+        name: UserInformation?.UserName,
         debugMode: true,
-        meetingId: MeetingID,
-        name: UserInformation.UserName
-          ? UserInformation.UserName
-          : "C.V. Raman",
-        participantId: "",
+        meetingId: A_New_Meeting_Started.MeetingId,
         metaData: UserInformation,
       }}
       token={Token}
-      joinWithoutUserInteraction={true}
+      // joinWithoutUserInteraction={true}
     >
-      <div className="w-[100%] h-[100%] relative">
-        <MeetingView
-          MeetingID={MeetingID}
-          audioRef={audioRef}
-          Loader={Loader}
-          Video_Stream={Video_Stream}
-          VideoOn={VideoOn}
-          MicOn={MicOn}
-        />
+      <div className="w-[100%] h-[100%] relative pt-[60px]">
+        <MeetingViewGridLayout />
       </div>
-      <MeetingController />
     </MeetingProvider>
   );
 }

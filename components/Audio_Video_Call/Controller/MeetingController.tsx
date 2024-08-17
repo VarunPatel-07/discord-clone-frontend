@@ -1,15 +1,54 @@
 import { VideoAudioCallContext } from "@/context/CallContextApi";
+import { Context } from "@/context/ContextApi";
+import { useMeeting } from "@videosdk.live/react-sdk";
 import React, { useContext } from "react";
 import { IoMdMic, IoMdMicOff, IoMdVideocam } from "react-icons/io";
 import { IoVideocamOff } from "react-icons/io5";
 import { MdCall, MdCallEnd } from "react-icons/md";
 
 function MeetingController() {
-  const { MicOn, setMicOn, VideoOn, setVideoOn, StartCall } = useContext(
-    VideoAudioCallContext
-  ) as any;
+  const { A_New_Meeting_Started, setA_New_Meeting_Started, UserInformation } =
+    useContext(Context) as any;
+  const { MicOn, setMicOn, VideoOn, setVideoOn, StartCall, setStartCall } =
+    useContext(VideoAudioCallContext) as any;
+
+  function onMeetingJoined() {
+    console.log("onMeetingJoined");
+  }
+
+  //Event to determine some other participant has joined
+  function onParticipantJoined(participant) {
+    console.log(" onParticipantJoined", participant);
+  }
+
+  const { participants, end, leave } = useMeeting({
+    onParticipantJoined,
+  });
+  const EndTheVideoCall = async () => {
+    try {
+      console.log("EndTheVideoCall");
+      setA_New_Meeting_Started({
+        Call_Started: false,
+        Meeting_Initiator_Info: {},
+        Server_Info: {},
+        MeetingId: "",
+      });
+      setStartCall(false);
+      setMicOn(false);
+      setVideoOn(false);
+
+      await end();
+      console.log(A_New_Meeting_Started);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const LeaveTheVideoCall = async () => {
+    await leave();
+  };
+
   return (
-    <div className="w-[100%] bg-[#121314] absolute bottom-0 right-0 py-[5px] px-[10px]">
+    <div className="w-[100%] bg-[#121314] absolute bottom-0 right-0 py-[12px] px-[10px]">
       <div className="flex items-center justify-center w-[100%] h-[100%]">
         <div className="buttons flex items-center justify-center gap-[15px]">
           <button
@@ -40,21 +79,42 @@ function MeetingController() {
               <IoVideocamOff className="w-[24px] h-[24px] text-white transition duration-100 " />
             )}
           </button>
-          <button
-            className={`w-[50px] h-[50px] ${
-              StartCall ? "bg-pink-700" : "bg-green-600"
-            } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
-            data-tooltip-id="start-call-screen-call-icon-tooltip"
-            data-tooltip-content={
-              !StartCall ? "Start Video Call" : "End Video Call"
-            }
-          >
-            {!StartCall ? (
-              <MdCall className="w-[28px] h-[28px] text-white transition duration-100 " />
-            ) : (
-              <MdCallEnd className="w-[28px] h-[28px] text-white transition duration-100 " />
-            )}
-          </button>
+          {A_New_Meeting_Started.Meeting_Initiator_Info.id ===
+          UserInformation.id ? (
+            <button
+              className={`w-[50px] h-[50px] ${
+                StartCall ? "bg-pink-700" : "bg-green-600"
+              } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
+              data-tooltip-id="start-call-screen-call-icon-tooltip"
+              data-tooltip-content={
+                !StartCall ? "Start Video Call" : "End Video Call"
+              }
+              onClick={EndTheVideoCall}
+            >
+              {!StartCall ? (
+                <MdCall className="w-[28px] h-[28px] text-white transition duration-100 " />
+              ) : (
+                <MdCallEnd className="w-[28px] h-[28px] text-white transition duration-100 " />
+              )}
+            </button>
+          ) : (
+            <button
+              className={`w-[50px] h-[50px] ${
+                StartCall ? "bg-pink-700" : "bg-green-600"
+              } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
+              data-tooltip-id="start-call-screen-call-icon-tooltip"
+              data-tooltip-content={
+                !StartCall ? "Start Video Call" : "Leave Video Call"
+              }
+              onClick={LeaveTheVideoCall}
+            >
+              {!StartCall ? (
+                <MdCall className="w-[28px] h-[28px] text-white transition duration-100 " />
+              ) : (
+                <MdCallEnd className="w-[28px] h-[28px] text-white transition duration-100 " />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

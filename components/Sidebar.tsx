@@ -20,8 +20,8 @@ function Sidebar() {
     UserInfoFetchingFunction,
     FetchTheMessageOFTheChannel,
     setGlobalSuccessNotification,
-    A_New_Meeting_Started,
-    setA_New_Meeting_Started,
+    AnIncomingCallOccurred,
+    setAnIncomingCallOccurred,
     UserInformation,
   } = useContext(Context) as any;
 
@@ -32,6 +32,7 @@ function Sidebar() {
 
   const A_New_CallHasBeen_Started = useCallback(
     (data) => {
+      console.log("data no 1", data);
       const serverId = Path?.split("/")[3];
       const User_Info = UserInformation
         ? UserInformation
@@ -42,12 +43,17 @@ function Sidebar() {
             (member: any) => member.userId === User_Info?.id
           )
         ) {
-          setA_New_Meeting_Started({
-            Call_Started: true,
+          if (data?.CallInitiatorInfo?.id === User_Info?.id) {
+            return;
+          }
+          setAnIncomingCallOccurred({
+            An_Incoming_Call: true,
             Meeting_Initiator_Info: data?.CallInitiatorInfo,
             Server_Info: data?.ServerInfo,
             MeetingId: data?.RoomId,
+            You_Joined: false,
           });
+          console.log("data", AnIncomingCallOccurred);
         }
       }
     },

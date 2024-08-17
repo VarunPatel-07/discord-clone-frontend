@@ -20,12 +20,13 @@ import { Context } from "@/context/ContextApi";
 import axios from "axios";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { VideoAudioCallContext } from "@/context/CallContextApi";
+import { getCookie } from "cookies-next";
 
 function StartCallScreen() {
   const {
     MeetingID,
     setMeetingID,
-    setA_New_Meeting_Started,
+
     Video_Stream,
 
     Audio_Stream,
@@ -53,7 +54,13 @@ function StartCallScreen() {
 
   const socket = UseSocketIO();
 
-  const { UserInformation, ServerInfoById } = useContext(Context) as any;
+  const {
+    UserInformation,
+    ServerInfoById,
+    UserInfoFetchingFunction,
+    setA_New_Meeting_Started,
+    A_New_Meeting_Started,
+  } = useContext(Context) as any;
 
   const [Is_Mic_Permitted, setIs_Mic_Permitted] = useState(false as boolean);
   const [Is_Video_Permitted, setIs_Video_Permitted] = useState(
@@ -77,7 +84,12 @@ function StartCallScreen() {
 
   const { checkPermissions, requestPermission, getCameras, getMicrophones } =
     useMediaDevice({ onDeviceChanged });
-
+  useEffect(() => {
+    if (!UserInformation) {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      UserInfoFetchingFunction(AuthToken);
+    }
+  }, [UserInfoFetchingFunction, UserInformation]);
   useEffect(() => {
     (async () => {
       const token = await GenerateCallToken();
@@ -85,79 +97,88 @@ function StartCallScreen() {
     })();
   }, []);
   useEffect(() => {
-    (async () => {
-      const checkAndSetPermissions = async (
-        type: Permission,
-        setState: (perm: boolean) => void
-      ) => {
-        const permissionStatus = await checkPermissions(type);
+    const checkAndSetPermissions = async (
+      type: Permission,
+      setState: (perm: boolean) => void
+    ) => {
+      const permissionStatus = await checkPermissions(type);
+      const isPermitted = permissionStatus.get(type);
 
-        const isPermitted = permissionStatus.get(type);
+      setState(!!isPermitted);
 
-        setState(!!isPermitted);
-
-        if (!isPermitted) {
-          try {
-            const requestStatus = await requestPermission(type);
-
-            const isRequestedPermitted = requestStatus.get(type);
-
-            setState(!!isRequestedPermitted);
-          } catch (error) {
-            console.log(`Error requesting ${type} permission:`, error);
-          }
+      if (!isPermitted) {
+        try {
+          const requestStatus = await requestPermission(type);
+          const isRequestedPermitted = requestStatus.get(type);
+          setState(!!isRequestedPermitted);
+        } catch (error) {
+          console.log(`Error requesting ${type} permission:`, error);
         }
-      };
+      }
+    };
 
-      await checkAndSetPermissions("audio" as any, setIs_Mic_Permitted);
-      await checkAndSetPermissions("video" as any, setIs_Video_Permitted);
-    })();
-    // now we are rendering all the device list of the user
-    (async () => {
-      const Web_cams = await getCameras();
-      const mics = await getMicrophones();
+    const fetchDevices = async () => {
+      try {
+       
+        const Web_cams = await getCameras();
+        const mics = await getMicrophones();
 
-      if (Web_cams.length == 1) {
-        Web_cams.map((cam) => {
-          setSelectedCamera({
-            label: cam.label,
-            deviceId: cam.deviceId,
-            groupId: cam.groupId,
-            kind: cam.kind,
-          });
-        });
-      } else {
-        Web_cams.map((cam) => {
-          if (cam.label.split(" ").includes("(Built-in)")) {
+        if (Web_cams.length === 1) {
+          Web_cams.forEach((cam) => {
             setSelectedCamera({
               label: cam.label,
               deviceId: cam.deviceId,
               groupId: cam.groupId,
               kind: cam.kind,
             });
-          }
-        });
-      }
-      mics.map((mic) => {
-        if (mic.label.split(" ").includes("(Built-in)")) {
-          setSelectedMicrophone({
-            label: mic.label,
-            deviceId: mic.deviceId,
-            groupId: mic.groupId,
-            kind: mic.kind,
+          });
+        } else {
+          Web_cams.forEach((cam) => {
+            if (cam.label.includes("(Built-in)")) {
+              setSelectedCamera({
+                label: cam.label,
+                deviceId: cam.deviceId,
+                groupId: cam.groupId,
+                kind: cam.kind,
+              });
+            }
           });
         }
-      });
-      GetVideoTrackFunction(SelectedCamera.deviceId);
-      GetAudioTrackFunction(SelectedMicrophone.deviceId);
 
-      setAvailableCameras(Web_cams);
-      setAvailableMicrophones(mics);
+        mics.forEach((mic) => {
+          if (mic.label.includes("(Built-in)")) {
+            setSelectedMicrophone({
+              label: mic.label,
+              deviceId: mic.deviceId,
+              groupId: mic.groupId,
+              kind: mic.kind,
+            });
+          }
+        });
+
+        GetVideoTrackFunction(SelectedCamera.deviceId);
+        GetAudioTrackFunction(SelectedMicrophone.deviceId);
+
+        setAvailableCameras(Web_cams);
+        setAvailableMicrophones(mics);
+      } catch (error) {
+        console.log("Error fetching devices in Safari:", error);
+      }
+    };
+
+    (async () => {
+      await checkAndSetPermissions("audio" as any, setIs_Mic_Permitted);
+      await checkAndSetPermissions("video" as any, setIs_Video_Permitted);
+
+      if (Is_Mic_Permitted || Is_Video_Permitted) {
+        await fetchDevices();
+      }
     })();
-  }, []);
+  }, [Is_Mic_Permitted, Is_Video_Permitted]);
 
   const SendMeetingIdToTheMemberOfTheServer = useCallback(
     async (MeetingID) => {
+      console.log("SendMeetingIdToTheMemberOfTheServer", MeetingID);
       const Data = {
         CallInitiatorInfo: UserInformation,
         RoomId: MeetingID,
@@ -183,7 +204,14 @@ function StartCallScreen() {
     if (!response.data) return;
     SendMeetingIdToTheMemberOfTheServer(response.data.roomId);
     setMeetingID(response.data.roomId);
-    setA_New_Meeting_Started(true);
+    setA_New_Meeting_Started({
+      Call_Started: true,
+      Meeting_Initiator_Info: UserInformation
+        ? UserInformation
+        : JSON.parse(getCookie("User__Info") as string),
+      Server_Info: ServerInfoById,
+      MeetingId: response.data.roomId,
+    });
     setCallingStarted(false);
     setStartCall(true);
   }, 500);
@@ -209,8 +237,8 @@ function StartCallScreen() {
     >
       <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity py-[50px]">
         <div className="w-[100%] h-[100%] flex flex-col items-center justify-center gap-[20px]">
-          <div className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center bg-black rounded-[10px] relative">
-            <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full">
+          <div className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center bg-black rounded-[10px] relative overflow-hidden">
+            <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full z-[1]">
               <span>{UserInformation.UserName}</span>
             </p>
             <audio ref={audioRef} autoPlay muted={!MicOn} />
@@ -225,17 +253,19 @@ function StartCallScreen() {
                     Video is Off
                   </p>
                 ) : (
-                  <ReactPlayer
-                    url={Video_Stream}
-                    playsinline // extremely crucial prop
-                    pip={false}
-                    light={false}
-                    controls={false}
-                    muted={true}
-                    playing={true}
-                    height={"100%"}
-                    width={"100%"}
-                  />
+                  <div className="w-[100%] h-[100%] scale-[1.2]">
+                    <ReactPlayer
+                      url={Video_Stream}
+                      playsinline // extremely crucial prop
+                      pip={false}
+                      light={false}
+                      controls={false}
+                      muted={true}
+                      playing={true}
+                      height={"100%"}
+                      width={"100%"}
+                    />
+                  </div>
                 )}
               </>
             )}
