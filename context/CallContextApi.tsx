@@ -22,6 +22,8 @@ interface ContextApiProps {
   setMicOn: React.Dispatch<React.SetStateAction<boolean>>;
   VideoOn: boolean;
   setVideoOn: React.Dispatch<React.SetStateAction<boolean>>;
+  StartCall: boolean;
+  setStartCall: React.Dispatch<React.SetStateAction<boolean>>;
 
   SelectedCamera: {
     label: string;
@@ -90,7 +92,8 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     kind: "" as string,
   });
   const [MicOn, setMicOn] = useState(false as boolean);
-  const [VideoOn, setVideoOn] = useState(false as boolean);
+  const [VideoOn, setVideoOn] = useState(true as boolean);
+  const [StartCall, setStartCall] = useState(false as boolean);
 
   const GetVideoTrackFunction = async (devicesId) => {
     setLoader(true);
@@ -147,6 +150,8 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     setMicOn,
     VideoOn,
     setVideoOn,
+    StartCall,
+    setStartCall,
     ShowSelectMicModal,
     setShowSelectMicModal,
     ShowSelectCamModal,

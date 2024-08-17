@@ -47,6 +47,8 @@ function StartCallScreen() {
     setMicOn,
     VideoOn,
     setVideoOn,
+    StartCall,
+    setStartCall,
   } = useContext(VideoAudioCallContext) as any;
 
   const socket = UseSocketIO();
@@ -68,8 +70,6 @@ function StartCallScreen() {
   //
   //
   //
-
-  const [StartCall, setStartCall] = useState(false as boolean);
 
   //
   //
@@ -185,6 +185,7 @@ function StartCallScreen() {
     setMeetingID(response.data.roomId);
     setA_New_Meeting_Started(true);
     setCallingStarted(false);
+    setStartCall(true);
   }, 500);
   const StartVideoCallProcessOnClick = async () => {
     setCallingStarted(true);
@@ -206,7 +207,7 @@ function StartCallScreen() {
       }}
       token={Token}
     >
-      <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity">
+      <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity py-[50px]">
         <div className="w-[100%] h-[100%] flex flex-col items-center justify-center gap-[20px]">
           <div className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center bg-black rounded-[10px] relative">
             <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full">
