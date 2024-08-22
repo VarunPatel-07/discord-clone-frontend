@@ -431,5 +431,42 @@
   }
 }
 .aspect-2by1 {
-  aspect-ratio: 500 /300;
+  aspect-ratio: 1000/500;
+}
+.video-wrapper {
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+.animate-enter {
+  animation: animate-enter 0.4s ease-in-out;
+}
+
+@keyframes animate-enter {
+  0% {
+    transform: translateX(150%);
+  }
+  50% {
+    transform: translateX(-10%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.animate-exit {
+  animation: animate-exit 0.4s ease-in-out forwards;
+}
+
+@keyframes animate-exit {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-10%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
 }

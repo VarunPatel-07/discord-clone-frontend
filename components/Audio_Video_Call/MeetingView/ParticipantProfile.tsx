@@ -6,7 +6,8 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import { useMeeting, useParticipant } from "@videosdk.live/react-sdk";
 import React, { useContext, useEffect, useMemo, useRef } from "react";
 import { IoMdMic, IoMdMicOff, IoMdVideocam } from "react-icons/io";
-import { IoVideocamOff } from "react-icons/io5";
+import { IoPersonRemove, IoVideocamOff } from "react-icons/io5";
+import { LuPin } from "react-icons/lu";
 
 function ParticipantProfile({
   participantId,
@@ -27,7 +28,8 @@ function ParticipantProfile({
 }) {
   const micRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { ANew_VideoMeeting_HasBeenStarted } = useContext(Context) as any;
+  const { ANew_VideoMeeting_HasBeenStarted, setPinningAnSpecificVideoStream } =
+    useContext(Context) as any;
   const {
     setParticipantWebcamYouWantToDisable,
 
@@ -45,6 +47,7 @@ function ParticipantProfile({
     isLocal,
     displayName,
     metaData,
+    remove,
   } = useParticipant(participantId) as any;
 
   useEffect(() => {
@@ -64,7 +67,12 @@ function ParticipantProfile({
         kind: micStream?.kind as string,
       });
     }
-  }, [webcamStream, micStream]);
+  }, [
+    webcamStream,
+    micStream,
+    setCurrent_Webcam_Info,
+    setCurrent_Audio_Mic_Info,
+  ]);
   const videoStream = useMemo(() => {
     if (webcamOn && webcamStream) {
       const mediaStream = new MediaStream();
@@ -114,6 +122,17 @@ function ParticipantProfile({
       disableWebcam();
     }
   };
+
+  const HandelRemoveParticipant = (participant_id: string) => {
+    remove();
+  };
+  const PinThisVideoButton = () => {
+    setPinningAnSpecificVideoStream({
+      PinVideo: true,
+      video_id: participantId,
+    });
+  };
+
   useEffect(() => {
     setParticipantMicYouWantToMute({
       participant_id: metaData?.id,
@@ -130,39 +149,55 @@ function ParticipantProfile({
       className="w-[100%] h-[100%]  overflow-hidden relative group"
       style={{ backgroundColor: metaData?.ProfileBanner_Color }}
     >
-      {ANew_VideoMeeting_HasBeenStarted?.Meeting_Initiator_Info?.id ===
-        UserInformation?.id && (
-        <>
-          {metaData?.id !== UserInformation?.id && (
-            <div className="flex items-center justify-center gap-[10px] absolute top-[10px] right-[10px] z-[2] invisible group-hover:visible">
-              <button
-                className={` w-[30px] h-[30px] rounded-full flex items-center justify-center ${
-                  !micOn ? "bg-pink-700" : "bg-white"
-                }`}
-                onClick={() => HandelRemoteParticipantMic(micOn)}
-              >
-                {micOn ? (
-                  <IoMdMic className="w-[18px] h-[18px] text-black transition duration-100 " />
-                ) : (
-                  <IoMdMicOff className="w-[18px] h-[18px] text-white transition duration-100 " />
-                )}
-              </button>
-              <button
-                className={` w-[30px] h-[30px] rounded-full flex items-center justify-center ${
-                  !webcamOn ? "bg-pink-700" : "bg-white"
-                }`}
-                onClick={() => HandelRemoteParticipantWebcam(webcamOn)}
-              >
-                {webcamOn ? (
-                  <IoMdVideocam className="w-[18px] h-[18px] text-black transition duration-100 " />
-                ) : (
-                  <IoVideocamOff className="w-[18px] h-[18px] text-white transition duration-100 " />
-                )}
-              </button>
-            </div>
-          )}
-        </>
-      )}
+      <div className="flex items-center justify-center gap-[10px] absolute top-[10px] right-[10px] z-[2] invisible group-hover:visible">
+        {ANew_VideoMeeting_HasBeenStarted?.Meeting_Initiator_Info?.id ===
+          UserInformation?.id && (
+          <>
+            {metaData?.id !== UserInformation?.id && (
+              <div className="flex items-center justify-center gap-[10px] ">
+                <button
+                  className={` w-[30px] h-[30px] rounded-full flex items-center justify-center ${
+                    !micOn ? "bg-pink-700" : "bg-white"
+                  }`}
+                  onClick={() => HandelRemoteParticipantMic(micOn)}
+                >
+                  {micOn ? (
+                    <IoMdMic className="w-[18px] h-[18px] text-black transition duration-100 " />
+                  ) : (
+                    <IoMdMicOff className="w-[18px] h-[18px] text-white transition duration-100 " />
+                  )}
+                </button>
+                <button
+                  className={` w-[30px] h-[30px] rounded-full flex items-center justify-center ${
+                    !webcamOn ? "bg-pink-700" : "bg-white"
+                  }`}
+                  onClick={() => HandelRemoteParticipantWebcam(webcamOn)}
+                >
+                  {webcamOn ? (
+                    <IoMdVideocam className="w-[18px] h-[18px] text-black transition duration-100 " />
+                  ) : (
+                    <IoVideocamOff className="w-[18px] h-[18px] text-white transition duration-100 " />
+                  )}
+                </button>
+                <button
+                  className={` w-[30px] h-[30px] rounded-full flex items-center justify-center  bg-red-600`}
+                  onClick={() => HandelRemoveParticipant(participantId)}
+                >
+                  <IoPersonRemove className="w-[18px] h-[18px] text-white transition duration-100 " />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+        <div className="pin-video">
+          <button
+            className={` w-[30px] h-[30px] rounded-full flex items-center justify-center  bg-indigo-600`}
+            onClick={PinThisVideoButton}
+          >
+            <LuPin className="w-[18px] h-[18px] text-white transition duration-100 " />
+          </button>
+        </div>
+      </div>
 
       <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full z-[1] ">
         {displayName}
@@ -192,7 +227,7 @@ function ParticipantProfile({
             width="100%"
             height="100%"
             style={{ objectFit: "cover" }}
-            className="aspect-2by1"
+            className="w-[100%] h-[100%] "
           />
         )}
       </div>

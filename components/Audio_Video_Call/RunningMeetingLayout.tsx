@@ -10,6 +10,7 @@ import { getCookie } from "cookies-next";
 import MeetingController from "./Controller/MeetingController";
 
 import MeetingViewGridLayout from "./MeetingView/MeetingViewGridLayout";
+import MeetingNotification from "./notification/MeetingNotification";
 function RunningMeetingLayout({ Call_Type }: { Call_Type: string }) {
   const {
     UserInfoFetchingFunction,
@@ -66,6 +67,9 @@ function RunningMeetingLayout({ Call_Type }: { Call_Type: string }) {
             setActiveSpeakerId={setActiveSpeakerId}
           />
         </div>
+        <div className="w-[100%] h-[100%]">
+          <MeetingNotification />
+        </div>
       </MeetingProvider>
     );
   } else {
@@ -96,6 +100,9 @@ function RunningMeetingLayout({ Call_Type }: { Call_Type: string }) {
             ActiveSpeakerId={ActiveSpeakerId}
             setActiveSpeakerId={setActiveSpeakerId}
           />
+        </div>
+        <div className="w-[100%] h-[100%]">
+          <MeetingNotification />
         </div>
       </MeetingProvider>
     );

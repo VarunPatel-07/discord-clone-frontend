@@ -2,8 +2,19 @@
 import { getAudioMediaTrack, getVideoMediaTrack } from "@/helper/MediaTracks";
 import React, { createContext, ReactNode, useRef, useState } from "react";
 
+interface Notification {
+  id: string;
+  participant_id: string;
+  FullName: string;
+  UserName: string;
+  Profile_Picture: string;
+  ProfileBanner_Color: string;
+  ProfileBgColor: string;
+  Message: string;
+}
 interface ContextApiProps {
   audioRef: React.RefObject<HTMLAudioElement>;
+  videoRef: React.RefObject<HTMLVideoElement>;
   MeetingID: string;
   setMeetingID: React.Dispatch<React.SetStateAction<string>>;
 
@@ -86,16 +97,14 @@ interface ContextApiProps {
       webcam_status: boolean;
     }>
   >;
-  Current_VideoCall_Participant_Info: object;
-  setCurrent_VideoCall_Participant_Info: React.Dispatch<
-    React.SetStateAction<object>
+  ANewParticipant_Notification: Notification[];
+  setANewParticipant_Notification: React.Dispatch<
+    React.SetStateAction<Notification[]>
   >;
-  Current_AudioCall_Participant_Info: object;
-  setCurrent_AudioCall_Participant_Info: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+
   onDeviceChanged: (devices, device_type?) => void;
 }
+
 const VideoAudioCallContext = createContext<ContextApiProps | undefined>(
   undefined
 );
@@ -104,6 +113,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [MeetingID, setMeetingID] = useState("" as string);
 
   const [Video_Stream, setVideo_Stream] = useState(null as any);
@@ -145,14 +155,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     webcam_status: false as boolean,
   });
 
-  const [
-    Current_VideoCall_Participant_Info,
-    setCurrent_VideoCall_Participant_Info,
-  ] = useState({} as any);
-  const [
-    Current_AudioCall_Participant_Info,
-    setCurrent_AudioCall_Participant_Info,
-  ] = useState({} as any);
+
 
   const [Current_Webcam_Info, setCurrent_Webcam_Info] = useState({
     label: "" as string,
@@ -166,12 +169,20 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     groupId: "" as string,
     kind: "" as string,
   });
+
+  const [ANewParticipant_Notification, setANewParticipant_Notification] =
+    useState<Notification[]>([]);
+
   const GetVideoTrackFunction = async (devicesId) => {
     setLoader(true);
     const Video_Track = await getVideoMediaTrack(devicesId);
-
+    console.log("Video_Track", Video_Track);
+    console.log("Video_Track", videoRef.current);
+    if (!Video_Track) return;
     setVideo_Stream(Video_Track);
-
+    if (videoRef.current) {
+      videoRef.current.srcObject = Video_Track;
+    }
     setLoader(false);
   };
   const GetAudioTrackFunction = async (devicesId) => {
@@ -207,6 +218,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
 
   const context_value = {
     audioRef,
+    videoRef,
     MeetingID,
     setMeetingID,
 
@@ -243,16 +255,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
         React.SetStateAction<object>
       >,
     onDeviceChanged,
-    Current_VideoCall_Participant_Info,
-    setCurrent_VideoCall_Participant_Info:
-      setCurrent_VideoCall_Participant_Info as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    Current_AudioCall_Participant_Info,
-    setCurrent_AudioCall_Participant_Info:
-      setCurrent_AudioCall_Participant_Info as React.Dispatch<
-        React.SetStateAction<object>
-      >,
+   
     Current_Audio_Mic_Info,
     setCurrent_Audio_Mic_Info: setCurrent_Audio_Mic_Info as React.Dispatch<
       React.SetStateAction<object>
@@ -261,6 +264,11 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     setCurrent_Webcam_Info: setCurrent_Webcam_Info as React.Dispatch<
       React.SetStateAction<object>
     >,
+    ANewParticipant_Notification,
+    setANewParticipant_Notification:
+      setANewParticipant_Notification as React.Dispatch<
+        React.SetStateAction<Notification[]>
+      >,
   };
   return (
     <VideoAudioCallContext.Provider value={context_value}>

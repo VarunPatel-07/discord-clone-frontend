@@ -135,6 +135,19 @@ interface ContextApiProps {
   setAnIncoming_AudioCall_Occurred: React.Dispatch<
     React.SetStateAction<object>
   >;
+  PinningAnSpecificVideoStream: {
+    PinVideo: boolean;
+    video_id: string;
+  };
+  Current_VideoCall_Participant_Info: object;
+  setCurrent_VideoCall_Participant_Info: React.Dispatch<
+    React.SetStateAction<object>
+  >;
+  Current_AudioCall_Participant_Info: object;
+  setCurrent_AudioCall_Participant_Info: React.Dispatch<
+    React.SetStateAction<object>
+  >;
+  setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -446,6 +459,20 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       You_Joined: false as boolean,
       ChannelInfo: {} as object,
     });
+
+  const [PinningAnSpecificVideoStream, setPinningAnSpecificVideoStream] =
+    useState({
+      PinVideo: false as boolean,
+      video_id: "" as string,
+    });
+  const [
+    Current_VideoCall_Participant_Info,
+    setCurrent_VideoCall_Participant_Info,
+  ] = useState({} as any);
+  const [
+    Current_AudioCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info,
+  ] = useState({} as any);
 
   //
   //
@@ -1740,7 +1767,21 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setAnIncoming_AudioCall_Occurred as React.Dispatch<
         React.SetStateAction<object>
       >,
-
+    PinningAnSpecificVideoStream,
+    setPinningAnSpecificVideoStream:
+      setPinningAnSpecificVideoStream as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    Current_VideoCall_Participant_Info,
+    setCurrent_VideoCall_Participant_Info:
+      setCurrent_VideoCall_Participant_Info as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    Current_AudioCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info:
+      setCurrent_AudioCall_Participant_Info as React.Dispatch<
+        React.SetStateAction<object>
+      >,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

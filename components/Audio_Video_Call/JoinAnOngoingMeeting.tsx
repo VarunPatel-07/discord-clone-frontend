@@ -245,7 +245,10 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
       >
         <div className="w-[100%] h-[100%] flex flex-col items-center justify-between transition-opacity pt-[70px] pb-[50px] gap-[40px] ">
           <div className="w-[100%]  flex flex-col items-center justify-center gap-[20px]">
-            <div className="users-screen-wrapper w-[100%] h-[100%] aspect-square max-w-[600px] max-h-[400px] flex flex-col items-center justify-center bg-black rounded-[10px] relative overflow-hidden">
+            <div
+              className="users-screen-wrapper w-[100%] h-[100%] aspect-square max-w-[600px] max-h-[400px] flex flex-col items-center justify-center  rounded-[10px] relative overflow-hidden"
+              style={{ backgroundColor: UserInformation?.ProfileBanner_Color }}
+            >
               <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full z-[1]">
                 <span>{UserInformation.UserName}</span>
               </p>
@@ -281,7 +284,7 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-[100%] h-[100%] scale-[1.2]">
+                    <div className="w-[100%] h-[100%] video-wrapper">
                       <ReactPlayer
                         url={Video_Stream}
                         playsinline // extremely crucial prop

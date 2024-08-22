@@ -23,7 +23,7 @@ function TestYourSpakerComponent() {
             <GoUnmute className="text-white w-[24px] h-[24px]" />
           </span>
         </PopoverTrigger>
-        <PopoverContent className="w-fit h-fit p-0">
+        <PopoverContent className="w-fit h-fit p-0" align="end">
           <p className="global-font-roboto text-[15px] text-black px-[15px] py-[6px] border-b-black border-b-[1px]">
             Change Output Speaker
           </p>
@@ -44,7 +44,8 @@ function TestYourSpakerComponent() {
       <ReactTooltip
         id="change-or-test-speaker-button"
         place="top"
-        style={{ backgroundColor: "white", color: "black", opacity: "1" }} opacity={1}
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
       />
     </div>
   );

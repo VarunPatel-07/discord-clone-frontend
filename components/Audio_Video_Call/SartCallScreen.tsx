@@ -30,6 +30,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
     Video_Stream,
     Audio_Stream,
     audioRef,
+    videoRef,
     GetVideoTrackFunction,
     GetAudioTrackFunction,
     Loader,
@@ -305,7 +306,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-[100%] h-[100%] scale-[1.2]">
+                      <div className="w-[100%] h-[100%] video-wrapper">
                         <ReactPlayer
                           url={Video_Stream}
                           playsinline // extremely crucial prop
@@ -316,6 +317,11 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
                           playing={true}
                           height={"100%"}
                           width={"100%"}
+                          style={{
+                            objectFit: "cover",
+                            width: "100%",
+                            height: "100%",
+                          }}
                         />
                       </div>
                     )}

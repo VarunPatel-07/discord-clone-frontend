@@ -41,7 +41,7 @@ function MeetingController({
     setCurrent_AudioCall_Participant_Info,
   } = useContext(VideoAudioCallContext) as any;
 
-  const { toggleMic, toggleWebcam, end, leave } = useMeeting({
+  const { toggleMic, toggleWebcam, end, leave, participants } = useMeeting({
     onMeetingLeft: () => {
       console.log("Meeting left");
       setMicOn(false);
@@ -159,6 +159,20 @@ function MeetingController({
       setVideoOn(false);
     }
   };
+  const HandelMuteAllTheParticipantButton = async () => {
+    setActiveSpeakerId("");
+    const mutePromises = Array.from(participants.values()).map(
+      async (participant) => {
+        try {
+          await participant.disableMic();
+          console.log(`Muted ${participant.displayName}`);
+        } catch (error) {
+          console.error(`Failed to mute ${participant.displayName}:`, error);
+        }
+      }
+    );
+    await Promise.all(mutePromises);
+  };
 
   return (
     <div className="w-[100%] h-[69px] bg-[rgba(0,0,0,0.3)] backdrop-blur-[10px] absolute bottom-0 right-0 py-[12px] px-[10px]">
@@ -175,7 +189,7 @@ function MeetingController({
                   : "bg-white"
               } transition flex items-center justify-center rounded-full  hover:scale-105`}
               onClick={ToggleMicFunction}
-              data-tooltip-id="start-call-screen-mic-icon-tooltip"
+              data-tooltip-id="Enable-Mic-icon-tooltip"
               data-tooltip-content={
                 !ParticipantMicYouWantToMute.mic_status
                   ? "Turn Mic On"
@@ -194,7 +208,7 @@ function MeetingController({
                 !MicOn ? "bg-pink-700" : "bg-white"
               } transition flex items-center justify-center rounded-full  hover:scale-105`}
               onClick={ToggleMicFunction}
-              data-tooltip-id="start-call-screen-mic-icon-tooltip"
+              data-tooltip-id="Enable-Mic-icon-tooltip"
               data-tooltip-content={!MicOn ? "Turn Mic On" : "Turn Mic Off"}
             >
               {MicOn ? (
@@ -212,7 +226,7 @@ function MeetingController({
                   : "bg-white"
               } transition flex items-center justify-center rounded-full  hover:scale-105 disabled:cursor-not-allowed disabled:opacity-80`}
               onClick={ToggleVideoFunction}
-              data-tooltip-id="start-call-screen-video-icon-tooltip"
+              data-tooltip-id="Enable-Disable-Video"
               data-tooltip-content={
                 Call_Type === "AUDIO"
                   ? "Video Is Not Allowed In Audio Call"
@@ -234,13 +248,13 @@ function MeetingController({
                 !VideoOn ? "bg-pink-700" : "bg-white"
               } transition flex items-center justify-center rounded-full  hover:scale-105 disabled:cursor-not-allowed disabled:opacity-80`}
               onClick={ToggleVideoFunction}
-              data-tooltip-id="start-call-screen-video-icon-tooltip"
+              data-tooltip-id="Enable-Disable-Video"
               data-tooltip-content={
                 Call_Type === "AUDIO"
                   ? "Video Is Not Allowed In Audio Call"
                   : !VideoOn
-                  ? "Turn Video On"
-                  : "Turn Video Off"
+                  ? "Turn Video Off"
+                  : "Turn Video On"
               }
               disabled={Call_Type === "AUDIO" ? true : false}
             >
@@ -260,7 +274,7 @@ function MeetingController({
               className={`w-[45px] h-[45px] ${
                 StartCall ? "bg-pink-700" : "bg-green-600"
               } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
-              data-tooltip-id="start-call-screen-call-icon-tooltip"
+              data-tooltip-id="StartOrEnd-TheMeeting-Button"
               data-tooltip-content={
                 !StartCall ? "Start Video Call" : "End Video Call"
               }
@@ -277,7 +291,7 @@ function MeetingController({
               className={`w-[45px] h-[45px] ${
                 StartCall ? "bg-pink-700" : "bg-green-600"
               } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
-              data-tooltip-id="End-TheCallButton"
+              data-tooltip-id="StartOrEnd-TheMeeting-Button"
               data-tooltip-content={
                 !StartCall ? "Start Video Call" : "Leave Video Call"
               }
@@ -296,23 +310,46 @@ function MeetingController({
             <div className="test-your-speaker">
               <TestYourSpakerComponent />
             </div>
-            <div className="mute-all-the-participant">
-              <button
-                className="w-[45px] h-[45px] bg-orange-600 transition flex items-center justify-center rounded-full  hover:scale-105 "
-                data-tooltip-id="mute-all-the-people-in-running-meeting"
-                data-tooltip-content="Mute All The Participant"
-              >
-                <BsMicMuteFill className="w-[24px] h-[24px] text-white transition duration-100 " />
-              </button>
-              <ReactTooltip
-                id="mute-all-the-people-in-running-meeting"
-                place="top"
-                style={{ backgroundColor: "white", color: "black", opacity: "1" }} opacity={1}
-              />
-            </div>
+            {ANew_VideoMeeting_HasBeenStarted.Meeting_Initiator_Info.id ===
+              UserInformation.id && (
+              <div className="mute-all-the-participant">
+                <button
+                  className="w-[45px] h-[45px] bg-orange-600 transition flex items-center justify-center rounded-full  hover:scale-105 "
+                  data-tooltip-id="mute-all-the-people-in-running-meeting"
+                  data-tooltip-content="Mute All The Participant"
+                  onClick={HandelMuteAllTheParticipantButton}
+                >
+                  <BsMicMuteFill className="w-[24px] h-[24px] text-white transition duration-100 " />
+                </button>
+                <ReactTooltip
+                  id="mute-all-the-people-in-running-meeting"
+                  place="top"
+                  style={{ backgroundColor: "white", color: "black" }}
+                  opacity={1}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <ReactTooltip
+        id="Enable-Mic-icon-tooltip"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+      <ReactTooltip
+        id="Enable-Disable-Video"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+      <ReactTooltip
+        id="StartOrEnd-TheMeeting-Button"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
     </div>
   );
 }

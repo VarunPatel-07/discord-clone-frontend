@@ -2,7 +2,7 @@ import { useMediaDevice, useMeeting } from "@videosdk.live/react-sdk";
 import React, { useContext, useEffect, useState } from "react";
 import { MdCameraswitch } from "react-icons/md";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import { VideoAudioCallContext } from "@/context/CallContextApi";
 import { IoMdMic } from "react-icons/io";
 import SpinnerComponent from "../Loader/SpinnerComponent";
@@ -140,6 +140,17 @@ function ChangeCamAndMic() {
           </Popover>
         </div>
       </div>
+      <ReactTooltip
+        id="change-camera-button-in-running-meeting"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+      <ReactTooltip
+        id="change-mic-button-in-running-meeting"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
     </div>
   );
 }
