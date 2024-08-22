@@ -37,7 +37,7 @@ function AvailableDeviceList({
             </span>
           </button>
           <div
-            className={`w-[100%] bg-white overflow-hidden rounded-[5px] absolute top-[36px] left-0 transition-opacity duration-200 ${
+            className={`w-[100%] bg-white overflow-hidden rounded-[5px] absolute z-[10] top-[36px] left-0 transition-opacity duration-200 ${
               ShowSelectCamModal ? "visible opacity-100" : "invisible opacity-0"
             }`}
           >
@@ -76,7 +76,7 @@ function AvailableDeviceList({
             </span>
           </button>
           <div
-            className={`w-[100%] bg-white overflow-hidden rounded-[5px] absolute top-[36px] left-0  transition-opacity duration-200 ${
+            className={`w-[100%] bg-white overflow-hidden rounded-[5px] absolute z-[10] top-[36px] left-0  transition-opacity duration-200 ${
               ShowSelectMicModal
                 ? "visible opacity-100 "
                 : "invisible opacity-0"

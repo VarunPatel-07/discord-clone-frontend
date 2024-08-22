@@ -6,7 +6,7 @@ import { Context } from "@/context/ContextApi";
 import Create_Update_Server_PopUp from "./Create_Update_Server_PopUp";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { Tooltip as ReactTooltip } from "react-tooltip";
@@ -18,10 +18,9 @@ function Sidebar() {
     FetchTheIncludingServer,
     Including_Server_Info_Array,
     UserInfoFetchingFunction,
-    FetchTheMessageOFTheChannel,
     setGlobalSuccessNotification,
-    AnIncomingCallOccurred,
-    setAnIncomingCallOccurred,
+    setAnIncoming_AudioCall_Occurred,
+    setAnIncoming_VideoCall_Occurred,
     UserInformation,
   } = useContext(Context) as any;
 
@@ -32,28 +31,92 @@ function Sidebar() {
 
   const A_New_CallHasBeen_Started = useCallback(
     (data) => {
-      console.log("data no 1", data);
-      const serverId = Path?.split("/")[3];
       const User_Info = UserInformation
         ? UserInformation
         : JSON?.parse(getCookie("User__Info") as string);
-      if (serverId === data?.ServerInfo?.id) {
-        if (
-          data.ServerInfo.members.some(
-            (member: any) => member.userId === User_Info?.id
-          )
-        ) {
-          if (data?.CallInitiatorInfo?.id === User_Info?.id) {
-            return;
-          }
-          setAnIncomingCallOccurred({
+
+      if (
+        data.ServerInfo.members.some(
+          (member: any) => member.userId === User_Info?.id
+        )
+      ) {
+        if (data?.CallInitiatorInfo?.id === User_Info?.id) {
+          return;
+        }
+        if (data?.ChannelInfo?.ChatType === "VIDEO") {
+          setGlobalSuccessNotification({
+            ShowAlert: true as boolean,
+            Profile_Picture: data?.CallInitiatorInfo?.Profile_Picture as string,
+            FullName: data?.CallInitiatorInfo?.FullName as string,
+            UserName: data?.CallInitiatorInfo?.UserName as string,
+            Message:
+              `Started An Video Call In "${data?.ServerInfo?.name}" Server` as string,
+            Type: "FOLLOW" as string,
+          });
+          setTimeout(() => {
+            setGlobalSuccessNotification({
+              ShowAlert: false as boolean,
+              Profile_Picture: "" as string,
+              FullName: "" as string,
+              UserName: "" as string,
+              Message: "" as string,
+              Type: "NORMAL" as string,
+            });
+          }, 4000);
+          setAnIncoming_VideoCall_Occurred({
             An_Incoming_Call: true,
             Meeting_Initiator_Info: data?.CallInitiatorInfo,
             Server_Info: data?.ServerInfo,
             MeetingId: data?.RoomId,
             You_Joined: false,
+            ChannelInfo: data?.ChannelInfo,
           });
-          console.log("data", AnIncomingCallOccurred);
+          const Data = {
+            An_Incoming_Call: true,
+            Meeting_Initiator_Info: data?.CallInitiatorInfo,
+            Server_Info: data?.ServerInfo,
+            MeetingId: data?.RoomId,
+            You_Joined: false,
+            ChannelInfo: data?.ChannelInfo,
+          };
+          setCookie("An_Incoming_VideoCall", JSON.stringify(Data));
+        } else {
+          setGlobalSuccessNotification({
+            ShowAlert: true as boolean,
+            Profile_Picture: data?.CallInitiatorInfo?.Profile_Picture as string,
+            FullName: data?.CallInitiatorInfo?.FullName as string,
+            UserName: data?.CallInitiatorInfo?.UserName as string,
+            Message:
+              `Started An Audio Call In "${data?.ServerInfo?.name}" Server` as string,
+            Type: "FOLLOW" as string,
+          });
+          setTimeout(() => {
+            setGlobalSuccessNotification({
+              ShowAlert: false as boolean,
+              Profile_Picture: "" as string,
+              FullName: "" as string,
+              UserName: "" as string,
+              Message: "" as string,
+              Type: "NORMAL" as string,
+            });
+          }, 4000);
+          setAnIncoming_AudioCall_Occurred({
+            An_Incoming_Call: true,
+            Meeting_Initiator_Info: data?.CallInitiatorInfo,
+            Server_Info: data?.ServerInfo,
+            MeetingId: data?.RoomId,
+            You_Joined: false,
+            ChannelInfo: data?.ChannelInfo,
+          });
+          const Data = {
+            An_Incoming_Call: true,
+            Meeting_Initiator_Info: data?.CallInitiatorInfo,
+            Server_Info: data?.ServerInfo,
+            MeetingId: data?.RoomId,
+            You_Joined: false,
+            ChannelInfo: data?.ChannelInfo,
+          };
+          setCookie("An_Incoming_AudioCall", JSON.stringify(Data));
         }
       }
     },

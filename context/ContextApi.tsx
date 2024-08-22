@@ -93,21 +93,48 @@ interface ContextApiProps {
   setReply_A_Specific_Message_State: React.Dispatch<
     React.SetStateAction<object>
   >;
-  A_New_Meeting_Started: {
+  ANew_VideoMeeting_HasBeenStarted: {
     Call_Started: boolean;
     Meeting_Initiator_Info: object;
     Server_Info: object;
     MeetingId: string;
+    ChannelInfo: object;
   };
-  setA_New_Meeting_Started: React.Dispatch<React.SetStateAction<object>>;
-  AnIncomingCallOccurred: {
+  setANew_VideoMeeting_HasBeenStarted: React.Dispatch<
+    React.SetStateAction<object>
+  >;
+  ANew_AudioMeeting_HasBeenStarted: {
+    Call_Started: boolean;
+    Meeting_Initiator_Info: object;
+    Server_Info: object;
+    MeetingId: string;
+    ChannelInfo: object;
+  };
+  setANew_AudioMeeting_HasBeenStarted: React.Dispatch<
+    React.SetStateAction<Object>
+  >;
+  AnIncoming_VideoCall_Occurred: {
     An_Incoming_Call: boolean;
     Meeting_Initiator_Info: object;
     Server_Info: object;
     MeetingId: string;
     You_Joined: boolean;
+    ChannelInfo: object;
   };
-  setAnIncomingCallOccurred: React.Dispatch<React.SetStateAction<object>>;
+  setAnIncoming_VideoCall_Occurred: React.Dispatch<
+    React.SetStateAction<object>
+  >;
+  AnIncoming_AudioCall_Occurred: {
+    An_Incoming_Call: boolean;
+    Meeting_Initiator_Info: object;
+    Server_Info: object;
+    MeetingId: string;
+    You_Joined: boolean;
+    ChannelInfo: object;
+  };
+  setAnIncoming_AudioCall_Occurred: React.Dispatch<
+    React.SetStateAction<object>
+  >;
   //
   //? exporting all the functions
   //
@@ -381,19 +408,44 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Message: [] as Array<object>,
     TotalPage: 0 as number,
   });
-  const [A_New_Meeting_Started, setA_New_Meeting_Started] = useState({
+  const [
+    ANew_VideoMeeting_HasBeenStarted,
+    setANew_VideoMeeting_HasBeenStarted,
+  ] = useState({
     Call_Started: false as boolean,
     Meeting_Initiator_Info: {} as object,
     Server_Info: {} as object,
     MeetingId: "" as string,
+    ChannelInfo: {} as object,
   });
-  const [AnIncomingCallOccurred, setAnIncomingCallOccurred] = useState({
-    An_Incoming_Call: false as boolean,
+  const [
+    ANew_AudioMeeting_HasBeenStarted,
+    setANew_AudioMeeting_HasBeenStarted,
+  ] = useState({
+    Call_Started: false as boolean,
     Meeting_Initiator_Info: {} as object,
     Server_Info: {} as object,
     MeetingId: "" as string,
-    You_Joined: false as boolean,
+    ChannelInfo: {} as object,
   });
+  const [AnIncoming_VideoCall_Occurred, setAnIncoming_VideoCall_Occurred] =
+    useState({
+      An_Incoming_Call: false as boolean,
+      Meeting_Initiator_Info: {} as object,
+      Server_Info: {} as object,
+      MeetingId: "" as string,
+      You_Joined: false as boolean,
+      ChannelInfo: {} as object,
+    });
+  const [AnIncoming_AudioCall_Occurred, setAnIncoming_AudioCall_Occurred] =
+    useState({
+      An_Incoming_Call: false as boolean,
+      Meeting_Initiator_Info: {} as object,
+      Server_Info: {} as object,
+      MeetingId: "" as string,
+      You_Joined: false as boolean,
+      ChannelInfo: {} as object,
+    });
 
   //
   //
@@ -690,7 +742,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!AuthToken) return;
-      setChangingTheMemberRole(true);
+
       const formData = new FormData();
       formData.append("memberId", MemberId);
       formData.append("CurrentMemberRole", CurrentMemberRole);
@@ -706,7 +758,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         socket?.emit("newServerCreationOccurred", response.data);
-        setChangingTheMemberRole(false);
+        FetchingTheServerInfoByServerId(serverId, AuthToken);
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1412,7 +1464,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data.Data.messages);
+
       if (response.data.success) {
         setAllTheMessageOfTheChannel((prevState: any) => ({
           HasMoreData: response.data.Data.hasMoreData,
@@ -1668,14 +1720,26 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         React.SetStateAction<object>
       >,
 
-    A_New_Meeting_Started,
-    setA_New_Meeting_Started: setA_New_Meeting_Started as React.Dispatch<
-      React.SetStateAction<object>
-    >,
-    AnIncomingCallOccurred,
-    setAnIncomingCallOccurred: setAnIncomingCallOccurred as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    ANew_VideoMeeting_HasBeenStarted,
+    setANew_VideoMeeting_HasBeenStarted:
+      setANew_VideoMeeting_HasBeenStarted as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    ANew_AudioMeeting_HasBeenStarted,
+    setANew_AudioMeeting_HasBeenStarted:
+      setANew_AudioMeeting_HasBeenStarted as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    AnIncoming_VideoCall_Occurred,
+    setAnIncoming_VideoCall_Occurred:
+      setAnIncoming_VideoCall_Occurred as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    AnIncoming_AudioCall_Occurred,
+    setAnIncoming_AudioCall_Occurred:
+      setAnIncoming_AudioCall_Occurred as React.Dispatch<
+        React.SetStateAction<object>
+      >,
 
     Login_User_Function,
     CheckUsersLoginStatus,

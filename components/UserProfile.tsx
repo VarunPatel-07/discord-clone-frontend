@@ -71,13 +71,13 @@ function UserProfile({ Position }: { Position: string }) {
         </Link>
         <div className="user-action">
           <div className=" flex items-center justify-center gap-[6px]">
-            <div
+            {/* <div
               className="mic-icon"
               data-tooltip-id="mic-icon-tooltip"
               data-tooltip-content="Mic"
             >
               <IoMdMic className="text-2xl text-white" />
-            </div>
+            </div> */}
             <div
               className="setting-icon"
               data-tooltip-id="setting-tooltip"

@@ -1,24 +1,26 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import {
-  MeetingProvider,
-  useMediaDevice,
-  useMeeting,
-} from "@videosdk.live/react-sdk";
+import React, { useContext, useEffect, useState } from "react";
+import { MeetingProvider } from "@videosdk.live/react-sdk";
 import { GenerateCallToken } from "./GenerateToken";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 
 import { VideoAudioCallContext } from "@/context/CallContextApi";
-import ReactPlayer from "react-player";
+
 import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import MeetingController from "./Controller/MeetingController";
-import MeetingView from "./MeetingView/ParticipantProfile";
+
 import MeetingViewGridLayout from "./MeetingView/MeetingViewGridLayout";
-function RunningMeetingLayout() {
-  const { UserInfoFetchingFunction, UserInformation, A_New_Meeting_Started } =
-    useContext(Context) as any;
+function RunningMeetingLayout({ Call_Type }: { Call_Type: string }) {
+  const {
+    UserInfoFetchingFunction,
+    UserInformation,
+    ANew_VideoMeeting_HasBeenStarted,
+    ANew_AudioMeeting_HasBeenStarted,
+  } = useContext(Context) as any;
+  const { MicOn, VideoOn } = useContext(VideoAudioCallContext) as any;
 
   const [Token, setToken] = useState("" as string);
+  const [ActiveSpeakerId, setActiveSpeakerId] = useState("" as string);
 
   useEffect(() => {
     (async () => {
@@ -35,24 +37,69 @@ function RunningMeetingLayout() {
   }, [UserInfoFetchingFunction, UserInformation]);
 
   if (!Token) return <SpinnerComponent />;
-  return (
-    <MeetingProvider
-      config={{
-        micEnabled: true,
-        webcamEnabled: true,
-        name: UserInformation?.UserName,
-        debugMode: true,
-        meetingId: A_New_Meeting_Started.MeetingId,
-        metaData: UserInformation,
-      }}
-      token={Token}
-      // joinWithoutUserInteraction={true}
-    >
-      <div className="w-[100%] h-[100%] relative pt-[60px]">
-        <MeetingViewGridLayout />
-      </div>
-    </MeetingProvider>
-  );
+  if (Call_Type === "AUDIO") {
+    return (
+      <MeetingProvider
+        config={{
+          micEnabled: MicOn,
+          webcamEnabled: false,
+          name: UserInformation?.UserName,
+          debugMode: true,
+          meetingId: ANew_AudioMeeting_HasBeenStarted.MeetingId,
+          metaData: UserInformation,
+        }}
+        token={Token}
+        // joinWithoutUserInteraction={true}
+      >
+        <div className="w-[100%] h-[100%] relative  px-[15px]">
+          <MeetingViewGridLayout
+            UserInformation={UserInformation}
+            Call_Type={Call_Type}
+            ActiveSpeakerId={ActiveSpeakerId}
+            setActiveSpeakerId={setActiveSpeakerId}
+          />
+        </div>
+        <div className="w-[100%] relative z-[10]">
+          <MeetingController
+            Call_Type={Call_Type}
+            ActiveSpeakerId={ActiveSpeakerId}
+            setActiveSpeakerId={setActiveSpeakerId}
+          />
+        </div>
+      </MeetingProvider>
+    );
+  } else {
+    return (
+      <MeetingProvider
+        config={{
+          micEnabled: MicOn,
+          webcamEnabled: VideoOn,
+          name: UserInformation?.UserName,
+          debugMode: true,
+          meetingId: ANew_VideoMeeting_HasBeenStarted.MeetingId,
+          metaData: UserInformation,
+        }}
+        token={Token}
+        // joinWithoutUserInteraction={true}
+      >
+        <div className="w-[100%] h-[100%] relative px-[15px] ">
+          <MeetingViewGridLayout
+            UserInformation={UserInformation}
+            Call_Type={Call_Type}
+            ActiveSpeakerId={ActiveSpeakerId}
+            setActiveSpeakerId={setActiveSpeakerId}
+          />
+        </div>
+        <div className="w-[100%] relative z-[10]">
+          <MeetingController
+            Call_Type={Call_Type}
+            ActiveSpeakerId={ActiveSpeakerId}
+            setActiveSpeakerId={setActiveSpeakerId}
+          />
+        </div>
+      </MeetingProvider>
+    );
+  }
 }
 
 export default RunningMeetingLayout;

@@ -13,20 +13,20 @@ import StartScreenController from "./Controller/StartScreenController";
 import { getCookie } from "cookies-next";
 import { GenerateCallToken } from "./GenerateToken";
 import { Permission } from "@videosdk.live/react-sdk/dist/types/permission";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-function JoinAnOngoingMeeting() {
+function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
   const {
     UserInformation,
     UserInfoFetchingFunction,
-    setA_New_Meeting_Started,
-    A_New_Meeting_Started,
-    AnIncomingCallOccurred,
-    setAnIncomingCallOccurred,
+    setANew_VideoMeeting_HasBeenStarted,
+    setANew_AudioMeeting_HasBeenStarted,
+    AnIncoming_VideoCall_Occurred,
+    setAnIncoming_VideoCall_Occurred,
+    AnIncoming_AudioCall_Occurred,
+    setAnIncoming_AudioCall_Occurred,
   } = useContext(Context) as any;
   const {
-    MeetingID,
-    setMeetingID,
-
     Video_Stream,
 
     Audio_Stream,
@@ -51,10 +51,9 @@ function JoinAnOngoingMeeting() {
     StartCall,
     setStartCall,
   } = useContext(VideoAudioCallContext) as any;
-
-  function onMeetingJoined() {
-    console.log("onMeetingJoined");
-  }
+  useEffect(() => {
+    setVideoOn(Call_Type === "AUDIO" ? false : true);
+  }, []);
 
   //Event to determine some other participant has joined
 
@@ -92,27 +91,28 @@ function JoinAnOngoingMeeting() {
       setToken(token);
     })();
   }, []);
-  useEffect(() => {
-    const checkAndSetPermissions = async (
-      type: Permission,
-      setState: (perm: boolean) => void
-    ) => {
-      const permissionStatus = await checkPermissions(type);
-      const isPermitted = permissionStatus.get(type);
 
-      setState(!!isPermitted);
+  const checkAndSetPermissions = async (
+    type: Permission,
+    setState: (perm: boolean) => void
+  ) => {
+    const permissionStatus = await checkPermissions(type);
+    const isPermitted = permissionStatus.get(type);
 
-      if (!isPermitted) {
-        try {
-          const requestStatus = await requestPermission(type);
-          const isRequestedPermitted = requestStatus.get(type);
-          setState(!!isRequestedPermitted);
-        } catch (error) {
-          console.log(`Error requesting ${type} permission:`, error);
-        }
+    setState(!!isPermitted);
+
+    if (!isPermitted) {
+      try {
+        const requestStatus = await requestPermission(type);
+        const isRequestedPermitted = requestStatus.get(type);
+        setState(!!isRequestedPermitted);
+      } catch (error) {
+        console.log(`Error requesting ${type} permission:`, error);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     const fetchDevices = async () => {
       try {
         // Safari-specific workaround: request a dummy stream to enable device enumeration
@@ -179,16 +179,50 @@ function JoinAnOngoingMeeting() {
   }, [Is_Mic_Permitted, Is_Video_Permitted]);
 
   const JoinTheMeeting = async () => {
-    setA_New_Meeting_Started({
-      Call_Started: true as boolean,
-      Meeting_Initiator_Info:
-        AnIncomingCallOccurred.Meeting_Initiator_Info as object,
-      Server_Info: AnIncomingCallOccurred.Server_Info as object,
-      MeetingId: AnIncomingCallOccurred.MeetingId as string,
-    });
-    setAnIncomingCallOccurred({
-      You_Joined: true,
-    });
+    if (Call_Type === "AUDIO") {
+      const IncomingAudioCall =
+        AnIncoming_AudioCall_Occurred?.Meeting_Initiator_Info
+          ? AnIncoming_AudioCall_Occurred
+          : JSON.parse(getCookie("An_Incoming_AudioCall") || "");
+      if (!IncomingAudioCall) return;
+      setANew_AudioMeeting_HasBeenStarted({
+        Call_Started: true as boolean,
+        Meeting_Initiator_Info:
+          IncomingAudioCall?.Meeting_Initiator_Info as object,
+        Server_Info: IncomingAudioCall?.Server_Info as object,
+        MeetingId: IncomingAudioCall?.MeetingId as string,
+        ChannelInfo: IncomingAudioCall?.ChannelInfo as object,
+      });
+      setAnIncoming_AudioCall_Occurred({
+        Call_Started: false as boolean,
+        Meeting_Initiator_Info: {},
+        Server_Info: {},
+        MeetingId: {},
+        ChannelInfo: {},
+      });
+    } else {
+      const InComingVideoCall =
+        AnIncoming_VideoCall_Occurred?.Meeting_Initiator_Info
+          ? AnIncoming_VideoCall_Occurred
+          : JSON.parse(getCookie("An_Incoming_VideoCall") || "");
+      if (!InComingVideoCall) return;
+      setANew_VideoMeeting_HasBeenStarted({
+        Call_Started: true as boolean,
+        Meeting_Initiator_Info:
+          InComingVideoCall.Meeting_Initiator_Info as object,
+        Server_Info: InComingVideoCall.Server_Info as object,
+        MeetingId: InComingVideoCall.MeetingId as string,
+        ChannelInfo: InComingVideoCall?.ChannelInfo as object,
+      });
+      setAnIncoming_VideoCall_Occurred({
+        Call_Started: false as boolean,
+        Meeting_Initiator_Info: {},
+        Server_Info: {},
+        MeetingId: {},
+        ChannelInfo: {},
+      });
+    }
+
     setStartCall(true);
   };
 
@@ -202,7 +236,7 @@ function JoinAnOngoingMeeting() {
           customMicrophoneAudioTrack: Audio_Stream,
           debugMode: true,
           micEnabled: MicOn,
-          webcamEnabled: VideoOn,
+          webcamEnabled: Call_Type === "AUDIO" ? false : VideoOn,
           participantId: "",
           meetingId: "",
           name: UserInformation.UserName,
@@ -223,9 +257,29 @@ function JoinAnOngoingMeeting() {
               ) : (
                 <>
                   {!VideoOn ? (
-                    <p className="text-white capitalize global-font-roboto text-[15px]">
-                      Video is Off
-                    </p>
+                    <div className="w-[100%] h-[100%]">
+                      <div className="w-[100%] h-[100%] flex items-center justify-center">
+                        <Avatar
+                          className="w-[120px] h-[120px] rounded-full overflow-hidden"
+                          style={{
+                            backgroundColor: UserInformation?.ProfileBgColor,
+                          }}
+                        >
+                          <AvatarImage
+                            className="w-[100%] h-[100%]"
+                            src={UserInformation.Profile_Picture}
+                          ></AvatarImage>
+                          <AvatarFallback
+                            className=" text-[40px] font-bold flex items-center justify-center"
+                            style={{
+                              color: UserInformation?.ProfileBanner_Color,
+                            }}
+                          >
+                            {UserInformation?.FullName?.slice(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                    </div>
                   ) : (
                     <div className="w-[100%] h-[100%] scale-[1.2]">
                       <ReactPlayer
@@ -269,6 +323,12 @@ function JoinAnOngoingMeeting() {
               CallingStarted={CallingStarted}
               IsJoining_Meeting={true}
               JoinAnOnGoingMeeting={JoinTheMeeting}
+              Call_Type={Call_Type}
+              Is_Mic_Permitted={Is_Mic_Permitted}
+              CheckThePermissionAndRenderDevices={checkAndSetPermissions}
+              Is_Video_Permitted={Is_Video_Permitted}
+              setIs_Mic_Permitted={setIs_Mic_Permitted}
+              setIs_Video_Permitted={setIs_Video_Permitted}
             />
           </div>
         </div>

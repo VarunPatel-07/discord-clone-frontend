@@ -6,8 +6,7 @@ interface ContextApiProps {
   audioRef: React.RefObject<HTMLAudioElement>;
   MeetingID: string;
   setMeetingID: React.Dispatch<React.SetStateAction<string>>;
-  A_New_Meeting_Started: boolean;
-  setA_New_Meeting_Started: React.Dispatch<React.SetStateAction<boolean>>;
+
   Video_Stream: any;
   setVideo_Stream: React.Dispatch<React.SetStateAction<any>>;
   Audio_Stream: any;
@@ -53,6 +52,48 @@ interface ContextApiProps {
       kind: string;
     }>
   >;
+  Current_Webcam_Info: {
+    label: string;
+    deviceId: string;
+    groupId: string;
+    kind: string;
+  };
+  setCurrent_Webcam_Info: React.Dispatch<React.SetStateAction<object>>;
+  Current_Audio_Mic_Info: {
+    label: string;
+    deviceId: string;
+    groupId: string;
+    kind: string;
+  };
+  setCurrent_Audio_Mic_Info: React.Dispatch<React.SetStateAction<object>>;
+  ParticipantMicYouWantToMute: {
+    participant_id: string;
+    mic_status: boolean;
+  };
+  setParticipantMicYouWantToMute: React.Dispatch<
+    React.SetStateAction<{
+      participant_id: string;
+      mic_status: boolean;
+    }>
+  >;
+  ParticipantWebcamYouWantToDisable: {
+    participant_id: string;
+    webcam_status: boolean;
+  };
+  setParticipantWebcamYouWantToDisable: React.Dispatch<
+    React.SetStateAction<{
+      participant_id: string;
+      webcam_status: boolean;
+    }>
+  >;
+  Current_VideoCall_Participant_Info: object;
+  setCurrent_VideoCall_Participant_Info: React.Dispatch<
+    React.SetStateAction<object>
+  >;
+  Current_AudioCall_Participant_Info: object;
+  setCurrent_AudioCall_Participant_Info: React.Dispatch<
+    React.SetStateAction<object>
+  >;
   onDeviceChanged: (devices, device_type?) => void;
 }
 const VideoAudioCallContext = createContext<ContextApiProps | undefined>(
@@ -64,9 +105,6 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [MeetingID, setMeetingID] = useState("" as string);
-  const [A_New_Meeting_Started, setA_New_Meeting_Started] = useState(
-    false as boolean
-  );
 
   const [Video_Stream, setVideo_Stream] = useState(null as any);
   const [Audio_Stream, setAudio_Stream] = useState(null as any);
@@ -94,7 +132,40 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
   const [MicOn, setMicOn] = useState(false as boolean);
   const [VideoOn, setVideoOn] = useState(true as boolean);
   const [StartCall, setStartCall] = useState(false as boolean);
+  const [ParticipantMicYouWantToMute, setParticipantMicYouWantToMute] =
+    useState({
+      participant_id: "" as string,
+      mic_status: false as boolean,
+    });
+  const [
+    ParticipantWebcamYouWantToDisable,
+    setParticipantWebcamYouWantToDisable,
+  ] = useState({
+    participant_id: "" as string,
+    webcam_status: false as boolean,
+  });
 
+  const [
+    Current_VideoCall_Participant_Info,
+    setCurrent_VideoCall_Participant_Info,
+  ] = useState({} as any);
+  const [
+    Current_AudioCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info,
+  ] = useState({} as any);
+
+  const [Current_Webcam_Info, setCurrent_Webcam_Info] = useState({
+    label: "" as string,
+    deviceId: "" as string,
+    groupId: "" as string,
+    kind: "" as string,
+  });
+  const [Current_Audio_Mic_Info, setCurrent_Audio_Mic_Info] = useState({
+    label: "" as string,
+    deviceId: "" as string,
+    groupId: "" as string,
+    kind: "" as string,
+  });
   const GetVideoTrackFunction = async (devicesId) => {
     setLoader(true);
     const Video_Track = await getVideoMediaTrack(devicesId);
@@ -138,8 +209,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     audioRef,
     MeetingID,
     setMeetingID,
-    A_New_Meeting_Started,
-    setA_New_Meeting_Started,
+
     Video_Stream,
     setVideo_Stream,
     Audio_Stream,
@@ -162,7 +232,35 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     setSelectedMicrophone,
     GetVideoTrackFunction,
     GetAudioTrackFunction,
+    ParticipantMicYouWantToMute,
+    setParticipantMicYouWantToMute:
+      setParticipantMicYouWantToMute as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    ParticipantWebcamYouWantToDisable,
+    setParticipantWebcamYouWantToDisable:
+      setParticipantWebcamYouWantToDisable as React.Dispatch<
+        React.SetStateAction<object>
+      >,
     onDeviceChanged,
+    Current_VideoCall_Participant_Info,
+    setCurrent_VideoCall_Participant_Info:
+      setCurrent_VideoCall_Participant_Info as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    Current_AudioCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info:
+      setCurrent_AudioCall_Participant_Info as React.Dispatch<
+        React.SetStateAction<object>
+      >,
+    Current_Audio_Mic_Info,
+    setCurrent_Audio_Mic_Info: setCurrent_Audio_Mic_Info as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+    Current_Webcam_Info,
+    setCurrent_Webcam_Info: setCurrent_Webcam_Info as React.Dispatch<
+      React.SetStateAction<object>
+    >,
   };
   return (
     <VideoAudioCallContext.Provider value={context_value}>

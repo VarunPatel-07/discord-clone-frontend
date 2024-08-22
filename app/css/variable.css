@@ -430,3 +430,6 @@
     transform: rotate(-1turn);
   }
 }
+.aspect-2by1 {
+  aspect-ratio: 500 /300;
+}

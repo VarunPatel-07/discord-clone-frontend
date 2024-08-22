@@ -117,6 +117,8 @@ function ListOfAllTheServerChannel({
                   {channel_info.name === "general" ? (
                     <span className="flex w-[30%] items-center justify-end  ">
                       <button
+                        data-tooltip-id="general-channel-tooltip"
+                        data-tooltip-content="Locked Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
                             ? "text-[rgb(255,255,255,0.9)]"
@@ -136,6 +138,8 @@ function ListOfAllTheServerChannel({
                       }`}
                     >
                       <button
+                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-content="Edit Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
                             ? "text-[rgb(255,255,255,0.9)]"
@@ -153,6 +157,8 @@ function ListOfAllTheServerChannel({
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
+                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-content="Delete Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
                             ? "text-[rgb(255,255,255,0.9)]"
@@ -241,6 +247,8 @@ function ListOfAllTheServerChannel({
                             id: channel_info.id,
                           });
                         }}
+                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-content="Edit Channel"
                       >
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
@@ -254,6 +262,8 @@ function ListOfAllTheServerChannel({
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
                         }}
+                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-content="Delete Channel"
                       >
                         <MdDelete className="w-[16px] h-[16px]" />
                       </button>
@@ -311,6 +321,8 @@ function ListOfAllTheServerChannel({
                       }`}
                     >
                       <button
+                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-content="Edit Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
                             ? "text-[rgb(255,255,255,0.9)]"
@@ -328,6 +340,8 @@ function ListOfAllTheServerChannel({
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
+                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-content="Delete Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
                             ? "text-[rgb(255,255,255,0.9)]"

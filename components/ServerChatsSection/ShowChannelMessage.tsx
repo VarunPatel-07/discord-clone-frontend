@@ -180,7 +180,6 @@ function ShowChannelMessage() {
             {ChannalMessages?.length > 0 && (
               <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
                 {ChannalMessages?.map((message: any) => {
-                  console.log("message", message);
                   return (
                     <Message
                       key={message?.id}
