@@ -26,7 +26,7 @@ function ServerChatsPlayground({
     <div className="w-[100%] h-[100%]  relative  transition-all duration-200 ease-in-out">
       <ServerNavbar />
       {CurrentChatChannelInfo.ChatType === "TEXT" && (
-        <ScrollArea className="w-[100%] h-[100%]">
+        <ScrollArea className="w-[100%] h-[100%] py-[50px] chat-section-wrapper">
           <ShowChannelMessage />
         </ScrollArea>
       )}

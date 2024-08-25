@@ -470,3 +470,33 @@
     transform: translateX(150%);
   }
 }
+/* Custom nprogress styles */
+#nprogress .bar {
+  background: #29d; /* Change the color */
+  height: 4px; /* Adjust the height */
+}
+
+#nprogress .spinner-icon {
+  display: none; /* Hide the spinner icon if you don't want it */
+}
+.animate-fade-in {
+  animation: animate-fade-in 0.4s ease-in-out;
+}
+
+@keyframes animate-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.ScrollWrapper > div:first-child {
+  display: block !important;
+}
+.chat-section-wrapper .ScrollWrapper {
+  /* display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: end; */
+}

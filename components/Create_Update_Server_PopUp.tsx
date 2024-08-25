@@ -5,10 +5,14 @@ import { Context } from "@/context/ContextApi";
 import { getCookie } from "cookies-next";
 import { useDebounce } from "@/hooks/debounceHook";
 import SpinnerComponent from "./Loader/SpinnerComponent";
+import { usePathname } from "next/navigation";
 function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
+  const Front_End_Domain = process.env.NEXT_PUBLIC_FRONTEND_DOMAIN as string;
+  const PathName = usePathname();
   const boxRef = React.useRef<HTMLInputElement>(null);
   const [Server__Name, setServer__Name] = useState("" as string);
   const [Loader, setLoader] = useState(false as boolean);
+  const [New_ServerId, setNew_ServerId] = useState("" as string);
   const {
     Show_Create_Server_PopUp,
     setShow_Create_Server_PopUp,
@@ -32,12 +36,20 @@ function Create_Update_Server_PopUp({ Pop_Up_Mode = "Create-PopUp-Mode" }) {
 
   const Submit_Form_Using_DeBounce = useDebounce(
     async (formData: FormData, AuthToken: string) => {
-      Create_New_Server_Function(formData, AuthToken);
-      setLoader(false);
-      setShow_Create_Server_PopUp(false);
+      const response = await Create_New_Server_Function(formData, AuthToken);
+      setNew_ServerId(response);
     },
     500
   );
+  useEffect(() => {
+   
+    if (New_ServerId !== "") {
+      if (PathName === `/pages/server/${New_ServerId}`) {
+        setLoader(false);
+        setShow_Create_Server_PopUp(false);
+      }
+    }
+  }, [Front_End_Domain, New_ServerId, PathName, setShow_Create_Server_PopUp]);
 
   const Submit__Form__Function = (e: any) => {
     setLoader(true);

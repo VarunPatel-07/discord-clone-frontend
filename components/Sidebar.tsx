@@ -10,8 +10,16 @@ import { getCookie, setCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+
 function Sidebar() {
-  const Path = usePathname();
+  enum NotificationType {
+    FOLLOW,
+    NORMAL,
+    MESSAGE,
+    FRIEND_REQUEST,
+    ERROR,
+  }
+
   const { push } = useRouter();
   const {
     setShow_Create_Server_PopUp,
@@ -22,12 +30,17 @@ function Sidebar() {
     setAnIncoming_AudioCall_Occurred,
     setAnIncoming_VideoCall_Occurred,
     UserInformation,
+    GlobalNotificationHandlerFunction,
+    FetchingAllTheSentRequestOfUser,
+    FetchingAllTheReceivedRequestOfUser,
+    FetchTheUserOnTheBaseOfDemand,
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
     false as boolean
   );
   const socket = UseSocketIO();
+  const Path = usePathname();
 
   const A_New_CallHasBeen_Started = useCallback(
     (data) => {
@@ -135,12 +148,14 @@ function Sidebar() {
       socket?.off("EmitNewServerCreated");
       socket?.off("EmitSendMeetingIdToTheMemberOfTheServer");
     };
-  }, [socket]);
+  }, [socket, Path]);
 
   useEffect(() => {
+    const AuthToken = getCookie("User_Authentication_Token") as string;
     socket?.on("EmitNewMessageHasBeenSent", async (data) => {
-      console.log("data", data);
-      const current_user_id = JSON.parse(getCookie("User__Info") as string);
+      const current_user_id = UserInformation
+        ? UserInformation
+        : JSON.parse(getCookie("User__Info") as string);
 
       if (data?.success) {
         if (
@@ -156,34 +171,98 @@ function Sidebar() {
           console.log(current_server_id, socket_serverId);
           if (current_server_id !== socket_serverId) {
             if (data?.data?.member?.userId !== current_user_id?.id) {
-              setGlobalSuccessNotification({
-                ShowAlert: true as boolean,
+              const Data = {
                 Profile_Picture: data?.data?.member?.user
                   ?.Profile_Picture as string,
                 FullName: data?.data?.member?.user?.FullName as string,
                 UserName: data?.data?.member?.user?.UserName as string,
-                Message: `sent you a message` as string,
-                Type: "FOLLOW" as string,
-              });
-              setTimeout(() => {
-                setGlobalSuccessNotification({
-                  ShowAlert: false as boolean,
-                  Profile_Picture: "" as string,
-                  FullName: "" as string,
-                  UserName: "" as string,
-                  Message: "" as string,
-                  Type: "NORMAL" as string,
-                });
-              }, 2500);
+                ProfileBgColor: data?.data?.member?.user
+                  ?.ProfileBgColor as string,
+                ProfileBanner_Color: data?.data?.member?.user
+                  ?.ProfileBanner_Color as string,
+              };
+              GlobalNotificationHandlerFunction(
+                Data,
+                NotificationType.MESSAGE,
+                "Sent A New Message",
+                "top-right",
+                4000
+              );
             }
           }
         }
       }
     });
+    socket?.on("EmitNewFollowRequestHasBeenSent", async (data: any) => {
+      console.log(data);
+      const sender = data.request_sender_info;
+      const receiver = data.request_receiver_info;
+      if (!sender || !receiver) return;
+      const CurrentUser = JSON.parse(getCookie("User__Info") as string);
+      if (receiver.id === CurrentUser.id) {
+        const Data = {
+          Profile_Picture: sender?.Profile_Picture as string,
+          FullName: sender?.name as string,
+          UserName: sender?.UserName as string,
+          ProfileBgColor: sender?.ProfileBgColor as string,
+          ProfileBanner_Color: sender?.ProfileBanner_Color as string,
+        };
+        GlobalNotificationHandlerFunction(
+          Data,
+          NotificationType.FRIEND_REQUEST,
+          "Wants to Follow",
+          "top-right",
+          4000
+        );
+      }
+      await FetchingAllTheSentRequestOfUser(AuthToken);
+      await FetchingAllTheReceivedRequestOfUser(AuthToken);
+    });
+    socket?.on("EmitYourFollowRequestHasBeenAccepted", async (data) => {
+      const sender_info = data.request_sender_info;
+      const receiver_info = data.request_accepter_info;
+      if (!sender_info || !receiver_info) return;
+      const current_user_info = JSON.parse(getCookie("User__Info") as string);
+      if (sender_info.id === current_user_info.id) {
+        const Data = {
+          Profile_Picture: receiver_info?.Profile_Picture as string,
+          FullName: receiver_info?.name as string,
+          UserName: receiver_info?.UserName as string,
+          ProfileBgColor: receiver_info?.ProfileBgColor as string,
+          ProfileBanner_Color: receiver_info?.ProfileBanner_Color as string,
+        };
+        GlobalNotificationHandlerFunction(
+          Data,
+          NotificationType.FOLLOW,
+          "Accepted Your Follow Request",
+          "top-right",
+          4000
+        );
+      } else if (receiver_info.id === current_user_info.id) {
+        const Data = {
+          Profile_Picture: sender_info?.Profile_Picture as string,
+          FullName: sender_info?.name as string,
+          UserName: sender_info?.UserName as string,
+          ProfileBgColor: sender_info?.ProfileBgColor as string,
+          ProfileBanner_Color: sender_info?.ProfileBanner_Color as string,
+        };
+        GlobalNotificationHandlerFunction(
+          Data,
+          NotificationType.FOLLOW,
+          "Started Following You",
+          "top-right",
+          4000
+        );
+      }
+
+      await FetchingAllTheSentRequestOfUser(AuthToken);
+      await FetchingAllTheReceivedRequestOfUser(AuthToken);
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
+    });
     return () => {
       socket?.off("EmitNewMessageHasBeenSent");
     };
-  }, [socket]);
+  }, [socket, Path]);
 
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;

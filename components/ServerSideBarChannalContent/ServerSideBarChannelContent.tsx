@@ -10,6 +10,8 @@ import DeleteChannelModal from "../Model/ServerModel/DeleteChannelModal";
 import UpdateChannelInfoModel from "../Model/ServerModel/UpdateChannelInfoModel";
 import ListOfAllTheServerChannel from "../ListOfAllTheServerChannel";
 import UseSocketIO from "@/hooks/UseSocketIO";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 function ServerSideBarChannelContent() {
   const PathName = usePathname();
   const {
@@ -71,8 +73,8 @@ function ServerSideBarChannelContent() {
   return (
     <>
       <div className="w-[100%] h-[100%] ">
-        <div className="flex flex-col items-start justify-start relative h-[100%]">
-          <div className="search-bar w-[100%] bg-[#2F3136]  px-[12px] py-[15px] sticky top-0 left-0">
+        <div className=" w-[100%] max-h-[100vh] overflow-hidden flex flex-col items-start justify-start relative h-[100%]">
+          <div className="search-bar w-[100%] bg-[#2F3136] border-t-[1px] border-t-[rgba(230,230,230,0.2)]  px-[12px] py-[15px] sticky top-0 left-0">
             <div className="relative" onClick={() => setOpen((Open) => !Open)}>
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -101,15 +103,18 @@ function ServerSideBarChannelContent() {
               />
             </div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-[8px] w-[100%] pt-[8px]">
-            <ListOfAllTheServerChannel
-              setShowUpdateChannelInfoModal={setShowUpdateChannelInfoModal}
-              setShowDeleteChannelModal={setShowDeleteChannelModal}
-              setChannelInfo={setChannelInfo}
-              setChannalId={setChannalId}
-              ServerInfoById={ServerInfoById}
-            />
-          </div>
+          <ScrollArea className="w-[100%] h-[100%] pb-[69px]">
+            <div className="flex flex-col items-start justify-start gap-[8px] w-[100%] h-[100%] pt-[8px] pb-[20px]">
+              <ListOfAllTheServerChannel
+                setShowUpdateChannelInfoModal={setShowUpdateChannelInfoModal}
+                setShowDeleteChannelModal={setShowDeleteChannelModal}
+                setChannelInfo={setChannelInfo}
+                setChannalId={setChannalId}
+                ServerInfoById={ServerInfoById}
+              />
+            </div>
+          </ScrollArea>
+
           <UserProfile Position="absolute bottom-[0px] left-[0px]" />
         </div>
       </div>

@@ -9,6 +9,7 @@ import { AiOutlineAudio } from "react-icons/ai";
 import { FaHashtag } from "react-icons/fa";
 import { IoIosLock, IoMdVideocam } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
+import { ScrollArea } from "./ui/scroll-area";
 
 function ListOfAllTheServerChannel({
   setShowUpdateChannelInfoModal,
@@ -73,7 +74,7 @@ function ListOfAllTheServerChannel({
   };
 
   return (
-    <div className="w-[100%] flex flex-col items-start justify-start gap-[10px]">
+    <div className="w-[100%]    flex flex-col items-start justify-start overflow-auto gap-[10px]">
       {AllTheTextChannelsOfTheServer?.length > 0 && (
         <div className="text-channal w-[100%] px-[15px]">
           <div className="channal-header w-[100%]">
@@ -85,27 +86,27 @@ function ListOfAllTheServerChannel({
             {AllTheTextChannelsOfTheServer?.map((channel_info) => {
               return (
                 <li
-                  className={`w-[100%] cursor-pointer my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                  className={`w-[100%]  my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
                     CurrentChatChannelInfo?.ChatId === channel_info.id
-                      ? "bg-[rgba(255,255,255,0.18)]"
-                      : "hover:bg-[rgba(255,255,255,0.08)]"
+                      ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
+                      : "hover:bg-[rgba(255,255,255,0.18)]"
                   }`}
                   key={channel_info.id}
-                  onClick={() => {
-                    setCurrentChatChannelInfo({
-                      ChatId: channel_info.id,
-                      ChatName: channel_info.name,
-                      ChatType: channel_info.type,
-                      ChatUserId: channel_info.userId,
-                    });
-                  }}
                 >
                   <span
-                    className={`flex items-center gap-[5px] w-[70%]  ${
+                    className={`flex items-center gap-[5px] w-[70%] cursor-pointer  ${
                       CurrentChatChannelInfo?.ChatId === channel_info.id
-                        ? "text-[rgb(255,255,255,0.9)]"
+                        ? "text-[rgba(255,255,255,0.9)]"
                         : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                     }`}
+                    onClick={() => {
+                      setCurrentChatChannelInfo({
+                        ChatId: channel_info.id,
+                        ChatName: channel_info.name,
+                        ChatType: channel_info.type,
+                        ChatUserId: channel_info.userId,
+                      });
+                    }}
                   >
                     <span className="w-[14px] h-[14px] ">
                       <FaHashtag className="w-[14px] h-[14px] " />
@@ -121,7 +122,7 @@ function ListOfAllTheServerChannel({
                         data-tooltip-content="Locked Channel"
                         className={`w-[16px] h-[16px] ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         title="locked"
@@ -140,9 +141,9 @@ function ListOfAllTheServerChannel({
                       <button
                         data-tooltip-id="edit-channel-tooltip"
                         data-tooltip-content="Edit Channel"
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {
@@ -159,9 +160,9 @@ function ListOfAllTheServerChannel({
                       <button
                         data-tooltip-id="delete-channel-tooltip"
                         data-tooltip-content="Delete Channel"
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {
@@ -196,27 +197,27 @@ function ListOfAllTheServerChannel({
               {AllTheAudioChannelsOfTheServer?.map((channel_info) => {
                 return (
                   <li
-                    className={`w-[100%] cursor-pointer my-[4px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                    className={`w-[100%]  my-[4px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
                       CurrentChatChannelInfo?.ChatId === channel_info.id
-                        ? "bg-[rgba(255,255,255,0.18)]"
-                        : "hover:bg-[rgba(255,255,255,0.08)]"
+                        ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
+                        : "hover:bg-[rgba(255,255,255,0.18)]"
                     }`}
                     key={channel_info.id}
-                    onClick={() => {
-                      setCurrentChatChannelInfo({
-                        ChatId: channel_info.id,
-                        ChatName: channel_info.name,
-                        ChatType: channel_info.type,
-                        ChatUserId: channel_info.userId,
-                      });
-                    }}
                   >
                     <span
-                      className={`flex items-center gap-[5px] w-[70%]  ${
+                      className={`flex items-center gap-[5px] w-[70%] cursor-pointer  ${
                         CurrentChatChannelInfo?.ChatId === channel_info.id
-                          ? "text-[rgb(255,255,255,0.9)]"
+                          ? "text-[rgba(255,255,255,0.9)]"
                           : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                       }`}
+                      onClick={() => {
+                        setCurrentChatChannelInfo({
+                          ChatId: channel_info.id,
+                          ChatName: channel_info.name,
+                          ChatType: channel_info.type,
+                          ChatUserId: channel_info.userId,
+                        });
+                      }}
                     >
                       <span className="w-[16px] h-[16px] block">
                         <AiOutlineAudio className="w-[16px] h-[16px]" />
@@ -234,9 +235,9 @@ function ListOfAllTheServerChannel({
                       }`}
                     >
                       <button
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {
@@ -253,9 +254,9 @@ function ListOfAllTheServerChannel({
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {
@@ -290,20 +291,20 @@ function ListOfAllTheServerChannel({
               {AllTheVideoChannelsOfTheServer?.map((channel_info) => {
                 return (
                   <li
-                    className={`w-[100%] cursor-pointer my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
+                    className={`w-[100%] my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
                       CurrentChatChannelInfo?.ChatId === channel_info.id
-                        ? "bg-[rgba(255,255,255,0.18)]"
-                        : "hover:bg-[rgba(255,255,255,0.08)]"
+                        ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
+                        : "hover:bg-[rgba(255,255,255,0.18)]"
                     }`}
                     key={channel_info.id}
-                    onClick={() => HandelVideoCallFunction(channel_info)}
                   >
                     <span
-                      className={`flex items-center gap-[5px] w-[70%]  ${
+                      className={`flex items-center gap-[5px] w-[70%] cursor-pointer ${
                         CurrentChatChannelInfo?.ChatId === channel_info.id
-                          ? "text-[rgb(255,255,255,0.9)]"
+                          ? "text-[rgba(255,255,255,0.9)]"
                           : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                       }`}
+                      onClick={() => HandelVideoCallFunction(channel_info)}
                     >
                       <span className="w-[16px] h-[16px] block">
                         <IoMdVideocam className="w-[16px] h-[16px]" />
@@ -323,9 +324,9 @@ function ListOfAllTheServerChannel({
                       <button
                         data-tooltip-id="edit-channel-tooltip"
                         data-tooltip-content="Edit Channel"
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {
@@ -342,9 +343,9 @@ function ListOfAllTheServerChannel({
                       <button
                         data-tooltip-id="delete-channel-tooltip"
                         data-tooltip-content="Delete Channel"
-                        className={`w-[16px] h-[16px] ${
+                        className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
-                            ? "text-[rgb(255,255,255,0.9)]"
+                            ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
                         onClick={(e) => {

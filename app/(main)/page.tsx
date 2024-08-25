@@ -1,28 +1,30 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, Suspense } from "react";
 import GlobalDiscordLoader from "@/components/Loader/GlobalDiscordLoader";
 import Link from "next/link";
-// importing the css file
 
 import { Context } from "@/context/ContextApi";
 import { useRouter } from "next/navigation";
+import RedirectLoader from "@/components/RedirectLoader";
+
 function Home() {
   const { push } = useRouter();
   const { CheckUsersLoginStatus } = useContext(Context) as any;
-
   const [Discord_Loader, setDiscord_Loader] = useState(true);
+  const [RedirectedLoading, setRedirectedLoading] = useState(false);
 
   useEffect(() => {
     const checkStatus = async () => {
       try {
         const status = await CheckUsersLoginStatus();
+
+        setDiscord_Loader(false);
+
         if (status) {
-          setDiscord_Loader(false);
+          setRedirectedLoading(true);
           push("/pages/dashboard");
         } else {
-          setDiscord_Loader(false);
-          localStorage.removeItem("AuthToken");
-          localStorage.removeItem("User__Info");
+          setRedirectedLoading(true);
           push("/pages/login");
         }
       } catch (error) {
@@ -31,14 +33,15 @@ function Home() {
     };
 
     checkStatus();
-  }, []);
+  }, [CheckUsersLoginStatus, push]);
 
-  if (Discord_Loader) {
+  if (!Discord_Loader) {
     return <GlobalDiscordLoader />;
   } else {
     return (
       <>
-        <nav className="fixed top-0 left-0 w-full z-10">
+        {RedirectedLoading && <RedirectLoader />}
+        <nav className="fixed top-0 left-0 w-full z-[5]">
           <div className="flex items-center justify-between plr-15 ptb-20">
             <div className="logo-section">
               <picture className="">
@@ -62,14 +65,11 @@ function Home() {
           </div>
         </nav>
         <div className="relative w-full h-screen custom-background-image ">
-          <div
-            className="flex items-center justify-center max-width-1080 mx-auto h-full
-          "
-          >
+          <div className="flex items-center justify-center max-width-1080 mx-auto h-full">
             <div className="w-[40%]">
               <div className="text-section">
                 <h1 className="text-white fs-45 font-black">
-                  GROUP CHAT THAT’S ALL FUN GAMES
+                  GROUP CHAT THAT’S ALL FUN & GAMES
                 </h1>
                 <p className="text-white fs-16">
                   Discord is great for playing games and chilling with friends,

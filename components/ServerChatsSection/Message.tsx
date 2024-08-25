@@ -84,7 +84,7 @@ function Message({
                 message_id={message_id}
                 channel_id={channel_id}
                 DeleteMessage={DeleteMessage}
-                Is_Replied={Is_Replied}
+                Is_Replied={false}
                 Other_ClassName={
                   "bg-[#2a2d31] hover:bg-[rgba(0,0,0,0.3)] px-[10px] py-[5px] relative   replied-message-container rounded"
                 }
@@ -114,7 +114,7 @@ function Message({
                         message_id={reply?.MessageId}
                         channel_id={reply?.ChannelId}
                         DeleteMessage={DeleteMessage}
-                        Is_Replied={Is_Replied}
+                        Is_Replied={true}
                         replayMessage_Id_To_Delete={reply.id}
                         ReplyingUser_UserName={reply?.ReplyingUser_UserName}
                         Editing_Replay={true}

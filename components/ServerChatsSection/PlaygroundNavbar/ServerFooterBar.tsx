@@ -1,9 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Context } from "@/context/ContextApi";
 import { useDebounce } from "@/hooks/debounceHook";
+import UseSocketIO from "@/hooks/UseSocketIO";
 import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { FaRegSmileWink } from "react-icons/fa";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
@@ -21,9 +22,13 @@ function ServerFooterBar() {
     setReply_A_Specific_Message_State,
     Reply_A_SpecificMessageFunction,
     Edit_MessageReplayFunction,
+    TypingIndicator,
+    setTypingIndicator,
   } = useContext(Context) as any;
   const [Message, setMessage] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [Typing, setTyping] = useState(false);
+  const socket = UseSocketIO();
 
   const SendMessageWithDebounce = useDebounce(
     async (
@@ -182,12 +187,43 @@ function ServerFooterBar() {
     console.log("Edit_A_Replied_Message");
   };
 
+  const InputFiledChanged = useCallback(
+    (e) => {
+      setMessage(e.target.value);
+
+      const Data = {
+        user_info: {
+          FullName: UserInformation?.FullName,
+          UserName: UserInformation?.UserName,
+          id: UserInformation?.id,
+        },
+        chat_info: CurrentChatChannelInfo,
+        is_group_chat: true,
+      };
+      if (!Typing) {
+        setTyping(true);
+
+        socket?.emit("StartTyping", Data);
+      }
+      let TypingStartTime = new Date().getTime();
+      let WaitingTime = 3000;
+      setTimeout(() => {
+        let CurrentTime = new Date().getTime();
+        let Diff = CurrentTime - TypingStartTime;
+        if (Diff >= WaitingTime && Typing) {
+          socket?.emit("StopTyping", Data);
+          setTyping(false);
+        }
+      }, WaitingTime);
+    },
+    [socket, Typing, UserInformation]
+  );
   useEffect(() => {
     setMessage(Edit_Message_State?.Message);
   }, [Edit_Message_State]);
 
   return (
-    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.3)] absolute bottom-0 left-0 ">
+    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[5] ">
       {(Edit_Message_State.Is_Editing ||
         Reply_A_Specific_Message_State?.Is_Replying) && (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
@@ -268,7 +304,7 @@ function ServerFooterBar() {
                 className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
                 placeholder={`Message #${CurrentChatChannelInfo?.ChatName}`}
                 value={Message === "" ? "" : Message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={InputFiledChanged}
                 disabled={Loading}
               />
             </form>

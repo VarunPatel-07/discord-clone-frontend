@@ -130,8 +130,110 @@ body {
 .parent {
   filter: url("#goo");
   overflow: hidden;
-
 }
 .rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+.bounce-notification-entry {
+  animation: bounceEntry 1s ease-in-out forwards;
+}
+.bounce-notification-entry .inner-animation {
+  opacity: 0;
+  animation: fade 1s ease-in-out forwards 0.7s;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceEntry {
+  0% {
+    transform: translateY(-100%) scale(0); /* Start off-screen, fully compressed */
+    opacity: 0;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+  50% {
+    transform: translateY(10%) scale(1.2); /* Bounce up and stretch a little */
+    opacity: 1;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+  70% {
+    transform: translateY(0) scale(0.8); /* After bounce, shrink slightly */
+    opacity: 1;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+
+  100% {
+    transform: translateY(0) scale(1); /* Final state with revealed content */
+    opacity: 1;
+    border-radius: 5px;
+    max-width: none;
+    max-height: none;
+  }
+}
+
+.bounce-notification-exit {
+  animation: bounceExit 1s ease-in-out forwards 0.4s;
+}
+.bounce-notification-exit .inner-animation {
+  opacity: 0;
+  animation: fadeOut 0.4s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes bounceExit {
+  0% {
+    transform: translateY(0) scale(1); /* Start from full size */
+    opacity: 1;
+    border-radius: 5px;
+    max-width: none;
+    max-height: none;
+  }
+  15% {
+    transform: translateY(0) scale(1); /* Shrink back to ball shape */
+    opacity: 1;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+  30% {
+    transform: translateY(0) scale(0.8); /* Shrink slightly */
+    opacity: 1;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+  50% {
+    transform: translateY(10%) scale(1.2); /* Bounce downwards */
+    opacity: 1;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
+  100% {
+    transform: translateY(-100%) scale(0); /* End off-screen, fully compressed */
+    opacity: 0;
+    border-radius: 50%;
+    max-width: 30px;
+    max-height: 30px;
+  }
 }

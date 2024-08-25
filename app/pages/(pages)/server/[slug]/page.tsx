@@ -240,7 +240,7 @@ function ServerDetails() {
                   <Navbar />
                 </div>
                 <div className="w-100 h-100 flex items-stretch">
-                  <div className="server-configuration w-[18%] h-full overflow-hidden  min-w-[200px] bg-[#2a2d31] relative flex flex-col items-start justify-start">
+                  <div className="server-configuration w-[18%] max-w-[252px] h-full overflow-auto  min-w-[200px] bg-[#2a2d31] relative flex flex-col items-start justify-start">
                     <div className="server-setting-and-modification absolute top-0   left-0 w-100 bg-[#2a2d31] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -382,7 +382,7 @@ function ServerDetails() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    <div className="h-[100%] w-[100%] pt-[45px]  overflow-auto remove-scrollbar">
+                    <div className="h-[100%] w-[100%] pt-[45px]  overflow-scroll remove-scrollbar">
                       <ServerSideBarChannelContent />
                     </div>
                   </div>

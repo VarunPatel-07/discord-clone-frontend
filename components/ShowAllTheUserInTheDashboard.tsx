@@ -74,107 +74,12 @@ function ShowAllTheUserInTheDashboard({
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
     });
-    socket?.on(
-      "EmitNewFollowRequestHasBeenSent",
-      async (data: {
-        success: boolean;
-        message: string;
-        request_sender_info: {
-          id: string;
-          name: string;
-          UserName: string;
-          Profile_Picture: string;
-        };
-        request_receiver_info: {
-          id: string;
-          name: string;
-          UserName: string;
-          Profile_Picture: string;
-        };
-      }) => {
-        const sender = data.request_sender_info;
-        const receiver = data.request_receiver_info;
-        if (!sender || !receiver) return;
-        const current_user_info = JSON.parse(getCookie("User__Info") as string);
-        if (receiver.id === current_user_info.id) {
-          setGlobalSuccessNotification({
-            ShowAlert: true as boolean,
-            Profile_Picture: sender.Profile_Picture as string,
-            FullName: sender.name as string,
-            UserName: sender.UserName as string,
-            Message: '" wants to follow' as string,
-            Type: "FOLLOW" as string,
-          });
 
-          setTimeout(() => {
-            setGlobalSuccessNotification({
-              ShowAlert: false as boolean,
-              Profile_Picture: "" as string,
-              FullName: "" as string,
-              UserName: "" as string,
-              Message: "" as string,
-              Type: "NORMAL" as string,
-            });
-          }, 2500);
-        }
-        await FetchingAllTheSentRequestOfUser(AuthToken);
-        await FetchingAllTheReceivedRequestOfUser(AuthToken);
-      }
-    );
     socket?.on("EmitA_FollowRequestHasBeenIgnored", async () => {
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
     });
-    socket?.on("EmitYourFollowRequestHasBeenAccepted", async (data) => {
-      const sender_info = data.request_sender_info;
-      const receiver_info = data.request_accepter_info;
-      if (!sender_info || !receiver_info) return;
-      const current_user_info = JSON.parse(getCookie("User__Info") as string);
-      if (sender_info.id === current_user_info.id) {
-        setGlobalSuccessNotification({
-          ShowAlert: true as boolean,
-          Profile_Picture: receiver_info.Profile_Picture as string,
-          FullName: receiver_info.name as string,
-          UserName: receiver_info.UserName as string,
-          Message: '" Accepted your follow request' as string,
-          Type: "FOLLOW" as string,
-        });
 
-        setTimeout(() => {
-          setGlobalSuccessNotification({
-            ShowAlert: false as boolean,
-            Profile_Picture: "" as string,
-            FullName: "" as string,
-            UserName: "" as string,
-            Message: "" as string,
-            Type: "NORMAL" as string,
-          });
-        }, 2500);
-      } else if (receiver_info.id === current_user_info.id) {
-        setGlobalSuccessNotification({
-          ShowAlert: true as boolean,
-          Profile_Picture: sender_info.Profile_Picture as string,
-          FullName: sender_info.name as string,
-          UserName: sender_info.UserName as string,
-          Message: '" Started following you' as string,
-          Type: "FOLLOW" as string,
-        });
-        setTimeout(() => {
-          setGlobalSuccessNotification({
-            ShowAlert: false as boolean,
-            Profile_Picture: "" as string,
-            FullName: "" as string,
-            UserName: "" as string,
-            Message: "" as string,
-            Type: "NORMAL" as string,
-          });
-        }, 2500);
-      }
-
-      await FetchingAllTheSentRequestOfUser(AuthToken);
-      await FetchingAllTheReceivedRequestOfUser(AuthToken);
-      await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
-    });
     socket?.on("EmitAnUser_UnBlocked_Successfully", async () => {
       await FetchTheUserOnTheBaseOfDemand(AuthToken, "blocked");
     });
@@ -183,9 +88,9 @@ function ShowAllTheUserInTheDashboard({
     });
     return () => {
       socket?.off("EmitA_FollowRequestHasBeenWithdrawn");
-      socket?.off("EmitNewFollowRequestHasBeenSent");
+  
       socket?.off("EmitA_FollowRequestHasBeenIgnored");
-      socket?.off("EmitYourFollowRequestHasBeenAccepted");
+     
       socket?.off("EmitAnUser_UnBlocked_Successfully");
       socket?.off("EmitAnUserBlockedSuccessfully");
     };

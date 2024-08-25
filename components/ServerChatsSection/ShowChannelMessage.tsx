@@ -12,6 +12,7 @@ import { useInView } from "react-intersection-observer";
 
 import ChatDefaultScreen from "./ChatDefaultScreen";
 import SpinnerComponent from "../Loader/SpinnerComponent";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 function ShowChannelMessage() {
   const BottomDiv = useRef<HTMLDivElement>(null);
   const Pathname = usePathname();
@@ -22,6 +23,7 @@ function ShowChannelMessage() {
 
   const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
   const [Previous_ChannelId, setPrevious_ChannelId] = useState("" as string);
+
   const { ref, inView } = useInView();
   //
   //
@@ -30,6 +32,8 @@ function ShowChannelMessage() {
     CurrentChatChannelInfo,
     FetchTheMessageOFTheChannel,
     AllTheMessageOfTheChannel,
+    UserInformation,
+    setTypingIndicator,
   } = useContext(Context) as any;
   //
   //
@@ -155,16 +159,39 @@ function ShowChannelMessage() {
         );
       }
     });
+    socket?.on("EmitStartTyping", async (data) => {
+      if (data?.is_group_chat) {
+        const User_Info = UserInformation
+          ? UserInformation
+          : JSON.parse(getCookie("User__Info") as string);
+        if (data?.user_info?.id !== User_Info?.id) {
+          if (data?.chat_info?.ChatId === CurrentChatChannelInfo?.ChatId) {
+            setTypingIndicator({
+              Is_Typing: true,
+              Info: data,
+            });
+          }
+        }
+      }
+    });
+    socket?.on("EmitStopTyping", () => {
+      setTypingIndicator({
+        Is_Typing: false,
+        Info: {},
+      });
+    });
     return () => {
       socket?.off("EmitNewMessageHasBeenSent");
       socket?.off("EmitMessageHasBeenEditedSuccessfully");
+      socket?.off("EmitStartTyping");
+      socket?.off("EmitStopTyping");
     };
   }, [socket]);
   //
   //
   //
   return (
-    <div className="w-[100%] h-[100vh]  relative left-0  pb-[100px]   flex items-center justify-center">
+    <div className="w-[100%] h-[100%] py-[30px] relative left-0     flex items-center justify-center">
       {Loading ? (
         <div className=" flex items-center justify-center">
           <SpinnerComponent />

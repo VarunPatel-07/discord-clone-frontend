@@ -1,34 +1,42 @@
 "use client";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
+import React, { createContext, useState, ReactNode } from "react";
 import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
-
-import { promises } from "dns";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import UseSocketIO from "@/hooks/UseSocketIO";
-import { Type } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+
+enum NotificationType {
+  FOLLOW,
+  NORMAL,
+  MESSAGE,
+  FRIEND_REQUEST,
+  ERROR,
+}
+
+interface GlobalNotification {
+  id: string;
+  Show_Notification: boolean;
+  Profile_Picture: string;
+  FullName: string;
+  UserName: string;
+  Message: string;
+  Type: NotificationType;
+  Notification_Position: string;
+  Notification_Time: number;
+  ProfileBgColor: string;
+  ProfileBanner_Color: string;
+}
 
 interface ContextApiProps {
   //
   //? exporting all the state
   //
 
-  GlobalSuccessNotification: {
-    ShowAlert: boolean;
-    Profile_Picture: string;
-    FullName: string;
-    UserName: string;
-    Message: string;
-    Type: string;
-    Notification_Position: string;
-  };
-  setGlobalSuccessNotification: React.Dispatch<React.SetStateAction<object>>;
+  GlobalSuccessNotification: GlobalNotification[];
+  setGlobalSuccessNotification: React.Dispatch<
+    React.SetStateAction<GlobalNotification[]>
+  >;
 
   Global_Server_Profile_Image: {
     Preview__Image__URL: string;
@@ -148,6 +156,11 @@ interface ContextApiProps {
     React.SetStateAction<object>
   >;
   setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
+  TypingIndicator: {
+    Is_Typing: boolean;
+    Info: any;
+  };
+  setTypingIndicator: React.Dispatch<React.SetStateAction<object>>;
   //
   //? exporting all the functions
   //
@@ -310,6 +323,13 @@ interface ContextApiProps {
     content: string
   ) => void;
   SendVideoCallInfoSdp_To_Backend: (AuthToken: string, Payload: any) => void;
+  GlobalNotificationHandlerFunction: (
+    data: any,
+    type: NotificationType,
+    Message: string,
+    NotificationPosition?: string,
+    NotificationTime?: number
+  ) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -331,15 +351,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Description: "" as string,
     Keywords: "" as string,
   });
-  const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState({
-    ShowAlert: false as boolean,
-    Profile_Picture: "" as string,
-    FullName: "" as string,
-    UserName: "" as string,
-    Message: "" as string,
-    Type: "NORMAL" as string,
-    Notification_Position: "" as string,
-  });
+  const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState<
+    GlobalNotification[]
+  >([]);
 
   const [Edit_Message_State, setEdit_Message_State] = useState({
     Is_Editing: false as boolean,
@@ -473,6 +487,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Current_AudioCall_Participant_Info,
     setCurrent_AudioCall_Participant_Info,
   ] = useState({} as any);
+  const [TypingIndicator, setTypingIndicator] = useState({
+    Is_Typing: false as boolean,
+    Info: {} as any,
+  });
 
   //
   //
@@ -486,31 +504,47 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const GlobalErrorHandler = (error: any) => {
     console.log("error From GlobalErrorHandler", error);
   };
-  const GlobalSuccessNotificationHandler = (
+  const GlobalNotificationHandlerFunction = (
     data: any,
-    type: string,
-    ...OtherData: any
+    type: NotificationType,
+    Message: string,
+    NotificationPosition?: string,
+    NotificationTime?: number
   ) => {
-    setGlobalSuccessNotification({
-      ShowAlert: true,
-      Message: data.message,
+    const uuid = uuidv4();
+    const NotificationData = {
+      id: uuid,
+      Show_Notification: true,
+      Profile_Picture: data.Profile_Picture || "",
+      FullName: data.FullName || "",
+      UserName: data.UserName || "",
+      Message: Message,
       Type: type,
-      FullName: OtherData.FullName,
-      Notification_Position: OtherData.Notification_Position,
-      Profile_Picture: OtherData.Profile_Picture,
-      UserName: OtherData.UserName,
-    });
+      Notification_Position: NotificationPosition || "top-right",
+      Notification_Time: NotificationTime || 3000,
+      ProfileBgColor: data.ProfileBgColor || "",
+      ProfileBanner_Color: data.ProfileBanner_Color || "",
+    };
+    setGlobalSuccessNotification((prev: Array<GlobalNotification>) => [
+      ...prev,
+      NotificationData,
+    ]);
+    if(NotificationData.Type !== NotificationType.NORMAL) {
+      // todo also store notification in database and play notification sound
+      
+    }
     setTimeout(() => {
-      setGlobalSuccessNotification({
-        ShowAlert: false,
-        Message: "",
-        Type: "",
-        FullName: "",
-        Notification_Position: "",
-        Profile_Picture: "",
-        UserName: "",
-      });
-    }, 2500);
+      const element = document.getElementById(NotificationData.id);
+      if (element) {
+        element.classList.remove("animate-enter");
+        element.classList.add("animate-exit");
+        element.addEventListener("animationend", () => {
+          setGlobalSuccessNotification((prev: Array<GlobalNotification>) =>
+            prev.filter((item: GlobalNotification) => item.id !== uuid)
+          );
+        });
+      }
+    }, NotificationTime || 3000);
   };
   //
   // ?  The Function Above Is Used To Handel The Error Globally
@@ -610,6 +644,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         if (response.data.success) {
           push(`/pages/server/${response.data.server_id}`);
           socket?.emit("newServerCreationOccurred", response.data.server_id);
+          return response?.data?.server_id;
         }
       }
     } catch (error) {
@@ -844,7 +879,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        GlobalNotificationHandlerFunction(
+          response.data,
+          NotificationType.NORMAL,
+          "New Channel Has Been Created"
+        );
         socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {
@@ -875,7 +914,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       console.log(response.data);
       if (response.data.success) {
-        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        GlobalNotificationHandlerFunction(
+          response.data,
+          NotificationType.NORMAL,
+          "Channel Has Been Updated"
+        );
         socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {}
@@ -898,7 +941,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        GlobalNotificationHandlerFunction(
+          response.data,
+          NotificationType.NORMAL,
+          "Channel Has Been Deleted"
+        );
         socket?.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
@@ -1218,7 +1265,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("NewFollowRequestHasBeenSent", response.data);
-        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        GlobalNotificationHandlerFunction(
+          response.data,
+          NotificationType.NORMAL,
+          "Follow Request Has Been Sent"
+        );
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1244,7 +1295,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("A_FollowRequestHasBeenWithdrawn");
-        GlobalSuccessNotificationHandler(response.data, "NORMAL");
+        GlobalNotificationHandlerFunction(
+          response.data,
+          NotificationType.NORMAL,
+          "Follow Request Has Been Withdrawn"
+        );
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1704,7 +1759,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     GlobalSuccessNotification,
     setGlobalSuccessNotification:
       setGlobalSuccessNotification as React.Dispatch<
-        React.SetStateAction<object>
+        React.SetStateAction<GlobalNotification[]>
       >,
     Global_Server_Profile_Image,
     setGlobal_Server_Profile_Image:
@@ -1782,6 +1837,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setCurrent_AudioCall_Participant_Info as React.Dispatch<
         React.SetStateAction<object>
       >,
+    TypingIndicator,
+    setTypingIndicator: setTypingIndicator as React.Dispatch<
+      React.SetStateAction<object>
+    >,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1827,6 +1886,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Delete_MessageReplayFunction,
     Edit_MessageReplayFunction,
     SendVideoCallInfoSdp_To_Backend,
+    GlobalNotificationHandlerFunction,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

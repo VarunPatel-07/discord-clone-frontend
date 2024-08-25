@@ -35,7 +35,7 @@ export default function RootLayout({
             speed={600}
             zIndex={999999}
           />
-          <main className="min-h-screen h-[100vh] overflow-hidden max-h-[100vh] relative">
+          <main className="min-h-screen h-[100vh]  max-h-[100vh] relative">
             <GlobalSuccessNotification />
             <section className="w-full h-full">{children}</section>
             <TootlrTipRenderer />
