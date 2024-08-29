@@ -30,7 +30,6 @@ function ShowAllTheUserInTheDashboard({
     FetchTheUserOnTheBaseOfDemand,
     FetchingAllTheSentRequestOfUser,
     FetchingAllTheReceivedRequestOfUser,
-    setGlobalSuccessNotification,
     FetchAllTheFollowerOfTheUser,
   } = useContext(Context) as any;
 
@@ -88,9 +87,9 @@ function ShowAllTheUserInTheDashboard({
     });
     return () => {
       socket?.off("EmitA_FollowRequestHasBeenWithdrawn");
-  
+
       socket?.off("EmitA_FollowRequestHasBeenIgnored");
-     
+
       socket?.off("EmitAnUser_UnBlocked_Successfully");
       socket?.off("EmitAnUserBlockedSuccessfully");
     };
@@ -125,6 +124,12 @@ function ShowAllTheUserInTheDashboard({
                   onClick={FetchTheSentRequest}
                 >
                   Request Sent
+                  {AllTheSendRequestOfTheUser.length > 0 && (
+                    <>
+                      <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px]"></span>
+                      <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px] animate-ping"></span>
+                    </>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger
                   value="ReceivedRequest"
@@ -132,6 +137,14 @@ function ShowAllTheUserInTheDashboard({
                   onClick={FetchTheReceivedRequest}
                 >
                   Request Received
+                  {AllTheReceivedRequestOfTheUser.length > 0 && (
+                    <>
+                      <>
+                        <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px]"></span>
+                        <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px] animate-ping"></span>
+                      </>
+                    </>
+                  )}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="SendRequest" className="w-[100%] h-[100%]">

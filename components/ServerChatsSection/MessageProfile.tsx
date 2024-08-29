@@ -6,6 +6,7 @@ import { Edit } from "lucide-react";
 import React, { useContext } from "react";
 import { FaReply } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
+import CryptoJS from "crypto-js";
 
 function MessageProfile({
   Profile_Picture,
@@ -26,6 +27,8 @@ function MessageProfile({
   replayMessage_Id_To_Delete,
   ReplyingUser_UserName,
   Editing_Replay,
+  ProfileBgColor,
+  ProfileBanner_Color,
 }: {
   Profile_Picture: string;
   FullName: string;
@@ -45,7 +48,11 @@ function MessageProfile({
   replayMessage_Id_To_Delete?: string;
   ReplyingUser_UserName?: string;
   Editing_Replay?: boolean;
+  ProfileBgColor: string;
+  ProfileBanner_Color: string;
 }) {
+  const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
+
   const {
     UserInformation,
     setEdit_Message_State,
@@ -85,15 +92,28 @@ function MessageProfile({
     DeleteMessageWithDebounce(AuthToken, message_id, message_replay_id);
   };
 
+  const decryptContent = (encryptedContent) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedContent, SECRET_KEY);
+      const originalContent = bytes.toString(CryptoJS.enc.Utf8);
+      return originalContent;
+    } catch (error) {
+      console.error("Decryption error:", error);
+      return null;
+    }
+  };
   return (
     <div
       className={`w-[100%] flex items-start justify-between transition-all duration-150 ${Other_ClassName} `}
     >
       <div className="message-container w-[100%] flex items-start  justify-start">
         <div className="profile">
-          <Avatar className="w-[45px] h-[45px] block rounded-full overflow-hidden ">
+          <Avatar
+            className="w-[45px] h-[45px]  rounded-full overflow-hidden flex items-center justify-center "
+            style={{ backgroundColor: ProfileBanner_Color }}
+          >
             <AvatarImage src={Profile_Picture} className="w-[100%] h-[100%]" />
-            <AvatarFallback className="capitalize font-medium text-[15px]">
+            <AvatarFallback className="capitalize font-medium text-[15px] text-white">
               {FullName.split("")[0]}
             </AvatarFallback>
           </Avatar>
@@ -136,9 +156,9 @@ function MessageProfile({
               <p
                 className={`${
                   Is_Deleted ? "text-gray-400 italic" : "text-white"
-                } global-font-roboto text-[15px] font-[300] py-[3px]`}
+                } global-font-roboto text-[15px] font-[300] py-[3px] max-w-[1000px] overflow-hidden text-ellipsis text-wrap`}
               >
-                {message}
+                {Is_Deleted ? message : decryptContent(message)}
               </p>
             </div>
           </div>
@@ -153,11 +173,10 @@ function MessageProfile({
               data-tooltip-id="Edit-Chat-icon-tooltip"
               data-tooltip-content="Edit Message"
               onClick={() => {
-                console.log(Editing_Replay);
                 setEdit_Message_State({
                   Is_Editing: true as boolean,
                   MessageId: message_id as string,
-                  Message: message as string,
+                  Message: decryptContent(message) as string,
                   ChannelId: channel_id as string,
                   UserId: UserId as string,
                   UserName: UserName as string,
@@ -222,7 +241,9 @@ function MessageProfile({
             setReply_A_Specific_Message_State({
               Is_Replying: true as boolean,
               MessageId: message_id as string,
-              Message: message as string,
+              Message: Is_Deleted
+                ? message
+                : (decryptContent(message) as string),
               ChannelId: channel_id as string,
               UserId: UserId as string,
               UserName: UserName as string,

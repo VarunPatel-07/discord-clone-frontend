@@ -201,10 +201,9 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
         ChannelInfo: {},
       });
     } else {
-      const InComingVideoCall =
-        AnIncoming_VideoCall_Occurred?.Meeting_Initiator_Info
-          ? AnIncoming_VideoCall_Occurred
-          : JSON.parse(getCookie("An_Incoming_VideoCall") || "");
+      const InComingVideoCall = AnIncoming_VideoCall_Occurred?.MeetingId
+        ? AnIncoming_VideoCall_Occurred
+        : JSON.parse(getCookie("An_Incoming_VideoCall") || "");
       if (!InComingVideoCall) return;
       setANew_VideoMeeting_HasBeenStarted({
         Call_Started: true as boolean,
@@ -243,8 +242,8 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
         }}
         token={Token}
       >
-        <div className="w-[100%] h-[100%] flex flex-col items-center justify-between transition-opacity pt-[70px] pb-[50px] gap-[40px] ">
-          <div className="w-[100%]  flex flex-col items-center justify-center gap-[20px]">
+        <div className="w-[100%] h-[100%] flex flex-col items-center justify-between transition-opacity pt-[20px] pb-[50px] gap-[20px] ">
+          <div className="w-[100%]  flex flex-col items-center justify-center gap-[10px]">
             <div
               className="users-screen-wrapper w-[100%] h-[100%] aspect-square max-w-[600px] max-h-[400px] flex flex-col items-center justify-center  rounded-[10px] relative overflow-hidden"
               style={{ backgroundColor: UserInformation?.ProfileBanner_Color }}

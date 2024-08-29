@@ -28,6 +28,8 @@ function Message({
   Is_Deleted,
   Is_Replied,
   MessageReplies,
+  ProfileBanner_Color,
+  ProfileBgColor,
 }: {
   Profile_Picture: string;
   FullName: string;
@@ -43,6 +45,8 @@ function Message({
   Is_Deleted: boolean;
   Is_Replied: boolean;
   MessageReplies: any;
+  ProfileBanner_Color: string;
+  ProfileBgColor: string;
 }) {
   const {
     UserInformation,
@@ -85,6 +89,8 @@ function Message({
                 channel_id={channel_id}
                 DeleteMessage={DeleteMessage}
                 Is_Replied={false}
+                ProfileBanner_Color={ProfileBanner_Color}
+                ProfileBgColor={ProfileBgColor}
                 Other_ClassName={
                   "bg-[#2a2d31] hover:bg-[rgba(0,0,0,0.3)] px-[10px] py-[5px] relative   replied-message-container rounded"
                 }
@@ -106,6 +112,8 @@ function Message({
                         Current_Page={Current_Page}
                         FullName={reply?.FullName}
                         Profile_Picture={reply?.Profile_Picture}
+                        ProfileBanner_Color={reply?.ProfileBanner_Color}
+                        ProfileBgColor={reply?.ProfileBgColor}
                         UserName={reply?.UserName}
                         message={reply?.Message}
                         Is_Edited={reply?.Is_Edited}
@@ -146,6 +154,8 @@ function Message({
           channel_id={channel_id}
           DeleteMessage={DeleteMessage}
           Is_Replied={Is_Replied}
+          ProfileBanner_Color={ProfileBanner_Color}
+          ProfileBgColor={ProfileBgColor}
         />
       </div>
     );

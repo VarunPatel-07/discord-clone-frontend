@@ -25,6 +25,8 @@ function MeetingController({
     ANew_AudioMeeting_HasBeenStarted,
     setANew_AudioMeeting_HasBeenStarted,
     UserInformation,
+    setCurrent_VideoCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info,
   } = useContext(Context) as any;
   const {
     MicOn,
@@ -37,8 +39,6 @@ function MeetingController({
     ParticipantMicYouWantToMute,
     setParticipantWebcamYouWantToDisable,
     setParticipantMicYouWantToMute,
-    setCurrent_VideoCall_Participant_Info,
-    setCurrent_AudioCall_Participant_Info,
   } = useContext(VideoAudioCallContext) as any;
 
   const { toggleMic, toggleWebcam, end, leave, participants } = useMeeting({
@@ -63,12 +63,14 @@ function MeetingController({
           MeetingId: "",
           ChannelInfo: {},
         });
-        setCurrent_VideoCall_Participant_Info({});
+        setCurrent_VideoCall_Participant_Info("");
       }
       setStartCall(false);
     },
   });
   const EndTheVideoCall = async () => {
+    console.log("End the call");
+    end();
     try {
       if (Call_Type === "AUDIO") {
         if (getCookie("An_Incoming_AudioCall")) {
@@ -83,7 +85,7 @@ function MeetingController({
           ChannelInfo: {},
         });
 
-        setCurrent_AudioCall_Participant_Info({});
+        setCurrent_AudioCall_Participant_Info("");
       } else {
         if (getCookie("An_Incoming_VideoCall")) {
           deleteCookie("An_Incoming_VideoCall");
@@ -95,13 +97,11 @@ function MeetingController({
           MeetingId: "",
           ChannelInfo: {},
         });
-        setCurrent_VideoCall_Participant_Info({});
+        setCurrent_VideoCall_Participant_Info("");
       }
       setStartCall(false);
       setMicOn(false);
       setVideoOn(false);
-
-      end();
     } catch (error) {
       console.log(error);
     }
@@ -124,7 +124,7 @@ function MeetingController({
         MeetingId: "",
         ChannelInfo: {},
       });
-      setCurrent_VideoCall_Participant_Info({});
+      setCurrent_VideoCall_Participant_Info("");
     }
     setStartCall(false);
     setMicOn(false);

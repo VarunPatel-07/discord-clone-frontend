@@ -11,6 +11,7 @@ import { Context } from "@/context/ContextApi";
 import { FaHashtag } from "react-icons/fa";
 import { AiOutlineAudio } from "react-icons/ai";
 import { IoMdVideocam } from "react-icons/io";
+import NotificationIcon from "@/components/Notification/NotificationIcon";
 
 function ServerNavbar() {
   const { CurrentChatChannelInfo, TypingIndicator } = useContext(
@@ -21,7 +22,7 @@ function ServerNavbar() {
   return (
     <>
       <div className="w-[100%] bg-[#41464f] shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] absolute top-0 left-0  z-[1] h-[45px] overflow-hidden ">
-        <div className="w-[100%] h-[100%] px-[12px] py-[10px]">
+        <div className="w-[100%] h-[100%] px-[12px] py-[10px] flex items-center justify-between">
           <div className="w-[100%] h-[100%] max-h-[25px] overflow-hidden">
             <div
               className={`w-[100%] h-[100%] flex flex-col items-start gap-[15px] justify-start transition duration-200 ${
@@ -76,6 +77,7 @@ function ServerNavbar() {
               )}
             </div>
           </div>
+          <NotificationIcon />
         </div>
       </div>
       {/* <Sheet open={OpenSidebar} onOpenChange={setOpenSidebar}>

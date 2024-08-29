@@ -12,7 +12,6 @@ import { getCookie } from "cookies-next";
 import { useDebounce } from "@/hooks/debounceHook";
 import UsersFollowerAndFollowingComponent from "@/components/UsersFollowerAndFollowingComponent";
 
-
 function Dashboard() {
   const { push } = useRouter();
 
@@ -22,12 +21,14 @@ function Dashboard() {
     FetchTheUserOnTheBaseOfDemand,
     FetchAllTheOtherUsers,
     setGlobalMetaTagHandler,
+    AllTheSendRequestOfTheUser,
+    AllTheReceivedRequestOfTheUser,
   } = useContext(Context) as any;
   //
   //
   //
   const [UsersFriendType, setUserFriendType] = useState("all" as string);
-  const [ShowLoader, setShowLoader] = useState(false as boolean);
+  const [ShowLoader, setShowLoader] = useState(true as boolean);
   //
   //
   //
@@ -147,8 +148,15 @@ function Dashboard() {
                               ClickTheToFetchTheFriendType("pendingRequest")
                             }
                           >
-                            <span className="capitalize global-font-roboto text-[15px]  font-medium">
+                            <span className="capitalize global-font-roboto text-[15px]  font-medium relative">
                               pending Request
+                              {AllTheReceivedRequestOfTheUser.length > 0 ||
+                                (AllTheSendRequestOfTheUser.length > 0 && (
+                                  <>
+                                    <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px]"></span>
+                                    <span className="absolute w-[10px] h-[10px] bg-[#f00] rounded-full top-[0px] right-[-5px] animate-ping"></span>
+                                  </>
+                                ))}
                             </span>
                           </button>
                           <button

@@ -117,7 +117,6 @@ function MeetingViewGridLayout({
         setVideoOn(false);
       }
     } else {
-      
       if (Current_VideoCall_Participant_Info.id !== UserInformation.id) {
         JoinMeetingUsingDebounce();
       } else {
@@ -170,6 +169,7 @@ function MeetingViewGridLayout({
 
   const {} = useMeeting({
     onSpeakerChanged: (activeSpeakerId) => {
+      console.log(activeSpeakerId);
       setActiveSpeakerId(activeSpeakerId as string);
     },
   });

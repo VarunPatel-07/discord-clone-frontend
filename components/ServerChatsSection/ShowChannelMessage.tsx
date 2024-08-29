@@ -19,10 +19,10 @@ function ShowChannelMessage() {
   const socket = UseSocketIO();
   const [Page, setPage] = useState(1);
   const [Limit, setLimit] = useState(10);
-  const [Loading, setLoading] = useState(false);
+  const [Loading, setLoading] = useState(true);
 
-  const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
   const [Previous_ChannelId, setPrevious_ChannelId] = useState("" as string);
+  const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
 
   const { ref, inView } = useInView();
   //
@@ -39,14 +39,7 @@ function ShowChannelMessage() {
   //
 
   const FetchTheMessagesWithDebounce = useDebounce(
-    async (
-      AuthToken,
-      serverId,
-      channel_id,
-      Page = 1,
-      Limit = 10,
-      All_Data_Again: boolean
-    ) => {
+    async (AuthToken, serverId, channel_id, Page = 1, Limit = 10) => {
       const newMessages = await FetchTheMessageOFTheChannel(
         AuthToken,
         serverId,
@@ -54,17 +47,11 @@ function ShowChannelMessage() {
         Page,
         Limit
       );
-
-      if (All_Data_Again) {
-        setChannalMessages(newMessages);
-        setLoading(false);
-        return;
-      }
       setChannalMessages((prevMessages) => [...prevMessages, ...newMessages]);
 
       setLoading(false);
     },
-    350
+    500
   );
 
   const scrollToBottom = () => {
@@ -73,25 +60,21 @@ function ShowChannelMessage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [CurrentChatChannelInfo]);
+  }, [ChannalMessages]);
 
   //
   useEffect(() => {
-    if (CurrentChatChannelInfo?.ChatId === Previous_ChannelId) return;
+    if (CurrentChatChannelInfo?.ChatId === Previous_ChannelId) {
+      setChannalMessages([]);
+      setPage(1);
+    }
     setLoading(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     const serverId = Pathname?.split("/")[3];
     const channel_id = CurrentChatChannelInfo?.ChatId;
-    const All_Data_Again = true;
+    // const All_Data_Again = true;
 
-    FetchTheMessagesWithDebounce(
-      AuthToken,
-      serverId,
-      channel_id,
-      1,
-      10,
-      All_Data_Again
-    );
+    FetchTheMessagesWithDebounce(AuthToken, serverId, channel_id, 1, 10);
 
     setPrevious_ChannelId(CurrentChatChannelInfo?.ChatId as string);
   }, [
@@ -143,8 +126,10 @@ function ShowChannelMessage() {
       if (data?.success) {
         if (!AllTheMessageOfTheChannel?.HasMoreData) {
           const message = data?.data;
-          setChannalMessages((prevMessages) => [...prevMessages, message]);
-          scrollToBottom();
+          if (CurrentChatChannelInfo?.ChatId === message?.channel?.id) {
+            setChannalMessages((prevMessages) => [...prevMessages, message]);
+            scrollToBottom();
+          }
         }
       }
     });
@@ -186,7 +171,7 @@ function ShowChannelMessage() {
       socket?.off("EmitStartTyping");
       socket?.off("EmitStopTyping");
     };
-  }, [socket]);
+  }, [socket, CurrentChatChannelInfo]);
   //
   //
   //
@@ -224,13 +209,19 @@ function ShowChannelMessage() {
                       Is_Deleted={message?.IsDeleted}
                       Is_Replied={message?.Is_Reply}
                       MessageReplies={message?.ServerGroupMessageReplies}
+                      ProfileBanner_Color={
+                        message?.member?.user?.ProfileBanner_Color
+                      }
+                      ProfileBgColor={message?.member?.user?.ProfileBgColor}
                     />
                   );
                 })}
               </div>
             )}
             {AllTheMessageOfTheChannel?.HasMoreData ? (
-              <div ref={ref}>loading...</div>
+              <div ref={ref} className="w-[100%] flex items-center justify-center">
+                <SpinnerComponent />
+              </div>
             ) : (
               ""
             )}

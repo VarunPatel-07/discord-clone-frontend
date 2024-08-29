@@ -161,6 +161,7 @@ interface ContextApiProps {
     Info: any;
   };
   setTypingIndicator: React.Dispatch<React.SetStateAction<object>>;
+
   //
   //? exporting all the functions
   //
@@ -328,7 +329,17 @@ interface ContextApiProps {
     type: NotificationType,
     Message: string,
     NotificationPosition?: string,
-    NotificationTime?: number
+    NotificationTime?: number,
+    sender_id?: string,
+    receiver_id?: string
+  ) => void;
+  StoreMessageNotificationInTheDB: (
+    AuthToken: string,
+    sender_id: string,
+    server_id: string,
+    channel_id: string,
+    type: string,
+    message: string
   ) => void;
 }
 
@@ -492,6 +503,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Info: {} as any,
   });
 
+  const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] =
+    useState([] as Array<object>);
+
   //
   //
   // ? defining all the functions
@@ -504,7 +518,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const GlobalErrorHandler = (error: any) => {
     console.log("error From GlobalErrorHandler", error);
   };
-  const GlobalNotificationHandlerFunction = (
+  const GlobalNotificationHandlerFunction = async (
     data: any,
     type: NotificationType,
     Message: string,
@@ -529,10 +543,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       ...prev,
       NotificationData,
     ]);
-    if(NotificationData.Type !== NotificationType.NORMAL) {
-      // todo also store notification in database and play notification sound
-      
-    }
+
     setTimeout(() => {
       const element = document.getElementById(NotificationData.id);
       if (element) {
@@ -545,6 +556,68 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         });
       }
     }, NotificationTime || 3000);
+  };
+  const StoreFriendRequestInTheDB = async (
+    sender_id: string,
+    receiver_id: string,
+    Message: string
+  ) => {
+    try {
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const formData = new FormData();
+      formData.append("sender_id", sender_id);
+      formData.append("receiver_id", receiver_id);
+      formData.append("type", "FRIEND_REQUEST");
+      formData.append("message", Message);
+
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/Notification/FollowNotification`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+
+      if (response.data.success) {
+        setGlobalNotificationStoredInDB((prev: Array<object>) => [
+          ...prev,
+          response?.data?.data,
+        ]);
+      }
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const StoreMessageNotificationInTheDB = async (
+    AuthToken: string,
+    sender_id: string,
+    server_id: string,
+    channel_id: string,
+    type: string,
+    message: string
+  ) => {
+    try {
+      if (!server_id || !channel_id || !type || !message) return;
+      const formData = new FormData();
+      formData.append("sender_id", sender_id);
+      formData.append("server_id", server_id);
+      formData.append("channel_id", channel_id);
+      formData.append("type", type);
+      formData.append("message", message);
+      await axios({
+        method: "post",
+        url: `${Host}/app/api/Notification/StoreMessageNotification`,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: AuthToken,
+        },
+        data: formData,
+      });
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
   };
   //
   // ?  The Function Above Is Used To Handel The Error Globally
@@ -761,10 +834,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           inviteCode: InvitationCode,
         },
       });
-      console.log(response.data);
+
       if (response.data.success) {
         socket?.emit("New_UserJoined_The_Server", response.data);
-        console.log(response.data);
+
         push(`/pages/server/${response.data.Server_Id}`);
       }
     } catch (error) {
@@ -1270,6 +1343,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           NotificationType.NORMAL,
           "Follow Request Has Been Sent"
         );
+        StoreFriendRequestInTheDB(
+          response.data?.request_sender_info?.id,
+          response.data?.request_receiver_info?.id,
+          "wants to follow"
+        );
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1548,14 +1626,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        setAllTheMessageOfTheChannel((prevState: any) => ({
-          HasMoreData: response.data.Data.hasMoreData,
-          Message: [
-            ...(prevState?.Message || []),
-            ...response.data.Data.messages,
-          ],
-          TotalPage: response.data.Data.totalPages,
-        }));
         return response.data.Data.messages;
       }
     } catch (error) {
@@ -1841,6 +1911,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setTypingIndicator: setTypingIndicator as React.Dispatch<
       React.SetStateAction<object>
     >,
+
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1887,6 +1958,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Edit_MessageReplayFunction,
     SendVideoCallInfoSdp_To_Backend,
     GlobalNotificationHandlerFunction,
+    StoreMessageNotificationInTheDB,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

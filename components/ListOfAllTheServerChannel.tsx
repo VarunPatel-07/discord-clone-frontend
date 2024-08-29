@@ -4,7 +4,7 @@ import UseSocketIO from "@/hooks/UseSocketIO";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { getCookie } from "cookies-next";
 import { Edit } from "lucide-react";
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { AiOutlineAudio } from "react-icons/ai";
 import { FaHashtag } from "react-icons/fa";
 import { IoIosLock, IoMdVideocam } from "react-icons/io";
@@ -34,6 +34,7 @@ function ListOfAllTheServerChannel({
     setCurrentChatChannelInfo,
     CreateAnOneToOneConversation,
     UserInformation,
+    AnIncoming_VideoCall_Occurred,
   } = useContext(Context) as any;
 
   useEffect(() => {
@@ -294,6 +295,8 @@ function ListOfAllTheServerChannel({
                     className={`w-[100%] my-[2px] pl-[8px] pr-[5px] py-[5px] rounded flex items-center justify-between group ${
                       CurrentChatChannelInfo?.ChatId === channel_info.id
                         ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
+                        : AnIncoming_VideoCall_Occurred.An_Incoming_Call
+                        ? "bg-gradient-to-r from-emerald-500 to-emerald-900"
                         : "hover:bg-[rgba(255,255,255,0.18)]"
                     }`}
                     key={channel_info.id}
@@ -301,6 +304,8 @@ function ListOfAllTheServerChannel({
                     <span
                       className={`flex items-center gap-[5px] w-[70%] cursor-pointer ${
                         CurrentChatChannelInfo?.ChatId === channel_info.id
+                          ? "text-[rgba(255,255,255,0.9)]"
+                          : AnIncoming_VideoCall_Occurred.An_Incoming_Call
                           ? "text-[rgba(255,255,255,0.9)]"
                           : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                       }`}
@@ -311,7 +316,9 @@ function ListOfAllTheServerChannel({
                       </span>
 
                       <span className="block capitalize fs-14 overflow-hidden whitespace-nowrap text-ellipsis global-font-roboto">
-                        {channel_info.name}
+                        {AnIncoming_VideoCall_Occurred.An_Incoming_Call
+                          ? "An Incoming Call"
+                          : channel_info.name}
                       </span>
                     </span>
                     <span
@@ -326,6 +333,8 @@ function ListOfAllTheServerChannel({
                         data-tooltip-content="Edit Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgba(255,255,255,0.9)]"
+                            : AnIncoming_VideoCall_Occurred.An_Incoming_Call
                             ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
@@ -345,6 +354,8 @@ function ListOfAllTheServerChannel({
                         data-tooltip-content="Delete Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
+                            ? "text-[rgba(255,255,255,0.9)]"
+                            : AnIncoming_VideoCall_Occurred.An_Incoming_Call
                             ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}

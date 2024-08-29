@@ -38,11 +38,11 @@ function UserProfile({ Position }: { Position: string }) {
         >
           <div className="profile">
             <Avatar
-              className="w-[45px] h-[45px]"
-              style={{ backgroundColor: UserInformation.ProfileBgColor }}
+              className="w-[45px] h-[45px] flex items-center justify-center rounded-full"
+              style={{ backgroundColor: UserInformation.ProfileBanner_Color }}
             >
               <AvatarImage src={UserInformation.Profile_Picture} />
-              <AvatarFallback>
+              <AvatarFallback className="text-[15px] flex items-center justify-center font-semibold">
                 {UserInformation?.FullName?.slice(0, 1)}
               </AvatarFallback>
             </Avatar>

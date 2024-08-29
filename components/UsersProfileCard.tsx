@@ -64,10 +64,24 @@ function UsersProfileCard({
       className={`bg-[rgba(255,255,255,0.1)]  backdrop-blur-[30px] px-[15px] py-[15px] w-[100%] rounded-[10px] border-[1px] border-[rgba(255,255,255,0.05)] cursor-pointer hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.1)] transition-all overflow-hidden`}
     >
       <div className="inner-section flex flex-col gap-[20px]  items-center">
-        <div className="flex flex-col items-center  justify-start gap-[20px] w-[100%]">
+        <div className="flex flex-col items-center  justify-start gap-[15px] w-[100%]">
           <div className="profile w-[100%]">
+            <Avatar
+              className="w-[80px] h-[80px] flex items-center justify-center rounded-full overflow-hidden relative z-[15] mt-[20px]"
+              style={{ backgroundColor: user.ProfileBgColor }}
+            >
+              <AvatarImage
+                src={user.Profile_Picture}
+                className="w-[100%] h-[100%] "
+              />
+              <AvatarFallback className=" capitalize font-medium text-[30px]  text-white">
+                {user.FullName?.slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="profile-banner w-[100%] absolute top-0 left-0 h-[80px]">
             {isValidUrl(user.ProfileBanner_Img) ? (
-              <div className={`w-full h-[65px] absolute top-0 left-0`}>
+              <div className={`w-full h-[100%] `}>
                 <picture>
                   <source src={user.ProfileBanner_Img} type="" />
                   <img
@@ -79,25 +93,12 @@ function UsersProfileCard({
               </div>
             ) : (
               <div
-                className={`w-full h-[65px] absolute top-0 left-0`}
+                className={`w-full h-[100%]`}
                 style={{
                   backgroundColor: user.ProfileBanner_Color,
                 }}
               ></div>
             )}
-
-            <Avatar
-              className="w-[70px] h-[70px] flex items-center justify-center rounded-full overflow-hidden relative z-[15] mt-[20px]"
-              style={{ backgroundColor: user.ProfileBgColor }}
-            >
-              <AvatarImage
-                src={user.Profile_Picture}
-                className="w-[100%] h-[100%] "
-              />
-              <AvatarFallback className=" capitalize font-medium text-[30px]  text-white">
-                {user.FullName?.slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
           </div>
           <div className="user-info flex flex-col text-center items-center justify-center">
             <h4 className="text-white global-font-roboto  text-[16px]  font-[500]">

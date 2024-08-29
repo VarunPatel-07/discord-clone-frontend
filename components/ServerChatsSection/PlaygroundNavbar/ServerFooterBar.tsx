@@ -4,7 +4,13 @@ import { useDebounce } from "@/hooks/debounceHook";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { getCookie } from "cookies-next";
 import { usePathname } from "next/navigation";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { FaRegSmileWink } from "react-icons/fa";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
@@ -22,14 +28,15 @@ function ServerFooterBar() {
     setReply_A_Specific_Message_State,
     Reply_A_SpecificMessageFunction,
     Edit_MessageReplayFunction,
-    TypingIndicator,
-    setTypingIndicator,
   } = useContext(Context) as any;
   const [Message, setMessage] = useState("");
   const [Loading, setLoading] = useState(false);
   const [Typing, setTyping] = useState(false);
   const socket = UseSocketIO();
 
+  const InputFiledRef = useRef<HTMLInputElement>(null);
+
+  // this is the function that will send the message but using the debounce hook for the performance
   const SendMessageWithDebounce = useDebounce(
     async (
       AuthToken: string,
@@ -49,6 +56,7 @@ function ServerFooterBar() {
     350
   );
 
+  // this is the function that will edit the message but using the debounce hook for the performance
   const EditMessageWithDebounce = useDebounce(
     async (
       AuthToken: string,
@@ -63,7 +71,7 @@ function ServerFooterBar() {
     },
     200
   );
-
+  // replying to a specific message using the debounce hook
   const ReplayMessageWithDebounce = useDebounce(
     async (
       AuthToken: string,
@@ -87,6 +95,7 @@ function ServerFooterBar() {
     },
     350
   );
+  // editing a replay message using the debounce hook
   const EditMessageRepliesWithDebounce = useDebounce(
     async (
       AuthToken: string,
@@ -223,7 +232,7 @@ function ServerFooterBar() {
   }, [Edit_Message_State]);
 
   return (
-    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[5] ">
+    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[2] ">
       {(Edit_Message_State.Is_Editing ||
         Reply_A_Specific_Message_State?.Is_Replying) && (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
@@ -306,6 +315,7 @@ function ServerFooterBar() {
                 value={Message === "" ? "" : Message}
                 onChange={InputFiledChanged}
                 disabled={Loading}
+                ref={InputFiledRef}
               />
             </form>
           </div>

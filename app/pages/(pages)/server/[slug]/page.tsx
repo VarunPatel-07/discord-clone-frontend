@@ -31,6 +31,13 @@ import ServerChatsPlayground from "@/components/ServerChatsSection/ServerChatsPl
 import UseSocketIO from "@/hooks/UseSocketIO";
 
 function ServerDetails() {
+  enum NotificationType {
+    FOLLOW,
+    NORMAL,
+    MESSAGE,
+    FRIEND_REQUEST,
+    ERROR,
+  }
   const socket = UseSocketIO();
   const { push } = useRouter();
   const Pathname = usePathname();
@@ -41,9 +48,10 @@ function ServerDetails() {
     UserInfoFetchingFunction,
     UserInformation,
     Check_The_User_Is_KickedOut,
-    setGlobalSuccessNotification,
+
     Check_Server_Is_Deleted,
     CurrentChatChannelInfo,
+    GlobalNotificationHandlerFunction,
   } = useContext(Context) as any;
 
   const [ShowInviteMemberModal, setShowInviteMemberModal] = useState(
@@ -109,29 +117,8 @@ function ServerDetails() {
         try {
           const AuthToken = getCookie("User_Authentication_Token");
           if (!AuthToken) return;
-          const userInfo = JSON.parse(getCookie("User__Info") as string);
           const serverId = data.Server_Id;
           await FetchingTheServerInfoByServerId(serverId, AuthToken);
-          setGlobalSuccessNotification({
-            ShowAlert: true,
-            Profile_Picture: data.UserInfo.Profile_Picture as string,
-            FullName: data.UserInfo.FullName as string,
-            UserName: data.UserInfo.UserName as string,
-            Message: "joined the server",
-            Type: "FOLLOW",
-            Notification_Position: "",
-          });
-          setTimeout(() => {
-            setGlobalSuccessNotification({
-              ShowAlert: false,
-              Profile_Picture: "",
-              FullName: "",
-              UserName: "",
-              Message: "",
-              Type: "NORMAL",
-              Notification_Position: "",
-            });
-          }, 25000);
         } catch (error) {
           console.error("Error handling new member joined event:", error);
         }
@@ -153,18 +140,13 @@ function ServerDetails() {
 
       if (response?.userKickedOut) {
         if (response?.isInTheCurrentServer) {
-          setGlobalSuccessNotification({
-            ShowAlert: true,
-            Message: `You have been removed from the "${response?.serverName}" server`,
-            Type: "REMOVE_FROM_SERVER",
-          });
-          setTimeout(() => {
-            setGlobalSuccessNotification({
-              ShowAlert: false,
-              Message: "",
-              Type: "NORMAL",
-            });
-          }, 2500);
+          GlobalNotificationHandlerFunction(
+            {},
+            NotificationType.NORMAL,
+            `You have been removed from the "${response?.serverName}" server`,
+            "top-right",
+            4000
+          );
           push("/pages/dashboard");
         }
       }
@@ -177,32 +159,19 @@ function ServerDetails() {
       if (response?.serverHasBeenDeleted) {
         if (response?.userIsInTheCurrentServer) {
           if (response?.userIsAdmin) {
-            setGlobalSuccessNotification({
-              ShowAlert: true,
-              Message: `You Deleted the "${response?.serverName}" server Successfully`,
-              Type: "REMOVE_FROM_SERVER",
-            });
-            setTimeout(() => {
-              setGlobalSuccessNotification({
-                ShowAlert: false,
-                Message: "",
-                Type: "NORMAL",
-              });
-            }, 2500);
+            GlobalNotificationHandlerFunction(
+              {},
+              NotificationType.NORMAL,
+              `You Deleted the "${response?.serverName}" server Successfully`
+            );
+
             push("/pages/dashboard");
           } else {
-            setGlobalSuccessNotification({
-              ShowAlert: true,
-              Message: `The "${response?.serverName}" server has been deleted by the admin`,
-              Type: "REMOVE_FROM_SERVER",
-            });
-            setTimeout(() => {
-              setGlobalSuccessNotification({
-                ShowAlert: false,
-                Message: "",
-                Type: "NORMAL",
-              });
-            }, 2500);
+            GlobalNotificationHandlerFunction(
+              {},
+              NotificationType.NORMAL,
+              `The "${response?.serverName}" server has been deleted by the admin`
+            );
             push("/pages/dashboard");
           }
         }
@@ -386,7 +355,7 @@ function ServerDetails() {
                       <ServerSideBarChannelContent />
                     </div>
                   </div>
-                  <div className="chats w-[82%] bg-[#36393F]">
+                  <div className="chats w-[100%] bg-[#36393F]">
                     <ServerChatsPlayground
                       CurrentChatChannelInfo={CurrentChatChannelInfo}
                       UserInformation={UserInformation}

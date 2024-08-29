@@ -26,7 +26,6 @@ function Sidebar() {
     FetchTheIncludingServer,
     Including_Server_Info_Array,
     UserInfoFetchingFunction,
-    setGlobalSuccessNotification,
     setAnIncoming_AudioCall_Occurred,
     setAnIncoming_VideoCall_Occurred,
     UserInformation,
@@ -34,6 +33,8 @@ function Sidebar() {
     FetchingAllTheSentRequestOfUser,
     FetchingAllTheReceivedRequestOfUser,
     FetchTheUserOnTheBaseOfDemand,
+    StoreMessageNotificationInTheDB,
+    CurrentChatChannelInfo,
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
@@ -56,26 +57,22 @@ function Sidebar() {
         if (data?.CallInitiatorInfo?.id === User_Info?.id) {
           return;
         }
+        const NotificationData = {
+          Profile_Picture: data?.CallInitiatorInfo?.Profile_Picture as string,
+          FullName: data?.CallInitiatorInfo?.FullName as string,
+          UserName: data?.CallInitiatorInfo?.UserName as string,
+          ProfileBgColor: data?.CallInitiatorInfo?.ProfileBgColor as string,
+          ProfileBanner_Color: data?.CallInitiatorInfo
+            ?.ProfileBanner_Color as string,
+        };
+        GlobalNotificationHandlerFunction(
+          NotificationData,
+          NotificationType.MESSAGE,
+          `Started An Video Call In "${data?.ServerInfo?.name}" Server`,
+          "top-right",
+          4000
+        );
         if (data?.ChannelInfo?.ChatType === "VIDEO") {
-          setGlobalSuccessNotification({
-            ShowAlert: true as boolean,
-            Profile_Picture: data?.CallInitiatorInfo?.Profile_Picture as string,
-            FullName: data?.CallInitiatorInfo?.FullName as string,
-            UserName: data?.CallInitiatorInfo?.UserName as string,
-            Message:
-              `Started An Video Call In "${data?.ServerInfo?.name}" Server` as string,
-            Type: "FOLLOW" as string,
-          });
-          setTimeout(() => {
-            setGlobalSuccessNotification({
-              ShowAlert: false as boolean,
-              Profile_Picture: "" as string,
-              FullName: "" as string,
-              UserName: "" as string,
-              Message: "" as string,
-              Type: "NORMAL" as string,
-            });
-          }, 4000);
           setAnIncoming_VideoCall_Occurred({
             An_Incoming_Call: true,
             Meeting_Initiator_Info: data?.CallInitiatorInfo,
@@ -94,25 +91,6 @@ function Sidebar() {
           };
           setCookie("An_Incoming_VideoCall", JSON.stringify(Data));
         } else {
-          setGlobalSuccessNotification({
-            ShowAlert: true as boolean,
-            Profile_Picture: data?.CallInitiatorInfo?.Profile_Picture as string,
-            FullName: data?.CallInitiatorInfo?.FullName as string,
-            UserName: data?.CallInitiatorInfo?.UserName as string,
-            Message:
-              `Started An Audio Call In "${data?.ServerInfo?.name}" Server` as string,
-            Type: "FOLLOW" as string,
-          });
-          setTimeout(() => {
-            setGlobalSuccessNotification({
-              ShowAlert: false as boolean,
-              Profile_Picture: "" as string,
-              FullName: "" as string,
-              UserName: "" as string,
-              Message: "" as string,
-              Type: "NORMAL" as string,
-            });
-          }, 4000);
           setAnIncoming_AudioCall_Occurred({
             An_Incoming_Call: true,
             Meeting_Initiator_Info: data?.CallInitiatorInfo,
@@ -164,12 +142,16 @@ function Sidebar() {
           )
         ) {
           const socket_serverId = data?.data?.channel?.serverId;
+          const channel_id = data?.data?.channel?.id;
+          const sender_id = data?.data?.member?.user?.id;
 
           // now we send a notification if user is not in the current server
           const current_server_id = Path.split("/")[3];
-          console.log(Path.split("/"));
-          console.log(current_server_id, socket_serverId);
-          if (current_server_id !== socket_serverId) {
+
+          if (
+            current_server_id !== socket_serverId ||
+            channel_id !== CurrentChatChannelInfo?.ChatId
+          ) {
             if (data?.data?.member?.userId !== current_user_id?.id) {
               const Data = {
                 Profile_Picture: data?.data?.member?.user
@@ -187,6 +169,14 @@ function Sidebar() {
                 "Sent A New Message",
                 "top-right",
                 4000
+              );
+              StoreMessageNotificationInTheDB(
+                AuthToken,
+                sender_id,
+                socket_serverId,
+                channel_id,
+                "MESSAGE",
+                "Sent A New Message"
               );
             }
           }
@@ -233,7 +223,7 @@ function Sidebar() {
         };
         GlobalNotificationHandlerFunction(
           Data,
-          NotificationType.FOLLOW,
+          NotificationType.FRIEND_REQUEST,
           "Accepted Your Follow Request",
           "top-right",
           4000
@@ -259,10 +249,36 @@ function Sidebar() {
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
       await FetchTheUserOnTheBaseOfDemand(AuthToken, "all");
     });
+    socket?.on("EmitNew_UserJoined_The_Server", async (data: any) => {
+      if (!data.Server_Id) return;
+      if (!data.allReadyInServer) {
+        try {
+          const Data = {
+            Profile_Picture: data?.UserInfo?.Profile_Picture as string,
+            FullName: data?.UserInfo?.FullName as string,
+            UserName: data?.UserInfo?.UserName as string,
+            ProfileBgColor: data?.UserInfo.ProfileBgColor as string,
+            ProfileBanner_Color: data?.UserInfo?.ProfileBanner_Color as string,
+          };
+          GlobalNotificationHandlerFunction(
+            Data,
+            NotificationType.FOLLOW,
+            "joined the server",
+            "top-right",
+            4000
+          );
+        } catch (error) {
+          console.error("Error handling new member joined event:", error);
+        }
+      }
+    });
     return () => {
       socket?.off("EmitNewMessageHasBeenSent");
+      socket?.off("EmitNewFollowRequestHasBeenSent");
+      socket?.off("EmitYourFollowRequestHasBeenAccepted");
+      socket?.off("EmitNew_UserJoined_The_Server");
     };
-  }, [socket, Path]);
+  }, [socket, Path, CurrentChatChannelInfo]);
 
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;

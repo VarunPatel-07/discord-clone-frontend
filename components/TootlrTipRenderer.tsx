@@ -29,7 +29,7 @@ function TootlrTipRenderer() {
       />
       <ReactTooltip
         id="setting-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
+        style={{ backgroundColor: "white", color: "black", zIndex: "10" }}
         opacity={1}
       />
       <ReactTooltip

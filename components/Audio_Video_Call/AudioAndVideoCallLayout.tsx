@@ -50,7 +50,7 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
     );
   if (Call_Type === "AUDIO") {
     return (
-      <div className="w-[100%] h-[100%] relative px-[15px]">
+      <div className="w-[100%] h-[100%] max-h-[100vh] overflow-hidden relative px-[15px]">
         {InComingAudioCall.An_Incoming_Call ? (
           <JoinAnOngoingMeeting Call_Type={Call_Type} />
         ) : ANew_AudioMeeting_HasBeenStarted.Call_Started ? (
@@ -62,7 +62,7 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
     );
   } else {
     return (
-      <div className="w-[100%] h-[100%] relative">
+      <div className="w-[100%] h-[100%] max-h-[100vh] overflow-hidden relative">
         {InComingVideoCall.An_Incoming_Call ? (
           <div className="w-[100%] h-[100%] px-[15px]">
             <JoinAnOngoingMeeting Call_Type={Call_Type} />
