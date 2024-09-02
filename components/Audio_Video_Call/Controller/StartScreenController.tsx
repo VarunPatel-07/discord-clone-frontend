@@ -23,6 +23,7 @@ function StartScreenController({
   CheckThePermissionAndRenderDevices,
   setIs_Mic_Permitted,
   setIs_Video_Permitted,
+  Video_DeviceAvailable,
 }: {
   MicOn: boolean;
   setMicOn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,6 +44,7 @@ function StartScreenController({
   ) => any;
   setIs_Mic_Permitted: React.Dispatch<React.SetStateAction<boolean>>;
   setIs_Video_Permitted: React.Dispatch<React.SetStateAction<boolean>>;
+  Video_DeviceAvailable: boolean;
 }) {
   const Turn_The_Mic_On = async () => {
     if (Is_Mic_Permitted) {
@@ -88,7 +90,9 @@ function StartScreenController({
         </button>
         <button
           className={`w-[60px] h-[60px] ${
-            !VideoOn || !Is_Video_Permitted ? "bg-pink-700" : "bg-white"
+            !VideoOn || !Is_Video_Permitted || !Video_DeviceAvailable
+              ? "bg-pink-700"
+              : "bg-white"
           } transition flex items-center justify-center rounded-full  hover:scale-105 disabled:opacity-75 disabled:cursor-not-allowed relative`}
           onClick={Turn_The_Video_On}
           data-tooltip-id="start-call-screen-video-icon-tooltip"
@@ -101,21 +105,24 @@ function StartScreenController({
           }
           disabled={Call_Type === "AUDIO" ? true : false}
         >
-          {VideoOn && Is_Video_Permitted ? (
+          {VideoOn && Is_Video_Permitted && Video_DeviceAvailable ? (
             <IoMdVideocam className="w-[25px] h-[25px] text-black transition duration-100 " />
           ) : (
             <IoVideocamOff className="w-[25px] h-[25px] text-white transition duration-100 " />
           )}
-          {Call_Type === "AUDIO" ? null : Is_Video_Permitted ? null : (
+          {Call_Type === "AUDIO" ? null : Is_Video_Permitted &&
+            Video_DeviceAvailable ? null : (
             <FaExclamationCircle className="text-yellow-400 w-[18px] h-[18px] absolute top-[0px] right-[-2px]" />
           )}
         </button>
-        {!IsJoining_Meeting && (
+        {!IsJoining_Meeting ? (
           <button
             className={`w-[60px] h-[60px] ${
               StartCall ? "bg-pink-700" : "bg-green-600"
-            } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
-            data-tooltip-id="start-call-screen-call-icon-tooltip"
+            } transition flex flex-col items-center justify-center rounded-full  hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+              !Is_Mic_Permitted && !Is_Video_Permitted ? "hidden" : ""
+            }`}
+            data-tooltip-id="start-call-screen-call-icon-tooltip "
             data-tooltip-content={
               !Is_Mic_Permitted && !Is_Video_Permitted
                 ? "Not Allowed To Call Because Of No Permissions"
@@ -124,9 +131,7 @@ function StartScreenController({
                 : "Turn Mic Off"
             }
             onClick={StartVideoCallProcessOnClick}
-            disabled={
-              CallingStarted || (!Is_Mic_Permitted && !Is_Video_Permitted)
-            }
+            disabled={CallingStarted}
           >
             {CallingStarted ? (
               <div className="flex">
@@ -142,16 +147,16 @@ function StartScreenController({
               </>
             )}
           </button>
-        )}
+        ) : null}
       </div>
-      {IsJoining_Meeting && (
+      {IsJoining_Meeting ? (
         <button
           className="w-[100%] px-[15px] py-[10px] text-white bg-green-600 rounded-[10px] text-center max-w-[300px]  "
           onClick={JoinAnOnGoingMeeting}
         >
           Join The Meeting
         </button>
-      )}
+      ) : null}
     </div>
   );
 }

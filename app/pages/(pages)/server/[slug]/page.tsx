@@ -196,212 +196,209 @@ function ServerDetails() {
     };
   }, [socket]);
 
-  if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
-  } else {
-    return (
-      <>
-        <div className="flex w-full h-full  flex-col bg-[#202225]">
-          <div className="w-100 h-[100%] flex">
-            <div className="w-100 bg-[#36393F] rounded overflow-auto">
-              <div className="w-[100%] h-[100%] flex flex-col items-start justify-start ">
-                <div className="w-100 navbar">
-                  <Navbar />
-                </div>
-                <div className="w-100 h-100 flex items-stretch">
-                  <div className="server-configuration w-[18%] max-w-[252px] h-full overflow-auto  min-w-[200px] bg-[#2a2d31] relative flex flex-col items-start justify-start">
-                    <div className="server-setting-and-modification absolute top-0   left-0 w-100 bg-[#2a2d31] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="curser-pointer text-white border-0 outline-none h-[45px] ">
-                            <span className="flex items-center justify-between px-[10px] py-[8px]">
-                              <span className="global-font-roboto fs-18 text-start font-medium capitalize text-nowrap w-[95%] text-ellipsis  overflow-hidden ">
-                                {ServerInfoById?.name}
-                              </span>
-                              <span className=" w-[5%] min-w-[30px] flex items-center justify-end">
-                                <FaChevronDown />
+  return (
+    <>
+      {Discord_Loader && <GlobalDiscordLoader ShowLoader={Discord_Loader} />}
+      <div className="flex w-full h-full  flex-col bg-[#202225]">
+        <div className="w-100 h-[100%] flex">
+          <div className="w-100 bg-[#36393F] rounded overflow-auto">
+            <div className="w-[100%] h-[100%] flex flex-col items-start justify-start ">
+              <div className="w-100 navbar">
+                <Navbar />
+              </div>
+              <div className="w-100 h-100 flex items-stretch">
+                <div className="server-configuration w-[18%] max-w-[252px] h-full overflow-auto  min-w-[200px] bg-[#2a2d31] relative flex flex-col items-start justify-start">
+                  <div className="server-setting-and-modification absolute top-0   left-0 w-100 bg-[#2a2d31] shadow-[0_0_10px_0_rgba(0,0,0,0.5)] min-h-[45px] max-h-[45px] h-[8%]">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="curser-pointer text-white border-0 outline-none h-[45px] ">
+                          <span className="flex items-center justify-between px-[10px] py-[8px]">
+                            <span className="global-font-roboto fs-18 text-start font-medium capitalize text-nowrap w-[95%] text-ellipsis  overflow-hidden ">
+                              {ServerInfoById?.name}
+                            </span>
+                            <span className=" w-[5%] min-w-[30px] flex items-center justify-end">
+                              <FaChevronDown />
+                            </span>
+                          </span>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="p-0">
+                        {ServerInfoById?.members?.some(
+                          (MemberInfo) =>
+                            MemberInfo.userId === UserInformation.id &&
+                            ["ADMIN", "MODERATOR", "GUEST"].includes(
+                              MemberInfo.role
+                            )
+                        ) ? (
+                          <DropdownMenuItem
+                            className="p-0 bg-black cursor-pointer"
+                            onClick={() => {
+                              setShowInviteMemberModal(true);
+                            }}
+                          >
+                            <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-indigo-600 hover:text-indigo-800 py-[10px] px-[12px] ">
+                              <span>invite people</span>
+                              <span className="fs-20">
+                                <BiUserPlus />
                               </span>
                             </span>
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="p-0">
-                          {ServerInfoById?.members?.some(
-                            (MemberInfo) =>
-                              MemberInfo.userId === UserInformation.id &&
-                              ["ADMIN", "MODERATOR", "GUEST"].includes(
-                                MemberInfo.role
-                              )
-                          ) ? (
+                          </DropdownMenuItem>
+                        ) : (
+                          ""
+                        )}
+                        {ServerInfoById?.members?.some(
+                          (MemberInfo) =>
+                            MemberInfo.userId === UserInformation.id &&
+                            MemberInfo.role === "ADMIN"
+                        ) ? (
+                          <>
                             <DropdownMenuItem
-                              className="p-0 bg-black cursor-pointer"
+                              className="p-0 cursor-pointer"
                               onClick={() => {
-                                setShowInviteMemberModal(true);
+                                setShowUpdateServerInformation(true);
                               }}
                             >
-                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-indigo-600 hover:text-indigo-800 py-[10px] px-[12px] ">
-                                <span>invite people</span>
+                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                <span>server settings</span>
                                 <span className="fs-20">
-                                  <BiUserPlus />
+                                  <IoIosSettings />
                                 </span>
                               </span>
                             </DropdownMenuItem>
-                          ) : (
-                            ""
-                          )}
-                          {ServerInfoById?.members?.some(
-                            (MemberInfo) =>
-                              MemberInfo.userId === UserInformation.id &&
-                              MemberInfo.role === "ADMIN"
-                          ) ? (
-                            <>
-                              <DropdownMenuItem
-                                className="p-0 cursor-pointer"
-                                onClick={() => {
-                                  setShowUpdateServerInformation(true);
-                                }}
-                              >
-                                <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                  <span>server settings</span>
-                                  <span className="fs-20">
-                                    <IoIosSettings />
-                                  </span>
-                                </span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="p-0 cursor-pointer"
-                                onClick={() =>
-                                  setShowManageServerMembersModal(true)
-                                }
-                              >
-                                <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                  <span>manage members</span>
-                                  <span className="fs-18">
-                                    <FaUserFriends />
-                                  </span>
-                                </span>
-                              </DropdownMenuItem>
-                            </>
-                          ) : (
-                            ""
-                          )}
-                          {ServerInfoById?.members?.some(
-                            (MemberInfo) =>
-                              MemberInfo.userId === UserInformation.id &&
-                              ["ADMIN", "MODERATOR"].includes(MemberInfo.role)
-                          ) ? (
-                            <>
-                              <DropdownMenuItem
-                                className="p-0 cursor-pointer"
-                                onClick={() => {
-                                  setShowCreateNewChannelModal(true);
-                                  setCreateChanelInfoChannelName("");
-                                  setCreateChanelInfoChannelType("");
-                                }}
-                              >
-                                <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
-                                  <span>create channel</span>
-                                  <span className="fs-18">
-                                    <FaCirclePlus />
-                                  </span>
-                                </span>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator className="bg-[#2F3136] m-0" />
-                            </>
-                          ) : (
-                            ""
-                          )}
-                          {ServerInfoById?.members?.some(
-                            (MembersInfo) =>
-                              MembersInfo.userId === UserInformation.id &&
-                              MembersInfo.role === "ADMIN"
-                          ) ? (
                             <DropdownMenuItem
                               className="p-0 cursor-pointer"
-                              onClick={() => setShowDeleteServerModal(true)}
+                              onClick={() =>
+                                setShowManageServerMembersModal(true)
+                              }
                             >
-                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
-                                <span>delete server</span>
-                                <span className="fs-16">
-                                  <FaTrash />
+                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                <span>manage members</span>
+                                <span className="fs-18">
+                                  <FaUserFriends />
                                 </span>
                               </span>
                             </DropdownMenuItem>
-                          ) : (
-                            ""
-                          )}
-                          {ServerInfoById?.members?.some(
-                            (MembersInfo) =>
-                              MembersInfo.userId === UserInformation.id &&
-                              ["MODERATOR", "GUEST"].includes(MembersInfo.role)
-                          ) ? (
+                          </>
+                        ) : (
+                          ""
+                        )}
+                        {ServerInfoById?.members?.some(
+                          (MemberInfo) =>
+                            MemberInfo.userId === UserInformation.id &&
+                            ["ADMIN", "MODERATOR"].includes(MemberInfo.role)
+                        ) ? (
+                          <>
                             <DropdownMenuItem
                               className="p-0 cursor-pointer"
-                              onClick={() => setShowLeaveModal(true)}
+                              onClick={() => {
+                                setShowCreateNewChannelModal(true);
+                                setCreateChanelInfoChannelName("");
+                                setCreateChanelInfoChannelType("");
+                              }}
                             >
-                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
-                                <span>leave server</span>
-                                <span className="fs-16">
-                                  <RxExit />
+                              <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 py-[10px] px-[12px]">
+                                <span>create channel</span>
+                                <span className="fs-18">
+                                  <FaCirclePlus />
                                 </span>
                               </span>
                             </DropdownMenuItem>
-                          ) : (
-                            ""
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <div className="h-[100%] w-[100%] pt-[45px]  overflow-scroll remove-scrollbar">
-                      <ServerSideBarChannelContent />
-                    </div>
+                            <DropdownMenuSeparator className="bg-[#2F3136] m-0" />
+                          </>
+                        ) : (
+                          ""
+                        )}
+                        {ServerInfoById?.members?.some(
+                          (MembersInfo) =>
+                            MembersInfo.userId === UserInformation.id &&
+                            MembersInfo.role === "ADMIN"
+                        ) ? (
+                          <DropdownMenuItem
+                            className="p-0 cursor-pointer"
+                            onClick={() => setShowDeleteServerModal(true)}
+                          >
+                            <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
+                              <span>delete server</span>
+                              <span className="fs-16">
+                                <FaTrash />
+                              </span>
+                            </span>
+                          </DropdownMenuItem>
+                        ) : (
+                          ""
+                        )}
+                        {ServerInfoById?.members?.some(
+                          (MembersInfo) =>
+                            MembersInfo.userId === UserInformation.id &&
+                            ["MODERATOR", "GUEST"].includes(MembersInfo.role)
+                        ) ? (
+                          <DropdownMenuItem
+                            className="p-0 cursor-pointer"
+                            onClick={() => setShowLeaveModal(true)}
+                          >
+                            <span className="flex items-center justify-between w-100 capitalize global-font-roboto fs-14 text-rose-500 py-[10px] px-[12px]">
+                              <span>leave server</span>
+                              <span className="fs-16">
+                                <RxExit />
+                              </span>
+                            </span>
+                          </DropdownMenuItem>
+                        ) : (
+                          ""
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <div className="chats w-[100%] bg-[#36393F]">
-                    <ServerChatsPlayground
-                      CurrentChatChannelInfo={CurrentChatChannelInfo}
-                      UserInformation={UserInformation}
-                    />
+                  <div className="h-[100%] w-[100%] pt-[45px]  overflow-scroll remove-scrollbar">
+                    <ServerSideBarChannelContent />
                   </div>
+                </div>
+                <div className="chats w-[100%] bg-[#36393F]">
+                  <ServerChatsPlayground
+                    CurrentChatChannelInfo={CurrentChatChannelInfo}
+                    UserInformation={UserInformation}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* different popup modal */}
-        <InviteFriendsModel
-          ShowInviteMemberModal={ShowInviteMemberModal}
-          setShowInviteMemberModal={setShowInviteMemberModal}
-          ServerInfoById={ServerInfoById}
-        />
-        <ManageMemberModal
-          ShowManageServerMembersModal={ShowManageServerMembersModal}
-          setShowManageServerMembersModal={setShowManageServerMembersModal}
-          ServerInfoById={ServerInfoById}
-        />
-        <UpdateServerInfo
-          ShowUpdateServerInformation={ShowUpdateServerInformation}
-          setShowUpdateServerInformation={setShowUpdateServerInformation}
-        />
-        <CreateChannelModal
-          ShowCreateNewChannelModal={ShowCreateNewChannelModal}
-          setShowCreateNewChannelModal={setShowCreateNewChannelModal}
-          CreateChanelInfoChannelName={CreateChanelInfoChannelName}
-          CreateChanelInfoChannelType={CreateChanelInfoChannelType}
-          setCreateChanelInfoChannelName={setCreateChanelInfoChannelName}
-          setCreateChanelInfoChannelType={setCreateChanelInfoChannelType}
-        />
-        <LeaveServerAlertModal
-          ShowLeaveModal={ShowLeaveModal}
-          setShowLeaveModal={setShowLeaveModal}
-          ServerInfoById={ServerInfoById}
-        />
-        <DeleteServerAlertModal
-          ShowDeleteServerModal={ShowDeleteServerModal}
-          setShowDeleteServerModal={setShowDeleteServerModal}
-          ServerInfoById={ServerInfoById}
-        />
-      </>
-    );
-  }
+      </div>
+      {/* different popup modal */}
+      <InviteFriendsModel
+        ShowInviteMemberModal={ShowInviteMemberModal}
+        setShowInviteMemberModal={setShowInviteMemberModal}
+        ServerInfoById={ServerInfoById}
+      />
+      <ManageMemberModal
+        ShowManageServerMembersModal={ShowManageServerMembersModal}
+        setShowManageServerMembersModal={setShowManageServerMembersModal}
+        ServerInfoById={ServerInfoById}
+      />
+      <UpdateServerInfo
+        ShowUpdateServerInformation={ShowUpdateServerInformation}
+        setShowUpdateServerInformation={setShowUpdateServerInformation}
+      />
+      <CreateChannelModal
+        ShowCreateNewChannelModal={ShowCreateNewChannelModal}
+        setShowCreateNewChannelModal={setShowCreateNewChannelModal}
+        CreateChanelInfoChannelName={CreateChanelInfoChannelName}
+        CreateChanelInfoChannelType={CreateChanelInfoChannelType}
+        setCreateChanelInfoChannelName={setCreateChanelInfoChannelName}
+        setCreateChanelInfoChannelType={setCreateChanelInfoChannelType}
+      />
+      <LeaveServerAlertModal
+        ShowLeaveModal={ShowLeaveModal}
+        setShowLeaveModal={setShowLeaveModal}
+        ServerInfoById={ServerInfoById}
+      />
+      <DeleteServerAlertModal
+        ShowDeleteServerModal={ShowDeleteServerModal}
+        setShowDeleteServerModal={setShowDeleteServerModal}
+        ServerInfoById={ServerInfoById}
+      />
+    </>
+  );
 }
 
 export default ServerDetails;

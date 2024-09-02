@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import StartCallScreen from "./SartCallScreen";
 import RunningMeetingLayout from "./RunningMeetingLayout";
-
 import { Context } from "@/context/ContextApi";
 import JoinAnOngoingMeeting from "./JoinAnOngoingMeeting";
 import { getCookie } from "cookies-next";
-import { useMeeting } from "@videosdk.live/react-sdk";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 
 function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
@@ -33,12 +31,6 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
       UserInfoFetchingFunction(AuthToken);
     }
   }, []);
-  useEffect(() => {
-    console.log(
-      " ANew_VideoMeeting_HasBeenStarted",
-      ANew_VideoMeeting_HasBeenStarted
-    );
-  }, [ANew_VideoMeeting_HasBeenStarted]);
 
   if (!UserInformation)
     return (
@@ -50,7 +42,7 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
     );
   if (Call_Type === "AUDIO") {
     return (
-      <div className="w-[100%] h-[100%] max-h-[100vh] overflow-hidden relative px-[15px]">
+      <div className="w-[100%] h-[100%] max-h-[100vh] overflow-hidden relative">
         {InComingAudioCall.An_Incoming_Call ? (
           <JoinAnOngoingMeeting Call_Type={Call_Type} />
         ) : ANew_AudioMeeting_HasBeenStarted.Call_Started ? (

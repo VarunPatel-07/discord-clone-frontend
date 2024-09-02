@@ -13,13 +13,18 @@ import { useInView } from "react-intersection-observer";
 import ChatDefaultScreen from "./ChatDefaultScreen";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-function ShowChannelMessage() {
+function ShowChannelMessage({
+  Loading,
+  setLoading,
+}: {
+  Loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const BottomDiv = useRef<HTMLDivElement>(null);
   const Pathname = usePathname();
   const socket = UseSocketIO();
   const [Page, setPage] = useState(1);
   const [Limit, setLimit] = useState(10);
-  const [Loading, setLoading] = useState(true);
 
   const [Previous_ChannelId, setPrevious_ChannelId] = useState("" as string);
   const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
@@ -177,58 +182,55 @@ function ShowChannelMessage() {
   //
   return (
     <div className="w-[100%] h-[100%] py-[30px] relative left-0     flex items-center justify-center">
-      {Loading ? (
-        <div className=" flex items-center justify-center">
-          <SpinnerComponent />
-        </div>
-      ) : (
-        <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] pt-[30px] pb-[10px] transition-opacity ">
-          <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
-          <div className="message-fetching transition-all duration-300 w-[100%] ">
-            {ChannalMessages?.length > 0 && (
-              <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
-            )}
+      <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] pt-[30px] pb-[10px] transition-opacity ">
+        <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
+        <div className="message-fetching transition-all duration-300 w-[100%] ">
+          {ChannalMessages?.length > 0 && (
+            <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
+          )}
 
-            {ChannalMessages?.length > 0 && (
-              <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
-                {ChannalMessages?.map((message: any) => {
-                  return (
-                    <Message
-                      key={message?.id}
-                      FullName={message?.member?.user?.FullName}
-                      Profile_Picture={message?.member?.user?.Profile_Picture}
-                      UserName={message?.member?.user?.UserName}
-                      message={message?.content}
-                      Is_Edited={message?.IsEdited}
-                      Time={message?.createdAt}
-                      UserId={message?.member?.user?.id}
-                      channel_id={message?.channel?.id}
-                      message_id={message?.id}
-                      AdminId={message?.channel?.userId}
-                      Current_Page={Page}
-                      Is_Deleted={message?.IsDeleted}
-                      Is_Replied={message?.Is_Reply}
-                      MessageReplies={message?.ServerGroupMessageReplies}
-                      ProfileBanner_Color={
-                        message?.member?.user?.ProfileBanner_Color
-                      }
-                      ProfileBgColor={message?.member?.user?.ProfileBgColor}
-                    />
-                  );
-                })}
-              </div>
-            )}
-            {AllTheMessageOfTheChannel?.HasMoreData ? (
-              <div ref={ref} className="w-[100%] flex items-center justify-center">
-                <SpinnerComponent />
-              </div>
-            ) : (
-              ""
-            )}
-            <div ref={BottomDiv}></div>
-          </div>
+          {ChannalMessages?.length > 0 && (
+            <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
+              {ChannalMessages?.map((message: any) => {
+                return (
+                  <Message
+                    key={message?.id}
+                    FullName={message?.member?.user?.FullName}
+                    Profile_Picture={message?.member?.user?.Profile_Picture}
+                    UserName={message?.member?.user?.UserName}
+                    message={message?.content}
+                    Is_Edited={message?.IsEdited}
+                    Time={message?.createdAt}
+                    UserId={message?.member?.user?.id}
+                    channel_id={message?.channel?.id}
+                    message_id={message?.id}
+                    AdminId={message?.channel?.userId}
+                    Current_Page={Page}
+                    Is_Deleted={message?.IsDeleted}
+                    Is_Replied={message?.Is_Reply}
+                    MessageReplies={message?.ServerGroupMessageReplies}
+                    ProfileBanner_Color={
+                      message?.member?.user?.ProfileBanner_Color
+                    }
+                    ProfileBgColor={message?.member?.user?.ProfileBgColor}
+                  />
+                );
+              })}
+            </div>
+          )}
+          {AllTheMessageOfTheChannel?.HasMoreData ? (
+            <div
+              ref={ref}
+              className="w-[100%] flex items-center justify-center"
+            >
+              <SpinnerComponent />
+            </div>
+          ) : (
+            ""
+          )}
+          <div ref={BottomDiv}></div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

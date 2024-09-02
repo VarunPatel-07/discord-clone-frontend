@@ -155,8 +155,6 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     webcam_status: false as boolean,
   });
 
-
-
   const [Current_Webcam_Info, setCurrent_Webcam_Info] = useState({
     label: "" as string,
     deviceId: "" as string,
@@ -174,24 +172,32 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     useState<Notification[]>([]);
 
   const GetVideoTrackFunction = async (devicesId) => {
-    setLoader(true);
-    const Video_Track = await getVideoMediaTrack(devicesId);
-    console.log("Video_Track", Video_Track);
-    console.log("Video_Track", videoRef.current);
-    if (!Video_Track) return;
-    setVideo_Stream(Video_Track);
-    if (videoRef.current) {
-      videoRef.current.srcObject = Video_Track;
+    try {
+      setLoader(true);
+      const Video_Track = await getVideoMediaTrack(devicesId);
+      console.log("Video_Track", Video_Track);
+      console.log("Video_Track", videoRef.current);
+      if (!Video_Track) return;
+      setVideo_Stream(Video_Track);
+      if (videoRef.current) {
+        videoRef.current.srcObject = Video_Track;
+      }
+      setLoader(false);
+    } catch (err) {
+      console.log(err);
     }
-    setLoader(false);
   };
   const GetAudioTrackFunction = async (devicesId) => {
-    const audio_track = await getAudioMediaTrack(devicesId);
+    try {
+      const audio_track = await getAudioMediaTrack(devicesId);
 
-    setAudio_Stream(audio_track);
-    if (!audio_track) return;
-    if (audioRef.current) {
-      audioRef.current.srcObject = audio_track;
+      setAudio_Stream(audio_track);
+      if (!audio_track) return;
+      if (audioRef.current) {
+        audioRef.current.srcObject = audio_track;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const onDeviceChanged = (devices, device_type?) => {
@@ -255,7 +261,7 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
         React.SetStateAction<object>
       >,
     onDeviceChanged,
-   
+
     Current_Audio_Mic_Info,
     setCurrent_Audio_Mic_Info: setCurrent_Audio_Mic_Info as React.Dispatch<
       React.SetStateAction<object>

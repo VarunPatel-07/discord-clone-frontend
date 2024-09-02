@@ -161,6 +161,8 @@ interface ContextApiProps {
     Info: any;
   };
   setTypingIndicator: React.Dispatch<React.SetStateAction<object>>;
+  testInfo: any;
+  setTestInfo: React.Dispatch<React.SetStateAction<any>>;
 
   //
   //? exporting all the functions
@@ -341,6 +343,7 @@ interface ContextApiProps {
     type: string,
     message: string
   ) => void;
+  FetchingAllTheOneToOneConversation: (AuthToken: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -420,7 +423,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [CurrentChatChannelInfo, setCurrentChatChannelInfo] = useState({
     ChatId: "" as string,
     ChatName: "" as string,
-    ChatType: "" as string,
+    ChatType: "TEXT" as string,
     ChatUserId: "" as string,
   });
   const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(
@@ -505,7 +508,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] =
     useState([] as Array<object>);
-
+  const [testInfo, setTestInfo] = useState({} as any);
   //
   //
   // ? defining all the functions
@@ -1558,7 +1561,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       formData.append("receiver_id", receiver_id);
       const response = await axios({
         method: "post",
-        url: `${Host}/app/api/Messages/CreateOneToOneChat`,
+        url: `${Host}/app/api/OneToOneMessage/CreateOneToOneChat`,
         headers: {
           Authorization: AuthToken,
           "Content-Type": "multipart/form-data",
@@ -1566,6 +1569,44 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       console.log(response.data);
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const FetchAllTheMessageOfAnOneToOneConversation = async (
+    AuthToken,
+    channel_id
+  ) => {
+    try {
+      if (!AuthToken || channel_id === "undefined") return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/OneToOneMessage/FetchConversationMessages/
+        ${channel_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+  const FetchingAllTheOneToOneConversation = async (AuthToken) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "get",
+        url: `${Host}/app/api/OneToOneMessage/FetchAllTheConversation`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (response.data.success) {
+        return response.data;
+      }
     } catch (error) {
       GlobalErrorHandler(error);
     }
@@ -1911,7 +1952,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setTypingIndicator: setTypingIndicator as React.Dispatch<
       React.SetStateAction<object>
     >,
-
+    testInfo,
+    setTestInfo: setTestInfo as React.Dispatch<React.SetStateAction<object>>,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,
@@ -1959,6 +2001,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     SendVideoCallInfoSdp_To_Backend,
     GlobalNotificationHandlerFunction,
     StoreMessageNotificationInTheDB,
+    FetchingAllTheOneToOneConversation,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

@@ -79,10 +79,10 @@ function Register() {
   //
   // ? rendering the function on the base of the conditions
   //
-  if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
-  } else {
-    return (
+
+  return (
+    <>
+      {Discord_Loader && <GlobalDiscordLoader ShowLoader={Discord_Loader} />}
       <div className="h-screen w-screen custom-background-image">
         <div className="w-100 h-100 flex items-center justify-center">
           <div className="form-container py-5 px-7">
@@ -225,8 +225,8 @@ function Register() {
           </div>
         </div>
       </div>
-    );
-  }
+    </>
+  );
 }
 
 export default Register;

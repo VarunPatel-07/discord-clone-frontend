@@ -60,7 +60,6 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
     setANew_VideoMeeting_HasBeenStarted,
     CurrentChatChannelInfo,
     setANew_AudioMeeting_HasBeenStarted,
-    ANew_VideoMeeting_HasBeenStarted,
   } = useContext(Context) as any;
 
   const [Is_Mic_Permitted, setIs_Mic_Permitted] = useState(false as boolean);
@@ -161,13 +160,17 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
           }
         });
 
-        GetVideoTrackFunction(SelectedCamera.deviceId);
-        GetAudioTrackFunction(SelectedMicrophone.deviceId);
+        if (Web_cams.length >= 1) {
+          GetVideoTrackFunction(SelectedCamera.deviceId);
+        }
+        if (mics.length >= 1) {
+          GetAudioTrackFunction(SelectedMicrophone.deviceId);
+        }
 
         setAvailableCameras(Web_cams);
         setAvailableMicrophones(mics);
       } catch (error) {
-        console.log("Error fetching devices in Safari:", error);
+        // console.log("Error fetching devices in Safari:", error);
       }
     };
 
@@ -263,79 +266,72 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
       }}
       token={Token}
     >
-      <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity py-[50px]">
-        <div className="w-[100%] h-[100%] flex flex-col items-center justify-center gap-[20px]">
-          <div
-            className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center  rounded-[10px] relative overflow-hidden"
-            style={{ backgroundColor: UserInformation?.ProfileBanner_Color }}
-          >
-            <p className="text-white bg-[rgba(0,0,0,0.08)] backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-white px-[10px] py-[1px] rounded-full z-[1]">
+      <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity gap-[30px]">
+        <div className="w-[100%]  flex flex-col items-center justify-center gap-[20px]">
+          <div className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center     rounded-[10px] relative overflow-hidden aspect-video bg-white">
+            <p className="text-black bg-white backdrop-blur-[10px] capitalize global-font-roboto text-[13px] absolute bottom-[10px] left-[10px] border-[1px] border-black px-[10px] py-[1px] rounded-full z-[1]">
               <span>{UserInformation.UserName}</span>
             </p>
             <audio ref={audioRef} autoPlay muted={!MicOn} />
-            {Loader ? (
-              <div className="flex">
-                <SpinnerComponent />
-              </div>
-            ) : (
-              <>
-                {Is_Video_Permitted ? (
-                  <>
-                    {!VideoOn ? (
-                      <div className="w-[100%] h-[100%]">
-                        <div className="w-[100%] h-[100%] flex items-center justify-center">
-                          <Avatar
-                            className="w-[120px] h-[120px] rounded-full overflow-hidden"
-                            style={{
-                              backgroundColor: UserInformation?.ProfileBgColor,
-                            }}
-                          >
-                            <AvatarImage
-                              className="w-[100%] h-[100%]"
-                              src={UserInformation.Profile_Picture}
-                            ></AvatarImage>
-                            <AvatarFallback
-                              className=" text-[40px] font-bold flex items-center justify-center"
-                              style={{
-                                color: UserInformation?.ProfileBanner_Color,
-                              }}
-                            >
-                              {UserInformation?.FullName?.slice(0, 1)}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-[100%] h-[100%] video-wrapper">
-                        <ReactPlayer
-                          url={Video_Stream}
-                          playsinline // extremely crucial prop
-                          pip={false}
-                          light={false}
-                          controls={false}
-                          muted={true}
-                          playing={true}
-                          height={"100%"}
-                          width={"100%"}
+
+            {Is_Video_Permitted ? (
+              Call_Type === "AUDIO" || AvailableCameras.length >= 1 ? (
+                !VideoOn ? (
+                  <div className="w-[100%] h-[100%]">
+                    <div className="w-[100%] h-[100%] flex items-center justify-center">
+                      <Avatar
+                        className="w-[120px] h-[120px] rounded-full overflow-hidden"
+                        style={{
+                          backgroundColor: UserInformation?.ProfileBgColor,
+                        }}
+                      >
+                        <AvatarImage
+                          className="w-[100%] h-[100%]"
+                          src={UserInformation.Profile_Picture}
+                        ></AvatarImage>
+                        <AvatarFallback
+                          className=" text-[40px] font-bold flex items-center justify-center"
                           style={{
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%",
+                            color: UserInformation?.ProfileBanner_Color,
                           }}
-                        />
-                      </div>
-                    )}
-                  </>
+                        >
+                          {UserInformation?.FullName?.slice(0, 1)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-white text-[15px] font-medium text-center">
-                    Allow Us To Access Your Camera To Start The Video Call
-                    <span className="text-red-500 font-semibold inline-block">
-                      Go To Your Browser Settings And Allow Us To Access Your
-                      Camera
-                    </span>
-                  </p>
-                )}
-              </>
+                  <div className="w-[100%] h-[100%] video-wrapper">
+                    <ReactPlayer
+                      url={Video_Stream}
+                      playsinline // extremely crucial prop
+                      pip={false}
+                      light={false}
+                      controls={false}
+                      muted={true}
+                      playing={true}
+                      height={"100%"}
+                      width={"100%"}
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                  </div>
+                )
+              ) : (
+                <p className="text-black text-[15px] font-medium text-center">
+                  No Camera Found
+                </p>
+              )
+            ) : (
+              <p className="text-black text-[15px] font-medium text-center">
+                Allow Us To Access Your Camera To Start The Video Call
+                <span className=" font-semibold inline-block">
+                  Go To Your Browser Settings And Allow Us To Access Your Camera
+                </span>
+              </p>
             )}
           </div>
           <div className="w-[100%] max-w-[600px]">
@@ -368,6 +364,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
           CheckThePermissionAndRenderDevices={checkAndSetPermissions}
           setIs_Mic_Permitted={setIs_Mic_Permitted}
           setIs_Video_Permitted={setIs_Video_Permitted}
+          Video_DeviceAvailable={AvailableCameras.length < 1 ? false : true}
         />
       </div>
     </MeetingProvider>

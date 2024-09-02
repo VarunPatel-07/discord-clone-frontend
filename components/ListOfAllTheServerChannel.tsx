@@ -4,12 +4,21 @@ import UseSocketIO from "@/hooks/UseSocketIO";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { getCookie } from "cookies-next";
 import { Edit } from "lucide-react";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AiOutlineAudio } from "react-icons/ai";
 import { FaHashtag } from "react-icons/fa";
 import { IoIosLock, IoMdVideocam } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { ScrollArea } from "./ui/scroll-area";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useRouter } from "next/navigation";
+import SpinnerComponent from "./Loader/SpinnerComponent";
+import Link from "next/link";
 
 function ListOfAllTheServerChannel({
   setShowUpdateChannelInfoModal,
@@ -25,7 +34,7 @@ function ListOfAllTheServerChannel({
   setChannalId: React.Dispatch<React.SetStateAction<any>>;
   ServerInfoById: any;
 }) {
-  const socket = UseSocketIO();
+  const { push } = useRouter();
   const {
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
@@ -36,6 +45,7 @@ function ListOfAllTheServerChannel({
     UserInformation,
     AnIncoming_VideoCall_Occurred,
   } = useContext(Context) as any;
+  const [Loader, setLoader] = useState(false);
 
   useEffect(() => {
     AllTheTextChannelsOfTheServer?.map((channel_info) => {
@@ -55,12 +65,14 @@ function ListOfAllTheServerChannel({
   const CreatingConversation_With_Debounce = useDebounce(
     async (AuthToken: String, receiver_id: String) => {
       await CreateAnOneToOneConversation(AuthToken, receiver_id);
-      console.log("done");
+      // setLoader(false);
+      push(`/pages/dashboard`);
     },
     350
   );
 
   const CreateNewConversation = (receiver_id: string) => {
+    setLoader(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     CreatingConversation_With_Debounce(AuthToken, receiver_id);
   };
@@ -388,16 +400,15 @@ function ListOfAllTheServerChannel({
           ""
         )}
 
-        <div className="w-[100%] px-[15px] flex flex-col gap-[5px]">
+        <div className="w-[100%] px-[8px] flex flex-col gap-[5px] pt-[10px]">
           {ServerInfoById?.members?.map((MemberInfo: any) => (
             <div
-              className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[15px] rounded-[5px] cursor-pointer  hover:text-white"
+              className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[10px] rounded-[5px] cursor-pointer  hover:text-white"
               key={MemberInfo.userId}
-              onClick={() => CreateNewConversation(MemberInfo.userId)}
             >
               <div className="w-100 flex items-center justify-between">
-                <div className="left-part">
-                  <div className="avatar flex items-center justify-center gap-[10px] ">
+                <div className="w-[100%] flex items-stretch justify-between">
+                  <div className="w-[100%] flex items-center justify-start gap-[10px] ">
                     <div className="profile-image">
                       <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
                         <Avatar className="w-[35px] h-[35px] rounded-full">
@@ -418,6 +429,43 @@ function ListOfAllTheServerChannel({
                       </p>
                     </div>
                   </div>
+                  {MemberInfo?.user?.id !== UserInformation?.id && (
+                    <div className="action-button flex flex-col items-center justify-center">
+                      <Popover>
+                        <PopoverTrigger>
+                          <span className=" block w-[16px] h-[16px] text-white">
+                            <BsThreeDotsVertical />
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-fit p-[5px]">
+                          <ul className="w-[100%] flex flex-col items-center justify-center">
+                            <li className="w-[100%]">
+                              <button
+                                className="bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
+                                onClick={() =>
+                                  CreateNewConversation(MemberInfo?.user?.id)
+                                }
+                              >
+                                {Loader ? (
+                                  <SpinnerComponent />
+                                ) : (
+                                  "Message Privately"
+                                )}
+                              </button>
+                            </li>
+                            <li className="w-[100%]">
+                              <Link
+                                href={`/pages/editProfile/${MemberInfo?.user?.UserName}`}
+                                className="block bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
+                              >
+                                View Profile
+                              </Link>
+                            </li>
+                          </ul>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

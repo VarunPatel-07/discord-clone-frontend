@@ -56,7 +56,6 @@ function InviteFriendsModel({
   };
 
   const CopyUrlButton = (inviteCode: string) => {
-    
     if (!Copy) {
       setCopy(true);
       navigator.clipboard.writeText(
@@ -70,7 +69,9 @@ function InviteFriendsModel({
   return (
     <div
       className={`absolute w-full h-full max-h-full max-w-full bg-[rgba(0,0,0,0.5)] backdrop-blur-[10px] z-20 top-0 left-0 transition scale-0 opacity-0 not-visible ${
-        ShowInviteMemberModal ? "scale-100 opacity-100 visible" : ""
+        ShowInviteMemberModal
+          ? "scale-100 opacity-100 visible"
+          : "scale-0 opacity-0 invisible"
       } `}
     >
       <div className="w-100 h-100 flex items-center justify-center w-100 px-[15px]">

@@ -164,7 +164,7 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
         setAvailableCameras(Web_cams);
         setAvailableMicrophones(mics);
       } catch (error) {
-        console.log("Error fetching devices in Safari:", error);
+        // console.log("Error fetching devices in Safari:", error);
       }
     };
 
@@ -331,6 +331,7 @@ function JoinAnOngoingMeeting({ Call_Type }: { Call_Type: string }) {
               Is_Video_Permitted={Is_Video_Permitted}
               setIs_Mic_Permitted={setIs_Mic_Permitted}
               setIs_Video_Permitted={setIs_Video_Permitted}
+              Video_DeviceAvailable={AvailableCameras.length < 1 ? false : true}
             />
           </div>
         </div>

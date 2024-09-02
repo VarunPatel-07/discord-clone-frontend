@@ -42,7 +42,7 @@ function Invitation() {
   }, []);
 
   if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
+    return <GlobalDiscordLoader ShowLoader={Discord_Loader} />;
   }
 
   return null; // Return null or other component after the loader

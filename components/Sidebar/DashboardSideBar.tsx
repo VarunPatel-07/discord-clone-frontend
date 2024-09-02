@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SearchAllTheServerModal from "../Model/SearchAllTheServerModal";
 import UserProfile from "../UserProfile";
+import ChatsListingOnSideBar from "../OnToOnChats/ChatsListingOnSideBar";
 
 function DashboardSideBar() {
   const [Open, setOpen] = useState(false as boolean);
@@ -18,7 +19,7 @@ function DashboardSideBar() {
     <>
       <div className="w-[100%] h-[100%] bg-[#2a2d31] relative">
         <div className="w-[100%] h-[100%]">
-          <div className="search-bar  shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] w-[100%] bg-[#2F3136]  px-[12px] py-[10px] absolute top-0 left-0">
+          <div className="search-bar  shadow-[0_0px_5px_0_rgba(0,0,0,0.1)] w-[100%] bg-[#1e1f22]  px-[12px] py-[10px] absolute top-0 left-0">
             <div className="relative" onClick={() => setOpen((Open) => !Open)}>
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -46,6 +47,9 @@ function DashboardSideBar() {
                 autoComplete="off"
               />
             </div>
+          </div>
+          <div className="w-[100%] h-[100%] pt-[46px] pb-[70px] ">
+            <ChatsListingOnSideBar IsDashboard={true} />
           </div>
 
           <UserProfile Position="absolute bottom-[0px] left-[0px]"></UserProfile>

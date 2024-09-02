@@ -35,7 +35,7 @@ function FollowerMoreActionModal({
         setShowModal(false);
       }
     };
-
+    
     // Bind the event listener
     document.addEventListener("mousedown", handleClickOutside);
     return () => {

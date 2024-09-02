@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 function AvailableDeviceList({
   ShowSelectCamModal,
@@ -21,6 +21,32 @@ function AvailableDeviceList({
   AvailableMicrophones: any;
   onDeviceChanged: (devices, device_type?) => void;
 }) {
+  const camRef = useRef<HTMLDivElement>(null);
+  const micRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const HandelClickOnAvailableCamDeviceList = (event: any) => {
+      if (camRef.current && !camRef.current.contains(event.target as Node)) {
+        setShowSelectCamModal(false);
+      }
+    };
+    const HandelClickOnAvailableMicDeviceList = (event: any) => {
+      if (micRef.current && !micRef.current.contains(event.target as Node)) {
+        setShowSelectMicModal(false);
+      }
+    };
+    document.addEventListener("mousedown", HandelClickOnAvailableMicDeviceList);
+    document.addEventListener("mousedown", HandelClickOnAvailableCamDeviceList);
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        HandelClickOnAvailableCamDeviceList
+      );
+      document.removeEventListener(
+        "mousedown",
+        HandelClickOnAvailableMicDeviceList
+      );
+    };
+  }, []);
   return (
     <div className="w-[100%] flex items-start justify-center  gap-[20px]">
       <div className="w-[50%] ">
@@ -40,6 +66,7 @@ function AvailableDeviceList({
             className={`w-[100%] bg-white overflow-hidden rounded-[5px] absolute z-[10] top-[36px] left-0 transition-opacity duration-200 ${
               ShowSelectCamModal ? "visible opacity-100" : "invisible opacity-0"
             }`}
+            ref={camRef}
           >
             {AvailableCameras.map((cam: any) => {
               if (cam.deviceId === "default") return;
@@ -81,6 +108,7 @@ function AvailableDeviceList({
                 ? "visible opacity-100 "
                 : "invisible opacity-0"
             }`}
+            ref={micRef}
           >
             {AvailableMicrophones.map((mic: any) => {
               if (mic.deviceId === "default") return;

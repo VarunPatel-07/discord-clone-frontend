@@ -1,8 +1,12 @@
 import React from "react";
 import "../scss/components.css";
-function GlobalDiscordLoader() {
+function GlobalDiscordLoader({ ShowLoader }: { ShowLoader: boolean }) {
   return (
-    <div className="w-screen h-screen flex items-center fixed z-10 top-0 left-0 bg-black backdrop-blur-[10px] justify-center">
+    <div
+      className={`w-screen h-screen flex items-center fixed z-20 top-0 left-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-[15px]   justify-center transition duration-200 ${
+        ShowLoader ? "visible" : "invisible"
+      }`}
+    >
       <div className="w-auto h-fit">
         <div className="loader">
           <svg

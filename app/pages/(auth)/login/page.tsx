@@ -78,10 +78,10 @@ function LogIn() {
   //
   // ? rendering the function on the base of the conditions
   //
-  if (Discord_Loader) {
-    return <GlobalDiscordLoader />;
-  } else {
-    return (
+
+  return (
+    <>
+      {Discord_Loader && <GlobalDiscordLoader ShowLoader={Discord_Loader} />}
       <div className="h-screen w-screen custom-background-image">
         <div className="w-100 h-100 flex items-center justify-center">
           <div className="form-container py-8 px-8">
@@ -197,8 +197,8 @@ function LogIn() {
           </div>
         </div>
       </div>
-    );
-  }
+    </>
+  );
 }
 
 export default LogIn;
