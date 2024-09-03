@@ -8,6 +8,29 @@ import { FaReply } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import CryptoJS from "crypto-js";
 
+interface MessageProfileInfo {
+  Profile_Picture;
+  FullName;
+  UserName;
+  message;
+  Is_Edited;
+  Time;
+  UserId;
+  message_id;
+  channel_id;
+  Current_Page;
+  AdminId;
+  Is_Deleted;
+  Other_ClassName;
+  DeleteMessage;
+  Is_Replied;
+  replayMessage_Id_To_Delete;
+  ReplyingUser_UserName;
+  Editing_Replay;
+  ProfileBgColor;
+  ProfileBanner_Color;
+}
+
 function MessageProfile({
   Profile_Picture,
   FullName,
@@ -110,7 +133,7 @@ function MessageProfile({
         <div className="profile">
           <Avatar
             className="w-[45px] h-[45px]  rounded-full overflow-hidden flex items-center justify-center "
-            style={{ backgroundColor: ProfileBanner_Color }}
+            style={{ backgroundColor: ProfileBgColor }}
           >
             <AvatarImage src={Profile_Picture} className="w-[100%] h-[100%]" />
             <AvatarFallback className="capitalize font-medium text-[15px] text-white">

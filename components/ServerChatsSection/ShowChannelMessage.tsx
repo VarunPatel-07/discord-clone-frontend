@@ -12,7 +12,8 @@ import { useInView } from "react-intersection-observer";
 
 import ChatDefaultScreen from "./ChatDefaultScreen";
 import SpinnerComponent from "../Loader/SpinnerComponent";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { format, isToday, isYesterday } from "date-fns";
+
 function ShowChannelMessage({
   Loading,
   setLoading,
@@ -177,47 +178,56 @@ function ShowChannelMessage({
       socket?.off("EmitStopTyping");
     };
   }, [socket, CurrentChatChannelInfo]);
-  //
-  //
-  //
+
+  const groupMessage = ChannalMessages?.reduce((_groups: any, message: any) => {
+    const date = format(new Date(message?.createdAt), "dd MMM yyyy");
+    if (!_groups[date]) {
+      _groups[date] = [];
+    }
+    _groups[date].push(message);
+    return _groups;
+  }, {});
   return (
     <div className="w-[100%] h-[100%] py-[30px] relative left-0     flex items-center justify-center">
       <div className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[15px] pt-[30px] pb-[10px] transition-opacity ">
         <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
         <div className="message-fetching transition-all duration-300 w-[100%] ">
-          {ChannalMessages?.length > 0 && (
+          {ChannalMessages?.length > 0 ? (
             <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
-          )}
+          ) : null}
 
-          {ChannalMessages?.length > 0 && (
+          {ChannalMessages?.length > 0 ? (
             <div className="w-[100%] flex flex-col items-start justify-start gap-[8px] transition-all duration-300  ">
-              {ChannalMessages?.map((message: any) => {
-                return (
-                  <Message
-                    key={message?.id}
-                    FullName={message?.member?.user?.FullName}
-                    Profile_Picture={message?.member?.user?.Profile_Picture}
-                    UserName={message?.member?.user?.UserName}
-                    message={message?.content}
-                    Is_Edited={message?.IsEdited}
-                    Time={message?.createdAt}
-                    UserId={message?.member?.user?.id}
-                    channel_id={message?.channel?.id}
-                    message_id={message?.id}
-                    AdminId={message?.channel?.userId}
-                    Current_Page={Page}
-                    Is_Deleted={message?.IsDeleted}
-                    Is_Replied={message?.Is_Reply}
-                    MessageReplies={message?.ServerGroupMessageReplies}
-                    ProfileBanner_Color={
-                      message?.member?.user?.ProfileBanner_Color
-                    }
-                    ProfileBgColor={message?.member?.user?.ProfileBgColor}
-                  />
-                );
-              })}
+              {Object.entries(groupMessage)?.map(
+                ([date, messages]: [string, any]) => {
+                  const dateObj = new Date(date);
+                  let dateLabel = format(dateObj, "dd MMM yyyy");
+                  if (isToday(dateObj)) {
+                    dateLabel = "Today";
+                  } else if (isYesterday(dateObj)) {
+                    dateLabel = "Yesterday";
+                  }
+                  return (
+                    <div key={date} className="w-[100%]">
+                      <div className="date-header text-center my-[18px] text-gray-400 max-w-[90%] mx-auto">
+                        <span className="w-[100%] flex items-center justify-center gap-[15px]">
+                          <span className="block w-[100%] h-[1px] bg-gray-400"></span>
+                          <span className="block min-w-fit">{dateLabel}</span>
+                          <span className="block w-[100%] h-[1px] bg-gray-400"></span>
+                        </span>
+                      </div>
+                      {messages?.map((message) => {
+                        console.log(message);
+                        return (
+                          <Message key={message?.id} MessageData={message} />
+                        );
+                      })}
+                    </div>
+                  );
+                }
+              )}
             </div>
-          )}
+          ) : null}
           {AllTheMessageOfTheChannel?.HasMoreData ? (
             <div
               ref={ref}

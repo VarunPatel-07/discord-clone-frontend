@@ -401,75 +401,83 @@ function ListOfAllTheServerChannel({
         )}
 
         <div className="w-[100%] px-[8px] flex flex-col gap-[5px] pt-[10px]">
-          {ServerInfoById?.members?.map((MemberInfo: any) => (
-            <div
-              className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[10px] rounded-[5px] cursor-pointer  hover:text-white"
-              key={MemberInfo.userId}
-            >
-              <div className="w-100 flex items-center justify-between">
-                <div className="w-[100%] flex items-stretch justify-between">
-                  <div className="w-[100%] flex items-center justify-start gap-[10px] ">
-                    <div className="profile-image">
-                      <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
-                        <Avatar className="w-[35px] h-[35px] rounded-full">
-                          <AvatarImage
-                            src={MemberInfo?.user?.Profile_Picture}
-                          />
-                          <AvatarFallback className="global-font-roboto uppercase text-[18px] w-[35px] h-[35px]  font-semibold bg-slate-500 text-white flex items-center justify-center">
-                            {MemberInfo?.user?.FullName.split("")[0]}
-                          </AvatarFallback>
-                        </Avatar>
+          {ServerInfoById?.members
+            ?.sort((a, b) => (a?.user?.id === UserInformation?.id ? -1 : 1))
+            ?.map((MemberInfo: any) => (
+              <div
+                className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[10px] rounded-[5px] cursor-pointer  hover:text-white"
+                key={MemberInfo.userId}
+              >
+                <div className="w-100 flex items-center justify-between">
+                  <div className="w-[100%] flex items-stretch justify-between">
+                    <div className="w-[100%] flex items-center justify-start gap-[10px] ">
+                      <div className="profile-image">
+                        <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
+                          <Avatar className="w-[35px] h-[35px] rounded-full">
+                            <AvatarImage
+                              src={MemberInfo?.user?.Profile_Picture}
+                            />
+                            <AvatarFallback
+                              className="global-font-roboto uppercase text-[18px] w-[35px] h-[35px]  font-semibold bg-slate-500 text-white flex items-center justify-center"
+                              style={{
+                                backgroundColor:
+                                  MemberInfo?.user?.ProfileBgColor,
+                              }}
+                            >
+                              {MemberInfo?.user?.FullName.split("")[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </div>
+                      <div className="members-information flex flex-col items-start justify-start gap-[2px]">
+                        <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium text-white ">
+                          {MemberInfo?.user?.id === UserInformation?.id
+                            ? "You"
+                            : MemberInfo?.user?.UserName}
+                        </p>
                       </div>
                     </div>
-                    <div className="members-information flex flex-col items-start justify-start gap-[2px]">
-                      <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium text-white ">
-                        {MemberInfo?.user?.id === UserInformation?.id
-                          ? "You"
-                          : MemberInfo?.user?.UserName}
-                      </p>
-                    </div>
+                    {MemberInfo?.user?.id !== UserInformation?.id ? (
+                      <div className="action-button flex flex-col items-center justify-center">
+                        <Popover>
+                          <PopoverTrigger>
+                            <span className=" block w-[16px] h-[16px] text-white">
+                              <BsThreeDotsVertical />
+                            </span>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-fit p-[5px]">
+                            <ul className="w-[100%] flex flex-col items-center justify-center">
+                              <li className="w-[100%]">
+                                <button
+                                  className="bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
+                                  onClick={() =>
+                                    CreateNewConversation(MemberInfo?.user?.id)
+                                  }
+                                >
+                                  {Loader ? (
+                                    <SpinnerComponent />
+                                  ) : (
+                                    "Message Privately"
+                                  )}
+                                </button>
+                              </li>
+                              <li className="w-[100%]">
+                                <Link
+                                  href={`/pages/editProfile/${MemberInfo?.user?.UserName}`}
+                                  className="block bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
+                                >
+                                  View Profile
+                                </Link>
+                              </li>
+                            </ul>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    ) : null}
                   </div>
-                  {MemberInfo?.user?.id !== UserInformation?.id && (
-                    <div className="action-button flex flex-col items-center justify-center">
-                      <Popover>
-                        <PopoverTrigger>
-                          <span className=" block w-[16px] h-[16px] text-white">
-                            <BsThreeDotsVertical />
-                          </span>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-fit p-[5px]">
-                          <ul className="w-[100%] flex flex-col items-center justify-center">
-                            <li className="w-[100%]">
-                              <button
-                                className="bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
-                                onClick={() =>
-                                  CreateNewConversation(MemberInfo?.user?.id)
-                                }
-                              >
-                                {Loader ? (
-                                  <SpinnerComponent />
-                                ) : (
-                                  "Message Privately"
-                                )}
-                              </button>
-                            </li>
-                            <li className="w-[100%]">
-                              <Link
-                                href={`/pages/editProfile/${MemberInfo?.user?.UserName}`}
-                                className="block bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
-                              >
-                                View Profile
-                              </Link>
-                            </li>
-                          </ul>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

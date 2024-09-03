@@ -161,8 +161,8 @@ interface ContextApiProps {
     Info: any;
   };
   setTypingIndicator: React.Dispatch<React.SetStateAction<object>>;
-  testInfo: any;
-  setTestInfo: React.Dispatch<React.SetStateAction<any>>;
+  selectedOneToOneChatInfo: any;
+  setSelectedOneToOneChatInfo: React.Dispatch<React.SetStateAction<any>>;
 
   //
   //? exporting all the functions
@@ -508,7 +508,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] =
     useState([] as Array<object>);
-  const [testInfo, setTestInfo] = useState({} as any);
+  const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState({} as any);
   //
   //
   // ? defining all the functions
@@ -1952,8 +1952,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setTypingIndicator: setTypingIndicator as React.Dispatch<
       React.SetStateAction<object>
     >,
-    testInfo,
-    setTestInfo: setTestInfo as React.Dispatch<React.SetStateAction<object>>,
+    selectedOneToOneChatInfo,
+    setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<React.SetStateAction<object>>,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

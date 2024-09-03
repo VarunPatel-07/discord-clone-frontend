@@ -3,6 +3,7 @@ import React, { useCallback, useState, useContext, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { IoIosCloseCircle } from "react-icons/io";
 import "./scss/components.css";
+import Image from "next/image";
 function Single_Image_DragDrop({
   MainText = "Drag and Drop an Image",
   AlternateText = "Drop the files here ...",
@@ -44,23 +45,21 @@ function Single_Image_DragDrop({
           {isDragActive ? <p>{AlternateText}</p> : <p>{MainText}</p>}
         </div>
       ) : (
-        <div className="drag-drop-image__content pt-4 flex items-center justify-center">
-          <div className="relative ">
-            <picture className="single-image-preview">
-              <source src={Preview__Image__URL} />
-              <img
-                src={Preview__Image__URL}
-                loading="lazy"
-                alt="selected image"
-              />
-            </picture>
-            <div
-              className="absolute top--10 right--10 bg-black text-white rounded-50 fs-icon-30 cursor-pointer"
+        <div className="drag-drop-image__content pt-4 flex items-center justify-center relative w-[110px]  mx-auto">
+          <div className="relative  w-[100px] h-[100px] overflow-hidden rounded-full ">
+            <Image
+              src={Preview__Image__URL}
+              alt="selected image"
+              fill={true}
+            ></Image>
+          
+          </div>
+          <div
+              className="absolute top-[15px] right-[5px] bg-black text-white rounded-50 fs-icon-30 cursor-pointer"
               onClick={Remove_Selected_Image}
             >
               <IoIosCloseCircle />
             </div>
-          </div>
         </div>
       )}
     </div>

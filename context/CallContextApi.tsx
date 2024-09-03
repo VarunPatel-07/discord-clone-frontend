@@ -187,6 +187,15 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
       console.log(err);
     }
   };
+  const stopVideoTrackFunction = () => {
+    if (Video_Stream) {
+      let tracks = Video_Stream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
   const GetAudioTrackFunction = async (devicesId) => {
     try {
       const audio_track = await getAudioMediaTrack(devicesId);
@@ -198,6 +207,15 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+  const stopAudioTrackFunction = () => {
+    if (Audio_Stream) {
+      const tracks = Audio_Stream.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    if (audioRef.current) {
+      audioRef.current.srcObject = null;
     }
   };
   const onDeviceChanged = (devices, device_type?) => {
