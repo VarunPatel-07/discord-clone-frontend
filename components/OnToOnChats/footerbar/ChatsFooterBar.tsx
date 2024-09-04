@@ -15,24 +15,24 @@ function ChatsFooterBar({
   };
   return (
     <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] ">
-      {/* {(Edit_Message_State.Is_Editing ||
-      Reply_A_Specific_Message_State?.Is_Replying) && (
+      {/* {(editingAMessage.Is_Editing ||
+      replyingASpecificMessage?.Is_Replying) && (
       <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
         <div className="flex items-start">
           <div className="profile">
             <Avatar className="w-[40px] h-[40px] ">
               <AvatarImage
                 src={
-                  Edit_Message_State.Is_Editing
-                    ? Edit_Message_State?.Profile_Picture
-                    : Reply_A_Specific_Message_State?.Profile_Picture
+                  editingAMessage.Is_Editing
+                    ? editingAMessage?.Profile_Picture
+                    : replyingASpecificMessage?.Profile_Picture
                 }
                 className="w-[100%] h-[100%]"
               />
               <AvatarFallback className="capitalize font-medium text-[15px]">
-                {Edit_Message_State.Is_Editing
-                  ? Edit_Message_State?.FullName?.split("")[0]
-                  : Reply_A_Specific_Message_State?.FullName?.split(
+                {editingAMessage.Is_Editing
+                  ? editingAMessage?.FullName?.split("")[0]
+                  : replyingASpecificMessage?.FullName?.split(
                       ""
                     )[0]}
               </AvatarFallback>
@@ -43,23 +43,23 @@ function ChatsFooterBar({
               <div className="head   flex items-center justify-start gap-[10px]">
                 <div className="username">
                   <p className="text-white global-font-roboto text-[14px] font-[400]  capitalize ">
-                    {Edit_Message_State.Is_Editing
-                      ? Edit_Message_State?.UserId ===
+                    {editingAMessage.Is_Editing
+                      ? editingAMessage?.UserId ===
                         UserInformation?.id
                         ? "You"
-                        : Edit_Message_State?.UserName
-                      : Reply_A_Specific_Message_State?.UserId ===
+                        : editingAMessage?.UserName
+                      : replyingASpecificMessage?.UserId ===
                         UserInformation?.id
                       ? "You"
-                      : Reply_A_Specific_Message_State?.UserName}
+                      : replyingASpecificMessage?.UserName}
                   </p>
                 </div>
               </div>
               <div className="message">
                 <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
-                  {Edit_Message_State.Is_Editing
-                    ? Edit_Message_State?.Message
-                    : Reply_A_Specific_Message_State?.Message}
+                  {editingAMessage.Is_Editing
+                    ? editingAMessage?.Message
+                    : replyingASpecificMessage?.Message}
                 </p>
               </div>
             </div>
@@ -68,7 +68,7 @@ function ChatsFooterBar({
         <div className="close">
           <button
             className="w-[32px] h-[32px] flex justify-center items-center  rounded-full text-white"
-            // onClick={remove_Edit_Message_State_StateInfo}
+            // onClick={remove_editingAMessage_StateInfo}
           >
             <IoIosCloseCircle className="w-[32px] h-[32px]" />
           </button>

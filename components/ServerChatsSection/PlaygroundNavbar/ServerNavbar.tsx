@@ -1,23 +1,50 @@
-import React, { useContext, useState } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import React, { useContext, useEffect, useState } from "react";
+
 import { Context } from "@/context/ContextApi";
 import { FaHashtag } from "react-icons/fa";
 import { AiOutlineAudio } from "react-icons/ai";
 import { IoMdVideocam } from "react-icons/io";
 import NotificationIcon from "@/components/Notification/NotificationIcon";
+import UseSocketIO from "@/hooks/UseSocketIO";
+import { getCookie } from "cookies-next";
 
 function ServerNavbar() {
-  const { CurrentChatChannelInfo, TypingIndicator } = useContext(
+  const { CurrentChatChannelInfo, UserInformation } = useContext(
     Context
   ) as any;
-  const [OpenSidebar, setOpenSidebar] = useState(false);
+  const [typingIndicator, setTypingIndicator] = useState({
+    Is_Typing: false,
+    Info: {} as any,
+  });
+  const socket = UseSocketIO();
+  useEffect(() => {
+    socket?.on("EmitStartTyping", async (data) => {
+      if (data?.is_group_chat) {
+        const User_Info = UserInformation
+          ? UserInformation
+          : JSON.parse(getCookie("User__Info") as string);
+        if (data?.user_info?.id !== User_Info?.id) {
+          if (data?.chat_info?.ChatId === CurrentChatChannelInfo?.ChatId) {
+            setTypingIndicator({
+              Is_Typing: true,
+              Info: data,
+            });
+          }
+        }
+      }
+    });
+    socket?.on("EmitStopTyping", () => {
+      setTypingIndicator({
+        Is_Typing: false,
+        Info: {},
+      });
+    });
+
+    return () => {
+      socket?.off("EmitStartTyping");
+      socket?.off("EmitStopTyping");
+    };
+  }, [socket]);
 
   return (
     <>
@@ -26,7 +53,7 @@ function ServerNavbar() {
           <div className="w-[100%] h-[100%] max-h-[25px] overflow-hidden">
             <div
               className={`w-[100%] h-[100%] flex flex-col items-start gap-[15px] justify-start transition duration-200 ${
-                TypingIndicator.Is_Typing
+                typingIndicator.Is_Typing
                   ? " translate-y-[-38.5px]"
                   : " translate-y-[0px]"
               } `}
@@ -70,7 +97,7 @@ function ServerNavbar() {
               {CurrentChatChannelInfo.ChatType === "TEXT" && (
                 <div className="typing-indicator">
                   <p className="global-font-roboto capitalize text-[14px] font-medium text-[rgba(255,255,255,0.8)] flex items-center justify-center gap-[5px]">
-                    <span>{TypingIndicator?.Info?.user_info?.UserName}</span>
+                    <span>{typingIndicator?.Info?.user_info?.UserName}</span>
                     <span>is typing ......</span>
                   </p>
                 </div>
@@ -80,18 +107,6 @@ function ServerNavbar() {
           <NotificationIcon />
         </div>
       </div>
-      {/* <Sheet open={OpenSidebar} onOpenChange={setOpenSidebar}>
-        <SheetTrigger>Open</SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Are you absolutely sure?</SheetTitle>
-            <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet> */}
     </>
   );
 }

@@ -24,7 +24,7 @@ const ChatsListingOnSideBar = memo(
     useEffect(() => {
       setLoader(true);
       FetchAllTheConversationsWithDebounce();
-    }, []);
+    }, [FetchAllTheConversationsWithDebounce]);
 
     return (
       <>
@@ -56,5 +56,5 @@ const ChatsListingOnSideBar = memo(
     );
   }
 );
-
+ChatsListingOnSideBar.displayName = "ChatsListingOnSideBar";
 export default ChatsListingOnSideBar;

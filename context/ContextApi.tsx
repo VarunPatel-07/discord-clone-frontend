@@ -73,34 +73,16 @@ interface ContextApiProps {
     Message: Array<object>;
     TotalPage: number;
   };
-  Edit_Message_State: {
-    Is_Editing: boolean;
-    MessageId: string;
-    Message: string;
-    ChannelId: string;
-    UserId: string;
-    UserName: string;
-    FullName: string;
-    Profile_Picture: string;
-    current_page: number;
-    Editing_Replay: boolean;
-    Edit_Replay_Message_Id: string;
+  editingAMessage: {
+    is_Editing: boolean;
+    data: object;
   };
-  setEdit_Message_State: React.Dispatch<React.SetStateAction<object>>;
-  Reply_A_Specific_Message_State: {
-    Is_Replying: boolean;
-    MessageId: string;
-    Message: string;
-    ChannelId: string;
-    UserId: string;
-    UserName: string;
-    FullName: string;
-    Profile_Picture: string;
-    current_page: number;
+  setEditingAMessage: React.Dispatch<React.SetStateAction<object>>;
+  replyingASpecificMessage: {
+    is_Replying: boolean;
+    data: object;
   };
-  setReply_A_Specific_Message_State: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setReplyingASpecificMessage: React.Dispatch<React.SetStateAction<object>>;
   ANew_VideoMeeting_HasBeenStarted: {
     Call_Started: boolean;
     Meeting_Initiator_Info: object;
@@ -156,13 +138,6 @@ interface ContextApiProps {
     React.SetStateAction<object>
   >;
   setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
-  TypingIndicator: {
-    Is_Typing: boolean;
-    Info: any;
-  };
-  setTypingIndicator: React.Dispatch<React.SetStateAction<object>>;
-  selectedOneToOneChatInfo: any;
-  setSelectedOneToOneChatInfo: React.Dispatch<React.SetStateAction<any>>;
 
   //
   //? exporting all the functions
@@ -311,8 +286,9 @@ interface ContextApiProps {
     server_id: string,
     channel_id: string,
     content: string,
-    message_id: string,
-    Replying_To_UserName: string
+    replying_to_message: string,
+    replying_to_user_member_id: string,
+    replying_message_message_id: string
   ) => void;
   Delete_MessageReplayFunction: (
     AuthToken: string,
@@ -369,32 +345,14 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     GlobalNotification[]
   >([]);
 
-  const [Edit_Message_State, setEdit_Message_State] = useState({
-    Is_Editing: false as boolean,
-    MessageId: "" as string,
-    Message: "" as string,
-    ChannelId: "" as string,
-    UserId: "" as string,
-    UserName: "" as string,
-    FullName: "" as string,
-    Profile_Picture: "" as string,
-    current_page: 0 as number,
-    Editing_Replay: false as boolean,
-    Edit_Replay_Message_Id: "" as string,
+  const [editingAMessage, setEditingAMessage] = useState({
+    is_Editing: false as boolean,
+    data: {},
   });
-  const [Reply_A_Specific_Message_State, setReply_A_Specific_Message_State] =
-    useState({
-      Is_Replying: false as boolean,
-      MessageId: "" as string,
-      Message: "" as string,
-      ChannelId: "" as string,
-      UserId: "" as string,
-      UserName: "" as string,
-      FullName: "" as string,
-      Profile_Picture: "" as string,
-      current_page: 0 as number,
-      Is_Deleted: false as boolean,
-    });
+  const [replyingASpecificMessage, setReplyingASpecificMessage] = useState({
+    is_Replying: false as boolean,
+    data: {},
+  });
 
   const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
     useState({
@@ -501,14 +459,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Current_AudioCall_Participant_Info,
     setCurrent_AudioCall_Participant_Info,
   ] = useState({} as any);
-  const [TypingIndicator, setTypingIndicator] = useState({
-    Is_Typing: false as boolean,
-    Info: {} as any,
-  });
 
   const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] =
     useState([] as Array<object>);
-  const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState({} as any);
+  const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState(
+    {} as any
+  );
   //
   //
   // ? defining all the functions
@@ -1705,8 +1661,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
   const DeleteMessageFunction = async (
     AuthToken: string,
-    message_id: string,
-    Current_Page: number
+    message_id: string
   ) => {
     try {
       if (!AuthToken || message_id === "undefined") return;
@@ -1722,7 +1677,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (response.data.success) {
         const Data = {
           response: response.data,
-          currentPage: Current_Page,
         };
         socket?.emit("MessageHasBeenEditedSuccessfully", Data);
       }
@@ -1736,8 +1690,9 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     server_id: string,
     channel_id: string,
     content: string,
-    message_id: string,
-    Replying_To_UserName: string
+    replying_to_message: string,
+    replying_to_user_member_id: string,
+    replying_message_message_id: string
   ) => {
     try {
       if (!AuthToken || server_id === "undefined") return;
@@ -1746,9 +1701,14 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       formData.append("channel_id", channel_id);
       formData.append("content", content);
 
-      formData.append("message_id", message_id);
+      formData.append("replying_to_message", replying_to_message);
 
-      formData.append("Replying_To_UserName", Replying_To_UserName);
+      formData.append("replying_to_user_member_id", replying_to_user_member_id);
+
+      formData.append(
+        "replying_message_message_id",
+        replying_message_message_id
+      );
 
       const response = await axios({
         method: "put",
@@ -1760,11 +1720,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        const Data = {
-          response: response.data,
-          currentPage: 1,
-        };
-        socket?.emit("MessageHasBeenEditedSuccessfully", Data);
+        socket?.emit("NewMessageHasBeenSent", response.data);
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1903,15 +1859,14 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     AllTheFollowingOfTheUser,
     AllTheMessageOfTheChannel,
 
-    Edit_Message_State,
-    setEdit_Message_State: setEdit_Message_State as React.Dispatch<
+    editingAMessage,
+    setEditingAMessage: setEditingAMessage as React.Dispatch<
       React.SetStateAction<object>
     >,
-    Reply_A_Specific_Message_State,
-    setReply_A_Specific_Message_State:
-      setReply_A_Specific_Message_State as React.Dispatch<
-        React.SetStateAction<object>
-      >,
+    replyingASpecificMessage,
+    setReplyingASpecificMessage: setReplyingASpecificMessage as React.Dispatch<
+      React.SetStateAction<object>
+    >,
 
     ANew_VideoMeeting_HasBeenStarted,
     setANew_VideoMeeting_HasBeenStarted:
@@ -1948,12 +1903,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       setCurrent_AudioCall_Participant_Info as React.Dispatch<
         React.SetStateAction<object>
       >,
-    TypingIndicator,
-    setTypingIndicator: setTypingIndicator as React.Dispatch<
+
+    selectedOneToOneChatInfo,
+    setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<
       React.SetStateAction<object>
     >,
-    selectedOneToOneChatInfo,
-    setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<React.SetStateAction<object>>,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

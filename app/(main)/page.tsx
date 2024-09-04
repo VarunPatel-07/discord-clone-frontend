@@ -33,7 +33,7 @@ function Home() {
     };
 
     checkStatus();
-  }, [CheckUsersLoginStatus, push]);
+  }, [CheckUsersLoginStatus, push, setDiscord_Loader, setRedirectedLoading]);
 
   return (
     <>

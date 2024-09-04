@@ -8,42 +8,61 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { BsEmojiSmileFill } from "react-icons/bs";
-import { FaRegSmileWink } from "react-icons/fa";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
-
+import CryptoJS from "crypto-js";
 function ServerFooterBar() {
+  const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
   const Pathname = usePathname();
   const {
     CurrentChatChannelInfo,
     SendMessageInTheSelectedChannelOfServer,
-    Edit_Message_State,
-    setEdit_Message_State,
+    editingAMessage,
+    setEditingAMessage,
     UserInformation,
     EditMessageFunction,
-    Reply_A_Specific_Message_State,
-    setReply_A_Specific_Message_State,
+    replyingASpecificMessage,
+    setReplyingASpecificMessage,
     Reply_A_SpecificMessageFunction,
-    Edit_MessageReplayFunction,
   } = useContext(Context) as any;
+
   const [Message, setMessage] = useState("");
   const [Loading, setLoading] = useState(false);
   const [Typing, setTyping] = useState(false);
   const socket = UseSocketIO();
-
   const InputFiledRef = useRef<HTMLInputElement>(null);
 
-  // this is the function that will send the message but using the debounce hook for the performance
+  const Data = useMemo(
+    () => ({
+      user_info: {
+        FullName: UserInformation?.FullName,
+        UserName: UserInformation?.UserName,
+        id: UserInformation?.id,
+      },
+      chat_info: CurrentChatChannelInfo,
+      is_group_chat: true,
+    }),
+    [UserInformation, CurrentChatChannelInfo]
+  );
+
+  const remove_editingAMessage_StateInfo = useCallback(() => {
+    setEditingAMessage({
+      is_Editing: false,
+      data: {},
+    });
+    setReplyingASpecificMessage({
+      is_Replying: false,
+      data: {},
+    });
+    setMessage("");
+  }, [setEditingAMessage, setReplyingASpecificMessage]);
+
   const SendMessageWithDebounce = useDebounce(
-    async (
-      AuthToken: string,
-      serverId: string,
-      channelId: string,
-      message: string
-    ) => {
+    async (AuthToken, serverId, channelId, message) => {
       await SendMessageInTheSelectedChannelOfServer(
         AuthToken,
         serverId,
@@ -56,30 +75,26 @@ function ServerFooterBar() {
     350
   );
 
-  // this is the function that will edit the message but using the debounce hook for the performance
   const EditMessageWithDebounce = useDebounce(
-    async (
-      AuthToken: string,
-      message_id: string,
-      message: string,
-      Current_Page: number
-    ) => {
+    async (AuthToken, message_id, message, Current_Page) => {
       await EditMessageFunction(AuthToken, message_id, message, Current_Page);
       setLoading(false);
       setMessage("");
-      remove_Edit_Message_State_StateInfo();
+      remove_editingAMessage_StateInfo();
     },
     200
   );
-  // replying to a specific message using the debounce hook
+
   const ReplayMessageWithDebounce = useDebounce(
     async (
-      AuthToken: string,
-      serverId: string,
-      channelId: string,
-      message: string,
-      message_id: string,
-      Replying_To_UserName: string
+      AuthToken,
+      serverId,
+      channelId,
+      message,
+      message_id,
+      replying_to_message,
+      replying_to_user_member_id,
+      replying_message_message_id
     ) => {
       await Reply_A_SpecificMessageFunction(
         AuthToken,
@@ -87,174 +102,134 @@ function ServerFooterBar() {
         channelId,
         message,
         message_id,
-        Replying_To_UserName
+        replying_to_message,
+        replying_to_user_member_id,
+        replying_message_message_id
       );
       setLoading(false);
       setMessage("");
-      remove_Edit_Message_State_StateInfo();
+      remove_editingAMessage_StateInfo();
     },
     350
   );
-  // editing a replay message using the debounce hook
-  const EditMessageRepliesWithDebounce = useDebounce(
-    async (
-      AuthToken: string,
-      message_id: string,
-      message_replay_id: string,
-      content: string
-    ) => {
-      await Edit_MessageReplayFunction(
-        AuthToken,
-        message_id,
-        message_replay_id,
-        content
-      );
-      setLoading(false);
-      setMessage("");
-      remove_Edit_Message_State_StateInfo();
+
+  const OnFormSubmit = useCallback(
+    async (e) => {
+      setLoading(true);
+      e.preventDefault();
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const serverId = Pathname?.split("/")[3];
+      const channel_id = CurrentChatChannelInfo?.ChatId;
+
+      SendMessageWithDebounce(AuthToken, serverId, channel_id, Message);
     },
-    200
+    [Message, Pathname, CurrentChatChannelInfo, SendMessageWithDebounce]
   );
 
-  const remove_Edit_Message_State_StateInfo = () => {
-    setEdit_Message_State({
-      Is_Editing: false as boolean,
-      MessageId: "" as string,
-      Message: "" as string,
-      ChannelId: "" as string,
-      UserId: "" as string,
-      UserName: "" as string,
-      FullName: "" as string,
-      Profile_Picture: "" as string,
-    });
-    setReply_A_Specific_Message_State({
-      Is_Replying: false as boolean,
-      MessageId: "" as string,
-      Message: "" as string,
-      ChannelId: "" as string,
-      UserId: "" as string,
-      UserName: "" as string,
-      FullName: "" as string,
-      Profile_Picture: "" as string,
-    });
-  };
-  const OnFormSubmit = async (e) => {
-    setLoading(true);
-    e.preventDefault();
-    const AuthToken = getCookie("User_Authentication_Token") as string;
+  const Edit_SpecificMessage = useCallback(
+    async (e) => {
+      setLoading(true);
+      e.preventDefault();
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const message_id = editingAMessage?.data?.id;
 
-    const serverId = Pathname?.split("/")[3];
-    const channel_id = CurrentChatChannelInfo?.ChatId;
-    const message = Message;
+      EditMessageWithDebounce(AuthToken, message_id, Message);
+    },
+    [Message, editingAMessage, EditMessageWithDebounce]
+  );
 
-    SendMessageWithDebounce(AuthToken, serverId, channel_id, message);
-  };
+  const Replay_Message_OnSubmit = useCallback(
+    async (e) => {
+      setLoading(true);
+      e.preventDefault();
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const serverId = Pathname?.split("/")[3];
+      const channel_id = CurrentChatChannelInfo?.ChatId;
+      const replying_to_message = replyingASpecificMessage?.data?.content;
+      const replying_to_user_member_id =
+        replyingASpecificMessage?.data?.member?.id;
+      const replying_message_message_id = replyingASpecificMessage?.data?.id;
 
-  const Edit_SpecificMessage = async (e) => {
-    setLoading(true);
-    e.preventDefault();
-    const AuthToken = getCookie("User_Authentication_Token") as string;
-    const message_id = Edit_Message_State?.MessageId;
-    const message = Message;
-    const Current_Page = Edit_Message_State?.current_page;
-
-    EditMessageWithDebounce(AuthToken, message_id, message, Current_Page);
-    
-  };
-
-  const Replay_Message_OnSubmit = async (e) => {
-    setLoading(true);
-    e.preventDefault();
-    const AuthToken = getCookie("User_Authentication_Token") as string;
-    const message_id = Reply_A_Specific_Message_State?.MessageId;
-    const Replying_To_UserName = Reply_A_Specific_Message_State?.UserName;
-    const serverId = Pathname?.split("/")[3];
-    const channel_id = CurrentChatChannelInfo?.ChatId;
-    const message = Message;
-    // replying_to_message,
-
-    // Replying_to_user_member_id,
-    ReplayMessageWithDebounce(
-      AuthToken,
-      serverId,
-      channel_id,
-      message,
-      message_id,
-      Replying_To_UserName
-    );
-  };
-
-  const Edit_A_Replied_Message = async (e) => {
-    e.preventDefault();
-    const AuthToken = getCookie("User_Authentication_Token") as string;
-    const message_id = Edit_Message_State?.MessageId;
-    const message_replay_id = Edit_Message_State?.Edit_Replay_Message_Id;
-    const content = Message;
-
-    EditMessageRepliesWithDebounce(
-      AuthToken,
-      message_id,
-      message_replay_id,
-      content
-    );
-    console.log("Edit_A_Replied_Message");
-  };
+      ReplayMessageWithDebounce(
+        AuthToken,
+        serverId,
+        channel_id,
+        Message,
+        replying_to_message,
+        replying_to_user_member_id,
+        replying_message_message_id
+      );
+    },
+    [
+      Message,
+      Pathname,
+      CurrentChatChannelInfo,
+      replyingASpecificMessage,
+      ReplayMessageWithDebounce,
+    ]
+  );
 
   const InputFiledChanged = useCallback(
     (e) => {
       setMessage(e.target.value);
 
-      const Data = {
-        user_info: {
-          FullName: UserInformation?.FullName,
-          UserName: UserInformation?.UserName,
-          id: UserInformation?.id,
-        },
-        chat_info: CurrentChatChannelInfo,
-        is_group_chat: true,
-      };
       if (!Typing) {
         setTyping(true);
-
         socket?.emit("StartTyping", Data);
       }
-      let TypingStartTime = new Date().getTime();
-      let WaitingTime = 3000;
+
+      const TypingStartTime = new Date().getTime();
+      const WaitingTime = 3000;
+
       setTimeout(() => {
-        let CurrentTime = new Date().getTime();
-        let Diff = CurrentTime - TypingStartTime;
+        const CurrentTime = new Date().getTime();
+        const Diff = CurrentTime - TypingStartTime;
+
         if (Diff >= WaitingTime && Typing) {
           socket?.emit("StopTyping", Data);
           setTyping(false);
         }
       }, WaitingTime);
     },
-    [socket, Typing, UserInformation]
+    [Typing, socket, Data]
+  );
+  const decryptContent = useCallback(
+    (encryptedContent) => {
+      try {
+        const bytes = CryptoJS.AES.decrypt(encryptedContent, SECRET_KEY);
+        const originalContent = bytes.toString(CryptoJS.enc.Utf8);
+        return originalContent;
+      } catch (error) {
+        console.error("Decryption error:", error);
+        return null;
+      }
+    },
+    [SECRET_KEY]
   );
   useEffect(() => {
-    setMessage(Edit_Message_State?.Message);
-  }, [Edit_Message_State]);
+    if (editingAMessage?.data?.content) {
+      setMessage(decryptContent(editingAMessage?.data?.content));
+    }
+  }, [decryptContent, editingAMessage]);
 
-  return (
-    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[2] ">
-      {(Edit_Message_State.Is_Editing ||
-        Reply_A_Specific_Message_State?.Is_Replying) && (
+  const ReplyingOrEditingCommonComponent = (data: any) => {
+    if (data.content) {
+      return (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
           <div className="flex items-start">
             <div className="profile">
               <Avatar className="w-[40px] h-[40px] ">
                 <AvatarImage
-                  src={
-                    Edit_Message_State.Is_Editing
-                      ? Edit_Message_State?.Profile_Picture
-                      : Reply_A_Specific_Message_State?.Profile_Picture
-                  }
+                  src={data?.member?.user?.Profile_Picture}
                   className="w-[100%] h-[100%]"
                 />
-                <AvatarFallback className="capitalize font-medium text-[15px]">
-                  {Edit_Message_State.Is_Editing
-                    ? Edit_Message_State?.FullName?.split("")[0]
-                    : Reply_A_Specific_Message_State?.FullName?.split("")[0]}
+                <AvatarFallback
+                  className="capitalize font-medium text-[15px]"
+                  style={{
+                    backgroundColor: data?.member?.user?.ProfileBgColor,
+                  }}
+                >
+                  {data?.member?.user?.FullName?.slice(0, 1)}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -263,22 +238,13 @@ function ServerFooterBar() {
                 <div className="head   flex items-center justify-start gap-[10px]">
                   <div className="username">
                     <p className="text-white global-font-roboto text-[14px] font-[400]  capitalize ">
-                      {Edit_Message_State.Is_Editing
-                        ? Edit_Message_State?.UserId === UserInformation?.id
-                          ? "You"
-                          : Edit_Message_State?.UserName
-                        : Reply_A_Specific_Message_State?.UserId ===
-                          UserInformation?.id
-                        ? "You"
-                        : Reply_A_Specific_Message_State?.UserName}
+                      {data?.member?.user?.UserName}
                     </p>
                   </div>
                 </div>
                 <div className="message">
                   <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
-                    {Edit_Message_State.Is_Editing
-                      ? Edit_Message_State?.Message
-                      : Reply_A_Specific_Message_State?.Message}
+                    {decryptContent(data?.content)}
                   </p>
                 </div>
               </div>
@@ -287,13 +253,24 @@ function ServerFooterBar() {
           <div className="close">
             <button
               className="w-[32px] h-[32px] flex justify-center items-center  rounded-full text-white"
-              onClick={remove_Edit_Message_State_StateInfo}
+              onClick={remove_editingAMessage_StateInfo}
             >
               <IoIosCloseCircle className="w-[32px] h-[32px]" />
             </button>
           </div>
         </div>
-      )}
+      );
+    }
+  };
+
+  return (
+    <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[2] ">
+      {editingAMessage?.is_Editing && !replyingASpecificMessage?.is_Replying
+        ? ReplyingOrEditingCommonComponent(editingAMessage?.data)
+        : null}
+      {replyingASpecificMessage?.is_Replying && !editingAMessage?.is_Editing
+        ? ReplyingOrEditingCommonComponent(replyingASpecificMessage?.data)
+        : null}
       <div className="w-[100%] h-[100%] py-[5px] bg-[#41464f] px-[12px] rounded-[5px]">
         <div className="w-[100%] flex gap-[5px] ">
           <button className="min-w-[32px] h-[32px] flex justify-center items-center bg-gray-400 rounded-full group">
@@ -302,11 +279,9 @@ function ServerFooterBar() {
           <div className="w-[100%]">
             <form
               onSubmit={
-                Edit_Message_State.Is_Editing
-                  ? Edit_Message_State.Editing_Replay
-                    ? Edit_A_Replied_Message
-                    : Edit_SpecificMessage
-                  : Reply_A_Specific_Message_State?.Is_Replying
+                editingAMessage.is_Editing
+                  ? Edit_SpecificMessage
+                  : replyingASpecificMessage?.is_Replying
                   ? Replay_Message_OnSubmit
                   : OnFormSubmit
               }
@@ -316,7 +291,7 @@ function ServerFooterBar() {
                 type="text"
                 className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
                 placeholder={`Message #${CurrentChatChannelInfo?.ChatName}`}
-                value={Message === "" ? "" : Message}
+                value={Message || ""}
                 onChange={InputFiledChanged}
                 disabled={Loading}
                 ref={InputFiledRef}
@@ -331,5 +306,4 @@ function ServerFooterBar() {
     </div>
   );
 }
-
 export default ServerFooterBar;
