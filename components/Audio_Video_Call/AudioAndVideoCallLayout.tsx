@@ -5,6 +5,7 @@ import { Context } from "@/context/ContextApi";
 import JoinAnOngoingMeeting from "./JoinAnOngoingMeeting";
 import { getCookie } from "cookies-next";
 import SpinnerComponent from "../Loader/SpinnerComponent";
+import { VideoAudioCallContext } from "@/context/CallContextApi";
 
 function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
   const {
@@ -14,7 +15,11 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
     AnIncoming_VideoCall_Occurred,
     ANew_AudioMeeting_HasBeenStarted,
     AnIncoming_AudioCall_Occurred,
+    CurrentChatChannelInfo,
   } = useContext(Context) as any;
+  const { stopVideoTrackFunction, stopAudioTrackFunction } = useContext(
+    VideoAudioCallContext
+  ) as any;
 
   const InComingAudioCall =
     AnIncoming_AudioCall_Occurred?.Meeting_Initiator_Info
@@ -31,6 +36,13 @@ function AudioAndVideoCallLayout({ Call_Type }: { Call_Type: string }) {
       UserInfoFetchingFunction(AuthToken);
     }
   }, []);
+
+  useEffect(() => {
+    if (CurrentChatChannelInfo.ChatType === "TEXT") {
+      stopAudioTrackFunction();
+      stopVideoTrackFunction();
+    }
+  }, [CurrentChatChannelInfo, stopAudioTrackFunction, stopVideoTrackFunction]);
 
   if (!UserInformation)
     return (

@@ -27,6 +27,9 @@ const ShowChannelMessage = memo(
     const socket = UseSocketIO();
     const [Page, setPage] = useState(1);
     const [Limit, setLimit] = useState(10);
+    const [scrollingToTheMessage, setScrollingToTheMessage] = useState(
+      "" as string
+    );
 
     const [Previous_ChannelId, setPrevious_ChannelId] = useState("" as string);
     const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
@@ -145,7 +148,6 @@ const ShowChannelMessage = memo(
         }
       });
       socket?.on("EmitMessageHasBeenEditedSuccessfully", async (data) => {
-        console.log("Data from socket", data);
         if (data?.response?.success) {
           const updatedMessage = data?.response?.data;
 
@@ -210,11 +212,14 @@ const ShowChannelMessage = memo(
                         </div>
                         <div className="w-[100%] flex flex-col gap-[8px]">
                           {messages?.map((message) => {
-                            console.log("Message", message);
                             return (
                               <Message
                                 key={message?.id}
                                 MessageData={message}
+                                scrollingToTheMessage={scrollingToTheMessage}
+                                setScrollingToTheMessage={
+                                  setScrollingToTheMessage
+                                }
                               />
                             );
                           })}

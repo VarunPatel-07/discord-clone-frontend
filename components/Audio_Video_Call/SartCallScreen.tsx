@@ -27,13 +27,8 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   const {
     MeetingID,
     setMeetingID,
-    Video_Stream,
-    Audio_Stream,
-    audioRef,
-    videoRef,
     GetVideoTrackFunction,
     GetAudioTrackFunction,
-    Loader,
     onDeviceChanged,
     ShowSelectMicModal,
     setShowSelectMicModal,
@@ -50,8 +45,11 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
     StartCall,
     setStartCall,
   } = useContext(VideoAudioCallContext) as any;
-
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const socket = UseSocketIO();
+  const [video_Stream, setVideo_Stream] = useState(null as any);
+  const [audio_Stream, setAudio_Stream] = useState(null as any);
 
   const {
     UserInformation,
@@ -161,10 +159,18 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
         });
 
         if (Web_cams.length >= 1) {
-          GetVideoTrackFunction(SelectedCamera.deviceId);
+          const res = GetVideoTrackFunction(SelectedCamera.deviceId);
+          setVideo_Stream(res);
+          if (videoRef.current) {
+            videoRef.current.srcObject = res;
+          }
         }
         if (mics.length >= 1) {
-          GetAudioTrackFunction(SelectedMicrophone.deviceId);
+          const res = GetAudioTrackFunction(SelectedMicrophone.deviceId);
+          setAudio_Stream(res);
+          if (audioRef.current) {
+            audioRef.current.srcObject = res;
+          }
         }
 
         setAvailableCameras(Web_cams);
@@ -182,7 +188,17 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
         await fetchDevices();
       }
     })();
-  }, [Is_Mic_Permitted, Is_Video_Permitted]);
+  }, [
+    GetAudioTrackFunction,
+    GetVideoTrackFunction,
+    Is_Mic_Permitted,
+    Is_Video_Permitted,
+    checkAndSetPermissions,
+    getCameras,
+    getMicrophones,
+    setSelectedCamera,
+    setSelectedMicrophone,
+  ]);
 
   // Now All The Things IS Completed Then After User Has Been Clicked The  Start Call We Will Do Three Thing First Thing We will get the meeting id  ,  second Thing Is To Set The Local State "ANew_VideoMeeting_HasBeenStarted" and After the Meeting ID Has been Generated  Local State Has Been Set Then We Will Use Socket.io To Send The Meeting Info Like {CallInitiatorInfo,RoomId,ServerInfo,ChannelInfo} To All The Person Of The Server
   const SendMeetingIdToTheMemberOfTheServer = useCallback(
@@ -255,8 +271,8 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   return (
     <MeetingProvider
       config={{
-        customCameraVideoTrack: Video_Stream,
-        customMicrophoneAudioTrack: Audio_Stream,
+        customCameraVideoTrack: video_Stream,
+        customMicrophoneAudioTrack: audio_Stream,
         debugMode: true,
         micEnabled: MicOn,
         webcamEnabled: Call_Type === "AUDIO" ? false : VideoOn,
@@ -303,7 +319,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
                 ) : (
                   <div className="w-[100%] h-[100%] video-wrapper">
                     <ReactPlayer
-                      url={Video_Stream}
+                      url={video_Stream}
                       playsinline // extremely crucial prop
                       pip={false}
                       light={false}

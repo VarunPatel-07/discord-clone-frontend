@@ -79,7 +79,15 @@ interface Server {
   members: Member[];
 }
 
-function Message({ MessageData }: { MessageData: MessageProps }) {
+function Message({
+  MessageData,
+  scrollingToTheMessage,
+  setScrollingToTheMessage,
+}: {
+  MessageData: MessageProps;
+  scrollingToTheMessage: string;
+  setScrollingToTheMessage: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const { DeleteMessageFunction, UserInformation } = useContext(Context) as any;
 
   const DeleteMessage_With_Debounce = useDebounce(
@@ -101,6 +109,8 @@ function Message({ MessageData }: { MessageData: MessageProps }) {
         MessageSendBySender={
           MessageData?.member?.user?.id === UserInformation?.id ? true : false
         }
+        scrollingToTheMessage={scrollingToTheMessage}
+        setScrollingToTheMessage={setScrollingToTheMessage}
       />
     </div>
   );

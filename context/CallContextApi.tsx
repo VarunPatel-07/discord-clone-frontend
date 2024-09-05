@@ -103,6 +103,8 @@ interface ContextApiProps {
   >;
 
   onDeviceChanged: (devices, device_type?) => void;
+  stopVideoTrackFunction: () => void;
+  stopAudioTrackFunction;
 }
 
 const VideoAudioCallContext = createContext<ContextApiProps | undefined>(
@@ -173,27 +175,27 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
 
   const GetVideoTrackFunction = async (devicesId) => {
     try {
-      setLoader(true);
+      // setLoader(true);
       const Video_Track = await getVideoMediaTrack(devicesId);
-      console.log("Video_Track", Video_Track);
-      console.log("Video_Track", videoRef.current);
       if (!Video_Track) return;
-      setVideo_Stream(Video_Track);
-      if (videoRef.current) {
-        videoRef.current.srcObject = Video_Track;
-      }
-      setLoader(false);
+      return Video_Track;
+      // setLoader(false);
     } catch (err) {
       console.log(err);
     }
   };
   const stopVideoTrackFunction = () => {
-    if (Video_Stream) {
-      let tracks = Video_Stream.getTracks();
-      tracks.forEach((track) => track.stop());
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
+    try {
+      console.log("stop video track function");
+      if (Video_Stream) {
+        let tracks = Video_Stream.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const GetAudioTrackFunction = async (devicesId) => {
@@ -210,12 +212,16 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
   const stopAudioTrackFunction = () => {
-    if (Audio_Stream) {
-      const tracks = Audio_Stream.getTracks();
-      tracks.forEach((track) => track.stop());
-    }
-    if (audioRef.current) {
-      audioRef.current.srcObject = null;
+    try {
+      if (Audio_Stream) {
+        const tracks = Audio_Stream.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+      if (audioRef.current) {
+        audioRef.current.srcObject = null;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const onDeviceChanged = (devices, device_type?) => {
@@ -293,6 +299,8 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
       setANewParticipant_Notification as React.Dispatch<
         React.SetStateAction<Notification[]>
       >,
+    stopVideoTrackFunction,
+    stopAudioTrackFunction,
   };
   return (
     <VideoAudioCallContext.Provider value={context_value}>

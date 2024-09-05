@@ -86,6 +86,12 @@ function ListOfAllTheServerChannel({
     });
   };
 
+  useEffect(() => {
+    if (CurrentChatChannelInfo?.ChatType === "AUDIO") {
+    } else if (CurrentChatChannelInfo?.ChatType === "VIDEO") {
+    }
+  }, [CurrentChatChannelInfo]);
+
   return (
     <div className="w-[100%]    flex flex-col items-start justify-start overflow-auto gap-[10px]">
       {AllTheTextChannelsOfTheServer?.length > 0 && (

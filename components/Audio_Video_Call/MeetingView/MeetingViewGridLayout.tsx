@@ -208,6 +208,7 @@ function MeetingViewGridLayout({
                   )
                   .map((participantId) => (
                     <div
+                      key={participantId}
                       className={`w-[100%] h-[100%] overflow-hidden rounded-[10px] ${
                         ActiveSpeakerId === participantId
                           ? "border-[2px] border-red-600"
@@ -224,7 +225,6 @@ function MeetingViewGridLayout({
                           setCurrent_AudioCall_Participant_Info
                         }
                         Call_Type={Call_Type}
-                        key={participantId}
                       />
                     </div>
                   ))}

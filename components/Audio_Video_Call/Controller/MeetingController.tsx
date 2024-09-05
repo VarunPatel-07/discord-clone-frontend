@@ -39,6 +39,8 @@ function MeetingController({
     ParticipantMicYouWantToMute,
     setParticipantWebcamYouWantToDisable,
     setParticipantMicYouWantToMute,
+    stopVideoTrackFunction,
+    stopAudioTrackFunction,
   } = useContext(VideoAudioCallContext) as any;
 
   const { toggleMic, toggleWebcam, end, leave, participants } = useMeeting({
@@ -71,6 +73,7 @@ function MeetingController({
   const EndTheVideoCall = async () => {
     console.log("End the call");
     end();
+
     try {
       if (Call_Type === "AUDIO") {
         if (getCookie("An_Incoming_AudioCall")) {
