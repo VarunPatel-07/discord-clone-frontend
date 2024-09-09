@@ -40,12 +40,15 @@ function Dashboard() {
   //
   //
   //   ? using the useEffect
+
+  const fetchingDataWithDebounce = useDebounce(
+    async (AuthToken: string, userState: string) => {
+      await FetchTheUserOnTheBaseOfDemand(AuthToken, userState);
+      setShowLoader(false);
+    },
+    350
+  );
   useEffect(() => {
-    setGlobalMetaTagHandler({
-      Title: "Dashboard" as string,
-      Description: "This is the Dashboard Page" as string,
-      Keywords: "" as string,
-    });
     const checkStatus = async () => {
       try {
         const status = await CheckUsersLoginStatus();
@@ -64,14 +67,8 @@ function Dashboard() {
     setShowLoader(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
     fetchingDataWithDebounce(AuthToken, "all");
-  }, [setGlobalMetaTagHandler]);
-  const fetchingDataWithDebounce = useDebounce(
-    async (AuthToken: string, userState: string) => {
-      await FetchTheUserOnTheBaseOfDemand(AuthToken, userState);
-      setShowLoader(false);
-    },
-    350
-  );
+  }, []);
+
   const ClickTheToFetchTheFriendType = async (userState: string) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     setShowLoader(true);

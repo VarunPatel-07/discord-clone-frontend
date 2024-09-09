@@ -1,15 +1,8 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Context } from "@/context/ContextApi";
+import { NotificationType } from "@/enums/enums";
 import React, { useContext } from "react";
-
-enum NotificationType {
-  FOLLOW,
-  NORMAL,
-  MESSAGE,
-  FRIEND_REQUEST,
-  ERROR,
-}
 
 interface GlobalNotification {
   id: string;
@@ -24,7 +17,10 @@ interface GlobalNotification {
   ProfileBgColor: string;
   ProfileBanner_Color: string;
 }
-
+const is_Normal_Notification = [
+  NotificationType.NORMAL,
+  NotificationType.MESSAGE_SUCCESS,
+];
 function GlobalSuccessNotification() {
   const { GlobalSuccessNotification } = useContext(Context) as any;
   return (
@@ -33,12 +29,16 @@ function GlobalSuccessNotification() {
         {GlobalSuccessNotification.map((notification: GlobalNotification) => {
           return (
             <div
-              className="w-fit h-fit bg-white px-[10px] py-[8px] rounded-[8px] animate-enter"
+              className={`w-fit h-fit ${
+                notification.Type === NotificationType.MESSAGE_SUCCESS
+                  ? "bg-green-400 border-[1px] border-green-600"
+                  : "bg-white"
+              } px-[10px] py-[8px] rounded-[8px] animate-enter`}
               key={notification.id}
               id={notification.id}
             >
               <div className="flex items-center justify-center gap-[12px]">
-                {notification.Type !== NotificationType.NORMAL && (
+                {!is_Normal_Notification.includes(notification.Type) && (
                   <div className="profile">
                     <Avatar
                       className="w-[40px] h-[40px] flex items-center justify-center rounded-full"

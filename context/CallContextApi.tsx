@@ -201,12 +201,8 @@ const VideoAudioCallContextProvider: React.FC<{ children: ReactNode }> = ({
   const GetAudioTrackFunction = async (devicesId) => {
     try {
       const audio_track = await getAudioMediaTrack(devicesId);
-
-      setAudio_Stream(audio_track);
       if (!audio_track) return;
-      if (audioRef.current) {
-        audioRef.current.srcObject = audio_track;
-      }
+      return audio_track;
     } catch (error) {
       console.log(error);
     }

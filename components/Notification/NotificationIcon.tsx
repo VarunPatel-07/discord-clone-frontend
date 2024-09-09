@@ -14,13 +14,7 @@ import axios from "axios";
 import { getCookie } from "cookies-next";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
-enum NotificationType {
-  FOLLOW,
-  NORMAL,
-  MESSAGE,
-  FRIEND_REQUEST,
-  ERROR,
-}
+import { NotificationType } from "@/enums/enums";
 
 function NotificationIcon() {
   const [Loading, setLoading] = useState(false);

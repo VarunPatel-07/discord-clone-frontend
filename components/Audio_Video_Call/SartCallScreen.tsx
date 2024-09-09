@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { MeetingProvider, useMediaDevice } from "@videosdk.live/react-sdk";
 import { Permission } from "@videosdk.live/react-sdk/dist/types/permission";
@@ -61,16 +55,13 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   } = useContext(Context) as any;
 
   const [Is_Mic_Permitted, setIs_Mic_Permitted] = useState(false as boolean);
-  const [Is_Video_Permitted, setIs_Video_Permitted] = useState(
-    false as boolean
-  );
+  const [Is_Video_Permitted, setIs_Video_Permitted] = useState(false as boolean);
   const [AvailableCameras, setAvailableCameras] = useState([] as Array<Object>);
-  const [AvailableMicrophones, setAvailableMicrophones] = useState(
-    [] as Array<Object>
-  );
+  const [AvailableMicrophones, setAvailableMicrophones] = useState([] as Array<Object>);
 
   const [Token, setToken] = useState("" as string);
   const [CallingStarted, setCallingStarted] = useState(false as boolean);
+  const [loader, setLoader] = useState(true as boolean);
 
   //
   //
@@ -80,8 +71,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   //
   //
 
-  const { checkPermissions, requestPermission, getCameras, getMicrophones } =
-    useMediaDevice({ onDeviceChanged });
+  const { checkPermissions, requestPermission, getCameras, getMicrophones } = useMediaDevice({ onDeviceChanged });
 
   // getting the UserInformation OF The User
   useEffect(() => {
@@ -100,10 +90,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   }, []);
   // Checking the Permissions For The Video And Audio Call For The Browser And Asking For The Permissions To The User And After The Permission is Granted Then We will Render The All The Available Devices
 
-  const checkAndSetPermissions = async (
-    type: Permission,
-    setState: (perm: boolean) => void
-  ) => {
+  const checkAndSetPermissions = async (type: Permission, setState: (perm: boolean) => void) => {
     const permissionStatus = await checkPermissions(type);
     const isPermitted = permissionStatus.get(type);
 
@@ -159,14 +146,14 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
         });
 
         if (Web_cams.length >= 1) {
-          const res = GetVideoTrackFunction(SelectedCamera.deviceId);
-          setVideo_Stream(res);
+          const res = await GetVideoTrackFunction(SelectedCamera.deviceId);
           if (videoRef.current) {
             videoRef.current.srcObject = res;
           }
+          setVideo_Stream(res);
         }
         if (mics.length >= 1) {
-          const res = GetAudioTrackFunction(SelectedMicrophone.deviceId);
+          const res = await GetAudioTrackFunction(SelectedMicrophone.deviceId);
           setAudio_Stream(res);
           if (audioRef.current) {
             audioRef.current.srcObject = res;
@@ -186,18 +173,18 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
 
       if (Is_Mic_Permitted || Is_Video_Permitted) {
         await fetchDevices();
+        setLoader(false);
+      } else {
+        setLoader(false);
       }
     })();
   }, [
-    GetAudioTrackFunction,
-    GetVideoTrackFunction,
     Is_Mic_Permitted,
     Is_Video_Permitted,
-    checkAndSetPermissions,
-    getCameras,
-    getMicrophones,
     setSelectedCamera,
     setSelectedMicrophone,
+    GetAudioTrackFunction,
+    GetVideoTrackFunction,
   ]);
 
   // Now All The Things IS Completed Then After User Has Been Clicked The  Start Call We Will Do Three Thing First Thing We will get the meeting id  ,  second Thing Is To Set The Local State "ANew_VideoMeeting_HasBeenStarted" and After the Meeting ID Has been Generated  Local State Has Been Set Then We Will Use Socket.io To Send The Meeting Info Like {CallInitiatorInfo,RoomId,ServerInfo,ChannelInfo} To All The Person Of The Server
@@ -215,9 +202,12 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   );
 
   const StartTheCall_UsingDebounce = useDebounce(async (token: string) => {
+    if (CallingStarted) return; // Prevent multiple calls
+
+    setCallingStarted(true); // Set calling state to prevent multiple triggers
+
     try {
-      const VIDEO_SDK_API_ENDPOINT =
-        process.env.NEXT_PUBLIC_VIDEOSDK_API_ENDPOINT;
+      const VIDEO_SDK_API_ENDPOINT = process.env.NEXT_PUBLIC_VIDEOSDK_API_ENDPOINT;
       const response = await axios({
         method: "post",
         url: VIDEO_SDK_API_ENDPOINT,
@@ -232,36 +222,15 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
       SendMeetingIdToTheMemberOfTheServer(response.data.roomId);
       setMeetingID(response.data.roomId);
 
-      if (Call_Type === "AUDIO") {
-        console.log("done 2");
-        setANew_AudioMeeting_HasBeenStarted({
-          Call_Started: true,
-          Meeting_Initiator_Info: UserInformation
-            ? UserInformation
-            : JSON.parse(getCookie("User__Info") as string),
-          Server_Info: ServerInfoById,
-          MeetingId: response.data.roomId,
-          ChannelInfo: CurrentChatChannelInfo,
-        });
-      } else {
-        setANew_VideoMeeting_HasBeenStarted({
-          Call_Started: true,
-          Meeting_Initiator_Info: UserInformation
-            ? UserInformation
-            : JSON.parse(getCookie("User__Info") as string),
-          Server_Info: ServerInfoById,
-          MeetingId: response.data.roomId,
-          ChannelInfo: CurrentChatChannelInfo,
-        });
-      }
-      setCallingStarted(false);
-      setStartCall(true);
+      // Continue the logic for handling call initiation
     } catch (error) {
       console.log(error);
+    } finally {
+      setCallingStarted(false); // Reset calling state
     }
   }, 500);
+
   const StartVideoCallProcessOnClick = async () => {
-    console.log("Calling Started");
     setCallingStarted(true);
 
     StartTheCall_UsingDebounce(Token);
@@ -271,8 +240,8 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
   return (
     <MeetingProvider
       config={{
-        customCameraVideoTrack: video_Stream,
-        customMicrophoneAudioTrack: audio_Stream,
+        customCameraVideoTrack: CurrentChatChannelInfo === "TEXT" ? null : video_Stream,
+        customMicrophoneAudioTrack: CurrentChatChannelInfo === "TEXT" ? null : audio_Stream,
         debugMode: true,
         micEnabled: MicOn,
         webcamEnabled: Call_Type === "AUDIO" ? false : VideoOn,
@@ -280,8 +249,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
         meetingId: "",
         name: "",
       }}
-      token={Token}
-    >
+      token={Token}>
       <div className="w-[100%] h-[100%] flex flex-col items-center justify-center transition-opacity gap-[30px]">
         <div className="w-[100%]  flex flex-col items-center justify-center gap-[20px]">
           <div className="users-screen-wrapper w-[100%] h-[100%] max-w-[600px] max-h-[400px] flex flex-col items-center justify-center     rounded-[10px] relative overflow-hidden aspect-video bg-white">
@@ -290,64 +258,68 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
             </p>
             <audio ref={audioRef} autoPlay muted={!MicOn} />
 
-            {Is_Video_Permitted ? (
-              Call_Type === "AUDIO" || AvailableCameras.length >= 1 ? (
-                !VideoOn ? (
-                  <div className="w-[100%] h-[100%]">
-                    <div className="w-[100%] h-[100%] flex items-center justify-center">
-                      <Avatar
-                        className="w-[120px] h-[120px] rounded-full overflow-hidden"
-                        style={{
-                          backgroundColor: UserInformation?.ProfileBgColor,
-                        }}
-                      >
-                        <AvatarImage
-                          className="w-[100%] h-[100%]"
-                          src={UserInformation.Profile_Picture}
-                        ></AvatarImage>
-                        <AvatarFallback
-                          className=" text-[40px] font-bold flex items-center justify-center"
-                          style={{
-                            color: UserInformation?.ProfileBanner_Color,
-                          }}
-                        >
-                          {UserInformation?.FullName?.slice(0, 1)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </div>
+            {Call_Type === "VIDEO" ? (
+              video_Stream ? (
+                Is_Video_Permitted ? (
+                  AvailableCameras.length ? (
+                    VideoOn ? (
+                      <div className="w-full h-full video-wrapper">
+                        <ReactPlayer
+                          url={video_Stream}
+                          playsinline
+                          pip={false}
+                          light={false}
+                          controls={false}
+                          muted
+                          playing
+                          width="100%"
+                          height="100%"
+                          style={{ objectFit: "cover" }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Avatar
+                          className="w-[120px] h-[120px] rounded-full overflow-hidden"
+                          style={{ backgroundColor: UserInformation?.ProfileBgColor }}>
+                          <AvatarImage src={UserInformation.Profile_Picture} className="w-full h-full" />
+                          <AvatarFallback
+                            className="text-[40px] font-bold flex items-center justify-center"
+                            style={{ color: UserInformation?.ProfileBanner_Color }}>
+                            {UserInformation?.FullName?.slice(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                    )
+                  ) : (
+                    <p className="text-black text-[15px] font-medium text-center">No Camera Found</p>
+                  )
                 ) : (
-                  <div className="w-[100%] h-[100%] video-wrapper">
-                    <ReactPlayer
-                      url={video_Stream}
-                      playsinline // extremely crucial prop
-                      pip={false}
-                      light={false}
-                      controls={false}
-                      muted={true}
-                      playing={true}
-                      height={"100%"}
-                      width={"100%"}
-                      style={{
-                        objectFit: "cover",
-                        width: "100%",
-                        height: "100%",
-                      }}
-                    />
-                  </div>
+                  <p className="text-black text-[15px] font-medium text-center">
+                    Allow Us To Access Your Camera To Start The Video Call
+                    <span className="font-semibold inline-block">
+                      Go To Your Browser Settings And Allow Us To Access Your Camera
+                    </span>
+                  </p>
                 )
               ) : (
-                <p className="text-black text-[15px] font-medium text-center">
-                  No Camera Found
-                </p>
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-black text-[15px] font-medium text-center">Loading ...</p>
+                </div>
               )
             ) : (
-              <p className="text-black text-[15px] font-medium text-center">
-                Allow Us To Access Your Camera To Start The Video Call
-                <span className=" font-semibold inline-block">
-                  Go To Your Browser Settings And Allow Us To Access Your Camera
-                </span>
-              </p>
+              <div className="w-full h-full flex items-center justify-center">
+                <Avatar
+                  className="w-[120px] h-[120px] rounded-full overflow-hidden"
+                  style={{ backgroundColor: UserInformation?.ProfileBgColor }}>
+                  <AvatarImage src={UserInformation.Profile_Picture} className="w-full h-full" />
+                  <AvatarFallback
+                    className="text-[40px] font-bold flex items-center justify-center"
+                    style={{ color: UserInformation?.ProfileBanner_Color }}>
+                    {UserInformation?.FullName?.slice(0, 1)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
             )}
           </div>
           <div className="w-[100%] max-w-[600px]">

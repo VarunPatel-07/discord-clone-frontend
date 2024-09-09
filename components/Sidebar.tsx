@@ -10,15 +10,9 @@ import { getCookie, setCookie } from "cookies-next";
 import { MdExplore } from "react-icons/md";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import { NotificationType } from "@/enums/enums";
 
 function Sidebar() {
-  enum NotificationType {
-    FOLLOW,
-    NORMAL,
-    MESSAGE,
-    FRIEND_REQUEST,
-    ERROR,
-  }
 
   const { push } = useRouter();
   const {

@@ -5,14 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { v4 as uuidv4 } from "uuid";
-
-enum NotificationType {
-  FOLLOW,
-  NORMAL,
-  MESSAGE,
-  FRIEND_REQUEST,
-  ERROR,
-}
+import { NotificationType } from "@/enums/enums";
 
 interface GlobalNotification {
   id: string;
@@ -1591,6 +1584,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         socket?.emit("NewMessageHasBeenSent", response.data);
+        return response.data.data;
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1623,7 +1617,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        return response.data.Data.messages;
+        return response.data.Data;
       }
     } catch (error) {
       GlobalErrorHandler(error);

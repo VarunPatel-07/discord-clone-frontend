@@ -15,7 +15,14 @@ import React, {
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { IoIosCloseCircle, IoMdAdd } from "react-icons/io";
 import CryptoJS from "crypto-js";
-function ServerFooterBar() {
+import { MessageProps } from "@/interface/MessageProps";
+function ServerFooterBar({
+  ChannalMessages,
+  setChannalMessages,
+}: {
+  ChannalMessages: Array<Object>;
+  setChannalMessages: React.Dispatch<React.SetStateAction<Array<Object>>>;
+}) {
   const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
   const Pathname = usePathname();
   const {
@@ -63,12 +70,20 @@ function ServerFooterBar() {
 
   const SendMessageWithDebounce = useDebounce(
     async (AuthToken, serverId, channelId, message) => {
-      await SendMessageInTheSelectedChannelOfServer(
+      const _newMessage = await SendMessageInTheSelectedChannelOfServer(
         AuthToken,
         serverId,
         channelId,
         message
       );
+      if (!_newMessage) return;
+      console.log(ChannalMessages, _newMessage);
+
+      // Ensure the new message is only added if it's not already in ChannalMessages
+      if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
+        setChannalMessages((prevMessages) => [...prevMessages, _newMessage]);
+      }
+
       setLoading(false);
       setMessage("");
     },
@@ -212,7 +227,7 @@ function ServerFooterBar() {
     }
   }, [decryptContent, editingAMessage]);
 
-  const ReplyingOrEditingCommonComponent = (data: any) => {
+  const ReplyingOrEditingCommonComponent = (data: MessageProps) => {
     if (data.content) {
       return (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
@@ -244,7 +259,9 @@ function ServerFooterBar() {
                 </div>
                 <div className="message">
                   <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
-                    {decryptContent(data?.content)}
+                    {data?.IsDeleted
+                      ? data?.content
+                      : decryptContent(data?.content)}
                   </p>
                 </div>
               </div>

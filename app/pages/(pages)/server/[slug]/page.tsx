@@ -31,7 +31,7 @@ import ServerChatsPlayground from "@/components/ServerChatsSection/ServerChatsPl
 import UseSocketIO from "@/hooks/UseSocketIO";
 
 function ServerDetails() {
-  enum NotificationType {
+  enum setEditingAMessage {
     FOLLOW,
     NORMAL,
     MESSAGE,
@@ -142,7 +142,7 @@ function ServerDetails() {
         if (response?.isInTheCurrentServer) {
           GlobalNotificationHandlerFunction(
             {},
-            NotificationType.NORMAL,
+            setEditingAMessage.NORMAL,
             `You have been removed from the "${response?.serverName}" server`,
             "top-right",
             4000
@@ -161,7 +161,7 @@ function ServerDetails() {
           if (response?.userIsAdmin) {
             GlobalNotificationHandlerFunction(
               {},
-              NotificationType.NORMAL,
+              setEditingAMessage.NORMAL,
               `You Deleted the "${response?.serverName}" server Successfully`
             );
 
@@ -169,7 +169,7 @@ function ServerDetails() {
           } else {
             GlobalNotificationHandlerFunction(
               {},
-              NotificationType.NORMAL,
+              setEditingAMessage.NORMAL,
               `The "${response?.serverName}" server has been deleted by the admin`
             );
             push("/pages/dashboard");
