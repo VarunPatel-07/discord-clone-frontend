@@ -11,7 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FaCaretDown, FaReply } from "react-icons/fa";
 import { IoCopy } from "react-icons/io5";
 import { Edit } from "lucide-react";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdOutlineAddReaction } from "react-icons/md";
 import CryptoJS from "crypto-js";
 import { MessageProps } from "@/interface/MessageProps";
 import { NotificationType } from "@/enums/enums";
@@ -202,7 +202,7 @@ function Message({
             <div className="crude-operation  absolute top-[0px] right-[0px] invisible group-hover:visible z-[5] ">
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  className={`w-[25px] h-[25px] flex items-center justify-center ring-0 border-0 outline-none focus:outline-none focus:ring-0  `}>
+                  className={`w-[25px] h-[25px] flex items-center justify-center ring-0 border-0 outline-none focus:outline-none focus:ring-0 backdrop-blur-[5px] rounded `}>
                   <FaCaretDown className="text-white text-[18px] " />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align={MessageSendBySender ? "end" : "start"}>
@@ -276,6 +276,12 @@ function Message({
                       </span>
                     </DropdownMenuItem>
                   ) : null}
+                  <DropdownMenuItem className=" text-[rgb(255,255,255,0.9)]">
+                    <span className="flex items-center gap-[5px]">
+                      <MdOutlineAddReaction className="w-[18px] h-[18px]" />
+                      <span className="">Reaction</span>
+                    </span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

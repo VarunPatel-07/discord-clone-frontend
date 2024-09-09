@@ -11,11 +11,7 @@ import { IoIosLock, IoMdVideocam } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { ScrollArea } from "./ui/scroll-area";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRouter } from "next/navigation";
 import SpinnerComponent from "./Loader/SpinnerComponent";
 import Link from "next/link";
@@ -62,14 +58,11 @@ function ListOfAllTheServerChannel({
     });
   }, [AllTheTextChannelsOfTheServer, setCurrentChatChannelInfo]);
 
-  const CreatingConversation_With_Debounce = useDebounce(
-    async (AuthToken: String, receiver_id: String) => {
-      await CreateAnOneToOneConversation(AuthToken, receiver_id);
-      // setLoader(false);
-      push(`/pages/dashboard`);
-    },
-    350
-  );
+  const CreatingConversation_With_Debounce = useDebounce(async (AuthToken: String, receiver_id: String) => {
+    await CreateAnOneToOneConversation(AuthToken, receiver_id);
+    // setLoader(false);
+    push(`/pages/dashboard`);
+  }, 350);
 
   const CreateNewConversation = (receiver_id: string) => {
     setLoader(true);
@@ -110,8 +103,7 @@ function ListOfAllTheServerChannel({
                       ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
                       : "hover:bg-[rgba(255,255,255,0.18)]"
                   }`}
-                  key={channel_info.id}
-                >
+                  key={channel_info.id}>
                   <span
                     className={`flex items-center gap-[5px] w-[70%] cursor-pointer  ${
                       CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -125,8 +117,7 @@ function ListOfAllTheServerChannel({
                         ChatType: channel_info.type,
                         ChatUserId: channel_info.userId,
                       });
-                    }}
-                  >
+                    }}>
                     <span className="w-[14px] h-[14px] ">
                       <FaHashtag className="w-[14px] h-[14px] " />
                     </span>
@@ -144,19 +135,15 @@ function ListOfAllTheServerChannel({
                             ? "text-[rgba(255,255,255,0.9)]"
                             : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                         }`}
-                        title="locked"
-                      >
+                        title="locked">
                         <IoIosLock className="w-[16px] h-[16px]" />
                       </button>
                     </span>
                   ) : (
                     <span
                       className={`flex  items-center justify-center transition duration-[0.01s] ${
-                        CurrentChatChannelInfo?.ChatId === channel_info.id
-                          ? ""
-                          : "opacity-0 group-hover:opacity-100"
-                      }`}
-                    >
+                        CurrentChatChannelInfo?.ChatId === channel_info.id ? "" : "opacity-0 group-hover:opacity-100"
+                      }`}>
                       <button
                         data-tooltip-id="edit-channel-tooltip"
                         data-tooltip-content="Edit Channel"
@@ -172,8 +159,7 @@ function ListOfAllTheServerChannel({
                             type: channel_info.type,
                             id: channel_info.id,
                           });
-                        }}
-                      >
+                        }}>
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
@@ -187,8 +173,7 @@ function ListOfAllTheServerChannel({
                         onClick={(e) => {
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
-                        }}
-                      >
+                        }}>
                         <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
@@ -208,9 +193,7 @@ function ListOfAllTheServerChannel({
 
           <div className="audio-channal w-[100%] px-[15px]">
             <div className="channal-header w-[100%]">
-              <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
-                audio channel
-              </span>
+              <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">audio channel</span>
             </div>
             <ul className="flex flex-col items-start justify-start mt-[2px] gap-[1px]">
               {AllTheAudioChannelsOfTheServer?.map((channel_info) => {
@@ -221,8 +204,7 @@ function ListOfAllTheServerChannel({
                         ? "bg-gradient-to-r from-fuchsia-600 to-purple-600"
                         : "hover:bg-[rgba(255,255,255,0.18)]"
                     }`}
-                    key={channel_info.id}
-                  >
+                    key={channel_info.id}>
                     <span
                       className={`flex items-center gap-[5px] w-[70%] cursor-pointer  ${
                         CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -236,8 +218,7 @@ function ListOfAllTheServerChannel({
                           ChatType: channel_info.type,
                           ChatUserId: channel_info.userId,
                         });
-                      }}
-                    >
+                      }}>
                       <span className="w-[16px] h-[16px] block">
                         <AiOutlineAudio className="w-[16px] h-[16px]" />
                       </span>
@@ -248,11 +229,8 @@ function ListOfAllTheServerChannel({
                     </span>
                     <span
                       className={`flex  items-center justify-center transition duration-[0.01s] ${
-                        CurrentChatChannelInfo?.ChatId === channel_info.id
-                          ? ""
-                          : "opacity-0 group-hover:opacity-100"
-                      }`}
-                    >
+                        CurrentChatChannelInfo?.ChatId === channel_info.id ? "" : "opacity-0 group-hover:opacity-100"
+                      }`}>
                       <button
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -268,8 +246,7 @@ function ListOfAllTheServerChannel({
                           });
                         }}
                         data-tooltip-id="edit-channel-tooltip"
-                        data-tooltip-content="Edit Channel"
-                      >
+                        data-tooltip-content="Edit Channel">
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
@@ -283,8 +260,7 @@ function ListOfAllTheServerChannel({
                           setChannalId(channel_info.id);
                         }}
                         data-tooltip-id="delete-channel-tooltip"
-                        data-tooltip-content="Delete Channel"
-                      >
+                        data-tooltip-content="Delete Channel">
                         <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
@@ -302,9 +278,7 @@ function ListOfAllTheServerChannel({
           </span>
           <div className="video-channal w-[100%] px-[15px]">
             <div className="channal-header w-[100%]">
-              <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
-                video channel
-              </span>
+              <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">video channel</span>
             </div>
             <ul className="flex flex-col items-start justify-start mt-[4px] gap-[1px]">
               {AllTheVideoChannelsOfTheServer?.map((channel_info) => {
@@ -317,8 +291,7 @@ function ListOfAllTheServerChannel({
                         ? "bg-gradient-to-r from-emerald-500 to-emerald-900"
                         : "hover:bg-[rgba(255,255,255,0.18)]"
                     }`}
-                    key={channel_info.id}
-                  >
+                    key={channel_info.id}>
                     <span
                       className={`flex items-center gap-[5px] w-[70%] cursor-pointer ${
                         CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -327,25 +300,19 @@ function ListOfAllTheServerChannel({
                           ? "text-[rgba(255,255,255,0.9)]"
                           : "text-[rgb(255,255,255,0.6)] group-hover:text-[rgb(255,255,255,0.9)]"
                       }`}
-                      onClick={() => HandelVideoCallFunction(channel_info)}
-                    >
+                      onClick={() => HandelVideoCallFunction(channel_info)}>
                       <span className="w-[16px] h-[16px] block">
                         <IoMdVideocam className="w-[16px] h-[16px]" />
                       </span>
 
                       <span className="block capitalize fs-14 overflow-hidden whitespace-nowrap text-ellipsis global-font-roboto">
-                        {AnIncoming_VideoCall_Occurred.An_Incoming_Call
-                          ? "An Incoming Call"
-                          : channel_info.name}
+                        {AnIncoming_VideoCall_Occurred.An_Incoming_Call ? "An Incoming Call" : channel_info.name}
                       </span>
                     </span>
                     <span
                       className={`flex  items-center justify-center transition duration-[0.01s] ${
-                        CurrentChatChannelInfo?.ChatId === channel_info.id
-                          ? ""
-                          : "opacity-0 group-hover:opacity-100"
-                      }`}
-                    >
+                        CurrentChatChannelInfo?.ChatId === channel_info.id ? "" : "opacity-0 group-hover:opacity-100"
+                      }`}>
                       <button
                         data-tooltip-id="edit-channel-tooltip"
                         data-tooltip-content="Edit Channel"
@@ -363,10 +330,10 @@ function ListOfAllTheServerChannel({
                             type: channel_info.type,
                             id: channel_info.id,
                           });
-                        }}
-                      >
+                        }}>
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
+
                       <button
                         data-tooltip-id="delete-channel-tooltip"
                         data-tooltip-content="Delete Channel"
@@ -380,8 +347,7 @@ function ListOfAllTheServerChannel({
                         onClick={(e) => {
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
-                        }}
-                      >
+                        }}>
                         <MdDelete className="w-[16px] h-[16px]" />
                       </button>
                     </span>
@@ -398,9 +364,7 @@ function ListOfAllTheServerChannel({
       <div className="w-[100%] ">
         {ServerInfoById?.members ? (
           <div className="channal-header w-[100%] px-[15px] ">
-            <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">
-              members
-            </span>
+            <span className="global-font-roboto fs-16 text-[#e6e6e6] capitalize font-medium">members</span>
           </div>
         ) : (
           ""
@@ -412,24 +376,19 @@ function ListOfAllTheServerChannel({
             ?.map((MemberInfo: any) => (
               <div
                 className="user-avatar-wrapper-main w-100 transition hover:bg-[rgba(255,255,255,0.15)]  py-[5px] px-[10px] rounded-[5px] cursor-pointer  hover:text-white"
-                key={MemberInfo.userId}
-              >
+                key={MemberInfo.userId}>
                 <div className="w-100 flex items-center justify-between">
                   <div className="w-[100%] flex items-stretch justify-between">
                     <div className="w-[100%] flex items-center justify-start gap-[10px] ">
                       <div className="profile-image">
                         <div className="w-[35px] h-[35px] rounded-full overflow-hidden">
                           <Avatar className="w-[35px] h-[35px] rounded-full">
-                            <AvatarImage
-                              src={MemberInfo?.user?.Profile_Picture}
-                            />
+                            <AvatarImage src={MemberInfo?.user?.Profile_Picture} />
                             <AvatarFallback
                               className="global-font-roboto uppercase text-[18px] w-[35px] h-[35px]  font-semibold bg-slate-500 text-white flex items-center justify-center"
                               style={{
-                                backgroundColor:
-                                  MemberInfo?.user?.ProfileBgColor,
-                              }}
-                            >
+                                backgroundColor: MemberInfo?.user?.ProfileBgColor,
+                              }}>
                               {MemberInfo?.user?.FullName.split("")[0]}
                             </AvatarFallback>
                           </Avatar>
@@ -437,9 +396,7 @@ function ListOfAllTheServerChannel({
                       </div>
                       <div className="members-information flex flex-col items-start justify-start gap-[2px]">
                         <p className="global-font-roboto capitalize h-[20px] fs-16 font-medium text-white ">
-                          {MemberInfo?.user?.id === UserInformation?.id
-                            ? "You"
-                            : MemberInfo?.user?.UserName}
+                          {MemberInfo?.user?.id === UserInformation?.id ? "You" : MemberInfo?.user?.UserName}
                         </p>
                       </div>
                     </div>
@@ -456,22 +413,14 @@ function ListOfAllTheServerChannel({
                               <li className="w-[100%]">
                                 <button
                                   className="bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
-                                  onClick={() =>
-                                    CreateNewConversation(MemberInfo?.user?.id)
-                                  }
-                                >
-                                  {Loader ? (
-                                    <SpinnerComponent />
-                                  ) : (
-                                    "Message Privately"
-                                  )}
+                                  onClick={() => CreateNewConversation(MemberInfo?.user?.id)}>
+                                  {Loader ? <SpinnerComponent /> : "Message Privately"}
                                 </button>
                               </li>
                               <li className="w-[100%]">
                                 <Link
                                   href={`/pages/editProfile/${MemberInfo?.user?.UserName}`}
-                                  className="block bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
-                                >
+                                  className="block bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]">
                                   View Profile
                                 </Link>
                               </li>

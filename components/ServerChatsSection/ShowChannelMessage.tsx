@@ -57,7 +57,7 @@ const ShowChannelMessage = memo(
     const scrollToBottomOfTheNewBatch = () => {
       if (isFetchingOlderData) {
         if (LastMessageOfBatch.current) {
-          LastMessageOfBatch.current.scrollIntoView({ behavior: "instant" });
+          LastMessageOfBatch.current.scrollIntoView({ behavior: "smooth" });
         }
       } else {
         scrollToBottom();
@@ -144,12 +144,9 @@ const ShowChannelMessage = memo(
           const message = data?.data;
 
           if (channelHasMoreData && CurrentChatChannelInfo?.ChatId === message?.channel?.id) {
-            console.log(ChannalMessages);
-            console.log(message);
-
             // Ensure the new message is only added if it's not already in ChannalMessages
             if (ChannalMessages.every((msg: any) => msg.id !== message.id)) {
-              setChannalMessages((prevMessages) => [...prevMessages, message]);
+              setChannalMessages((prevMessages) => [message, ...prevMessages]);
               scrollToBottom();
             }
           }
@@ -183,7 +180,7 @@ const ShowChannelMessage = memo(
     return (
       <div className="w-[100%] h-[100%] py-[30px] relative left-0 flex items-center justify-center">
         <div
-          className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[25px] pt-[30px] pb-[10px] transition-opacity "
+          className="w-[100%] h-[100%] flex flex-col items-start justify-end px-[25px] pt-[30px] pb-[10px] "
           ref={MessageContainerRef}>
           {!channelHasMoreData ? (
             <>
@@ -217,20 +214,17 @@ const ShowChannelMessage = memo(
                             <span className="block w-[100%] h-[1px] bg-gray-400"></span>
                           </span>
                         </div>
-                        <div className="w-[100%] flex flex-col gap-[8px]">
+                        <div className="w-[100%] flex flex-col-reverse gap-[12px]">
                           {messages?.map((message, index) => {
                             const isLastInSequence =
                               index === messages.length - 1 || messages[index + 1]?.memberId !== message.memberId;
 
-                            const batchSize = Limit;
-                            const totalBatches = Math.ceil(messages.length / batchSize);
-                            const firstMessageOfTheBatch = (totalBatches - 2) * batchSize;
-                            const isFirstMessageOfSecondLastBatch = index === firstMessageOfTheBatch;
+                            const isLastMessageOfNewBatch = index === messages.length - 1;
                             return (
                               <div
                                 className="w-full"
                                 key={message?.id}
-                                ref={isFirstMessageOfSecondLastBatch ? LastMessageOfBatch : null}>
+                                ref={isLastMessageOfNewBatch ? LastMessageOfBatch : null}>
                                 <Message
                                   MessageData={message}
                                   scrollingToTheMessage={scrollingToTheMessage}
