@@ -27,9 +27,7 @@ interface ContextApiProps {
   //
 
   GlobalSuccessNotification: GlobalNotification[];
-  setGlobalSuccessNotification: React.Dispatch<
-    React.SetStateAction<GlobalNotification[]>
-  >;
+  setGlobalSuccessNotification: React.Dispatch<React.SetStateAction<GlobalNotification[]>>;
 
   Global_Server_Profile_Image: {
     Preview__Image__URL: string;
@@ -83,9 +81,7 @@ interface ContextApiProps {
     MeetingId: string;
     ChannelInfo: object;
   };
-  setANew_VideoMeeting_HasBeenStarted: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setANew_VideoMeeting_HasBeenStarted: React.Dispatch<React.SetStateAction<object>>;
   ANew_AudioMeeting_HasBeenStarted: {
     Call_Started: boolean;
     Meeting_Initiator_Info: object;
@@ -93,9 +89,7 @@ interface ContextApiProps {
     MeetingId: string;
     ChannelInfo: object;
   };
-  setANew_AudioMeeting_HasBeenStarted: React.Dispatch<
-    React.SetStateAction<Object>
-  >;
+  setANew_AudioMeeting_HasBeenStarted: React.Dispatch<React.SetStateAction<Object>>;
   AnIncoming_VideoCall_Occurred: {
     An_Incoming_Call: boolean;
     Meeting_Initiator_Info: object;
@@ -104,9 +98,7 @@ interface ContextApiProps {
     You_Joined: boolean;
     ChannelInfo: object;
   };
-  setAnIncoming_VideoCall_Occurred: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setAnIncoming_VideoCall_Occurred: React.Dispatch<React.SetStateAction<object>>;
   AnIncoming_AudioCall_Occurred: {
     An_Incoming_Call: boolean;
     Meeting_Initiator_Info: object;
@@ -115,21 +107,15 @@ interface ContextApiProps {
     You_Joined: boolean;
     ChannelInfo: object;
   };
-  setAnIncoming_AudioCall_Occurred: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setAnIncoming_AudioCall_Occurred: React.Dispatch<React.SetStateAction<object>>;
   PinningAnSpecificVideoStream: {
     PinVideo: boolean;
     video_id: string;
   };
   Current_VideoCall_Participant_Info: object;
-  setCurrent_VideoCall_Participant_Info: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setCurrent_VideoCall_Participant_Info: React.Dispatch<React.SetStateAction<object>>;
   Current_AudioCall_Participant_Info: object;
-  setCurrent_AudioCall_Participant_Info: React.Dispatch<
-    React.SetStateAction<object>
-  >;
+  setCurrent_AudioCall_Participant_Info: React.Dispatch<React.SetStateAction<object>>;
   setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
 
   //
@@ -142,19 +128,9 @@ interface ContextApiProps {
   FetchTheIncludingServer: (AuthToke: string) => void;
   FetchingTheServerInfoByServerId: (serverId: string, AuthToke: string) => void;
   UserInfoFetchingFunction: (AuthToken: string) => void;
-  RegeneratingServerInviteCodeFunction: (
-    AuthToken: string,
-    serverId: string
-  ) => object;
-  JoiningServerWithInvitationCode: (
-    AuthToken: string,
-    serverId: string,
-    invitationCode: string
-  ) => object;
-  UpdatingServerInformationFunction: (
-    AuthToken: string,
-    server_info: object
-  ) => void;
+  RegeneratingServerInviteCodeFunction: (AuthToken: string, serverId: string) => object;
+  JoiningServerWithInvitationCode: (AuthToken: string, serverId: string, invitationCode: string) => object;
+  UpdatingServerInformationFunction: (AuthToken: string, server_info: object) => void;
   ChangingMemberRoleFunction: (
     AuthToken: string,
     serverId: string,
@@ -162,24 +138,9 @@ interface ContextApiProps {
     CurrentMemberRole: string,
     user_Id: string
   ) => void;
-  KickOutMemberFromServerFunction: (
-    AuthToken: string,
-    serverId: string,
-    userId: string,
-    memberId: string
-  ) => void;
-  CreateNewChannelFunction: (
-    AuthToken: string,
-    serverId: string,
-    ChannelName: string,
-    ChannelType: string
-  ) => void;
-  LeaveFromServerFunction: (
-    AuthToken: string,
-    serverId: string,
-    userId: string,
-    memberId: string
-  ) => void;
+  KickOutMemberFromServerFunction: (AuthToken: string, serverId: string, userId: string, memberId: string) => void;
+  CreateNewChannelFunction: (AuthToken: string, serverId: string, ChannelName: string, ChannelType: string) => void;
+  LeaveFromServerFunction: (AuthToken: string, serverId: string, userId: string, memberId: string) => void;
   Check_The_User_Is_KickedOut: (
     SocketData: {
       message: string;
@@ -203,14 +164,8 @@ interface ContextApiProps {
     UserCurrentPath: Array<string>
   ) => object;
   FetchTheTextChannelOfTheServer: (AuthToken: string, serverId: string) => void;
-  FetchTheAudioChannelOfTheServer: (
-    AuthToken: string,
-    serverId: string
-  ) => void;
-  FetchTheVideoChannelOfTheServer: (
-    AuthToken: string,
-    serverId: string
-  ) => void;
+  FetchTheAudioChannelOfTheServer: (AuthToken: string, serverId: string) => void;
+  FetchTheVideoChannelOfTheServer: (AuthToken: string, serverId: string) => void;
   UpdateChannelInfoFunction: (
     AuthToken: string,
     serverId: string,
@@ -218,38 +173,22 @@ interface ContextApiProps {
     ChannelType: string,
     channelId: string
   ) => void;
-  DeleteChannelFunction: (
-    AuthToken: string,
-    serverId: string,
-    channelId: string
-  ) => void;
+  DeleteChannelFunction: (AuthToken: string, serverId: string, channelId: string) => void;
   FetchTheUserOnTheBaseOfDemand: (AuthToken: string, userType: string) => void;
   FetchingAllTheSentRequestOfUser: (AuthToken: string) => void;
   FetchingAllTheReceivedRequestOfUser: (AuthToken: string) => void;
   FetchAllTheFollowerOfTheUser: (AuthToken: string) => void;
   FetchAllTheFollowingOfTheUser: (AuthToken: string) => void;
-  SendTheFollowRequestToTheUser: (
-    AuthToken: string,
-    UserYouWantToFollow: string
-  ) => void;
+  SendTheFollowRequestToTheUser: (AuthToken: string, UserYouWantToFollow: string) => void;
   WithDrawTheSentFollowRequest: (AuthToken: string, receiverId: string) => void;
   IgnoreReceivedFollowRequest: (AuthToken: string, senderId: string) => void;
   AcceptFollowRequestFunction: (AuthToken: string, receiverId: string) => void;
   UnFollowSelectedUser: (AuthToken: string, UserId: string) => void;
-  RemoveASpecificFollowerFunction: (
-    AuthToken: string,
-    FollowerId: string
-  ) => void;
+  RemoveASpecificFollowerFunction: (AuthToken: string, FollowerId: string) => void;
   Block_A_Specific_User: (AuthToken: string, BlockUserId: string) => void;
   UnBlock_A_Specific_User: (AuthToken: string, UnBlockUserId: string) => void;
-  UpdatingTheUserProfileDetails: (
-    AuthToken: string,
-    formData: FormData
-  ) => void;
-  CreateAnOneToOneConversation: (
-    AuthToken: string,
-    receiver_id: string
-  ) => void;
+  UpdatingTheUserProfileDetails: (AuthToken: string, formData: FormData) => void;
+  CreateAnOneToOneConversation: (AuthToken: string, receiver_id: string) => void;
   SendMessageInTheSelectedChannelOfServer: (
     AuthToken: string,
     server_id: string,
@@ -263,17 +202,8 @@ interface ContextApiProps {
     Page: number,
     Limit: number
   ) => void;
-  EditMessageFunction: (
-    AuthToken: string,
-    message_id: string,
-    content: string,
-    Current_Page: number
-  ) => void;
-  DeleteMessageFunction: (
-    AuthToken: string,
-    message_id: string,
-    Current_Page: number
-  ) => void;
+  EditMessageFunction: (AuthToken: string, message_id: string, content: string, Current_Page: number) => void;
+  DeleteMessageFunction: (AuthToken: string, message_id: string, Current_Page: number) => void;
   Reply_A_SpecificMessageFunction: (
     AuthToken: string,
     server_id: string,
@@ -283,11 +213,7 @@ interface ContextApiProps {
     replying_to_user_member_id: string,
     replying_message_message_id: string
   ) => void;
-  Delete_MessageReplayFunction: (
-    AuthToken: string,
-    message_id: string,
-    message_replay_id: string
-  ) => void;
+  Delete_MessageReplayFunction: (AuthToken: string, message_id: string, message_replay_id: string) => void;
   Edit_MessageReplayFunction: (
     AuthToken: string,
     message_id: string,
@@ -334,9 +260,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Description: "" as string,
     Keywords: "" as string,
   });
-  const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState<
-    GlobalNotification[]
-  >([]);
+  const [GlobalSuccessNotification, setGlobalSuccessNotification] = useState<GlobalNotification[]>([]);
 
   const [editingAMessage, setEditingAMessage] = useState({
     is_Editing: false as boolean,
@@ -347,16 +271,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     data: {},
   });
 
-  const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] =
-    useState({
-      Preview__Image__URL: "",
-      File_Of_Image: "" as any,
-    });
-  const [Show_Create_Server_PopUp, setShow_Create_Server_PopUp] = useState(
-    false as boolean
-  );
-  const [Including_Server_Info_Array, setIncluding_Server_Info_Array] =
-    useState(initialState);
+  const [Global_Server_Profile_Image, setGlobal_Server_Profile_Image] = useState({
+    Preview__Image__URL: "",
+    File_Of_Image: "" as any,
+  });
+  const [Show_Create_Server_PopUp, setShow_Create_Server_PopUp] = useState(false as boolean);
+  const [Including_Server_Info_Array, setIncluding_Server_Info_Array] = useState(initialState);
   const [ServerInfoById, setServerInfoById] = useState("" as any);
   const [UserInformation, setUserInformation] = useState("" as any);
 
@@ -365,99 +285,67 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     File_Of_Image: "" as any,
   });
 
-  const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] =
-    useState([] as Array<object>);
-  const [AllTheAudioChannelsOfTheServer, setAllTheAudioChannelsOfTheServer] =
-    useState([] as Array<object>);
-  const [AllTheVideoChannelsOfTheServer, setAllTheVideoChannelsOfTheServer] =
-    useState([] as Array<object>);
+  const [AllTheTextChannelsOfTheServer, setAllTheTextChannelsOfTheServer] = useState([] as Array<object>);
+  const [AllTheAudioChannelsOfTheServer, setAllTheAudioChannelsOfTheServer] = useState([] as Array<object>);
+  const [AllTheVideoChannelsOfTheServer, setAllTheVideoChannelsOfTheServer] = useState([] as Array<object>);
   const [CurrentChatChannelInfo, setCurrentChatChannelInfo] = useState({
     ChatId: "" as string,
     ChatName: "" as string,
     ChatType: "TEXT" as string,
     ChatUserId: "" as string,
   });
-  const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(
-    false as boolean
-  );
+  const [ChangingTheMemberRole, setChangingTheMemberRole] = useState(false as boolean);
 
-  const [FetchAllTheOtherUsers, setFetchAllTheOtherUsers] = useState(
-    [] as Array<object>
-  );
-  const [AllTheSendRequestOfTheUser, setAllTheSendRequestOfTheUser] = useState(
-    [] as Array<object>
-  );
-  const [AllTheReceivedRequestOfTheUser, setAllTheReceivedRequestOfTheUser] =
-    useState([] as Array<object>);
-  const [AllTheFollowerOfTheUser, setAllTheFollowerOfTheUser] = useState(
-    [] as Array<object>
-  );
-  const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState(
-    [] as Array<object>
-  );
+  const [FetchAllTheOtherUsers, setFetchAllTheOtherUsers] = useState([] as Array<object>);
+  const [AllTheSendRequestOfTheUser, setAllTheSendRequestOfTheUser] = useState([] as Array<object>);
+  const [AllTheReceivedRequestOfTheUser, setAllTheReceivedRequestOfTheUser] = useState([] as Array<object>);
+  const [AllTheFollowerOfTheUser, setAllTheFollowerOfTheUser] = useState([] as Array<object>);
+  const [AllTheFollowingOfTheUser, setAllTheFollowingOfTheUser] = useState([] as Array<object>);
   const [AllTheMessageOfTheChannel, setAllTheMessageOfTheChannel] = useState({
     HasMoreData: false as boolean,
     Message: [] as Array<object>,
     TotalPage: 0 as number,
   });
-  const [
-    ANew_VideoMeeting_HasBeenStarted,
-    setANew_VideoMeeting_HasBeenStarted,
-  ] = useState({
+  const [ANew_VideoMeeting_HasBeenStarted, setANew_VideoMeeting_HasBeenStarted] = useState({
     Call_Started: false as boolean,
     Meeting_Initiator_Info: {} as object,
     Server_Info: {} as object,
     MeetingId: "" as string,
     ChannelInfo: {} as object,
   });
-  const [
-    ANew_AudioMeeting_HasBeenStarted,
-    setANew_AudioMeeting_HasBeenStarted,
-  ] = useState({
+  const [ANew_AudioMeeting_HasBeenStarted, setANew_AudioMeeting_HasBeenStarted] = useState({
     Call_Started: false as boolean,
     Meeting_Initiator_Info: {} as object,
     Server_Info: {} as object,
     MeetingId: "" as string,
     ChannelInfo: {} as object,
   });
-  const [AnIncoming_VideoCall_Occurred, setAnIncoming_VideoCall_Occurred] =
-    useState({
-      An_Incoming_Call: false as boolean,
-      Meeting_Initiator_Info: {} as object,
-      Server_Info: {} as object,
-      MeetingId: "" as string,
-      You_Joined: false as boolean,
-      ChannelInfo: {} as object,
-    });
-  const [AnIncoming_AudioCall_Occurred, setAnIncoming_AudioCall_Occurred] =
-    useState({
-      An_Incoming_Call: false as boolean,
-      Meeting_Initiator_Info: {} as object,
-      Server_Info: {} as object,
-      MeetingId: "" as string,
-      You_Joined: false as boolean,
-      ChannelInfo: {} as object,
-    });
+  const [AnIncoming_VideoCall_Occurred, setAnIncoming_VideoCall_Occurred] = useState({
+    An_Incoming_Call: false as boolean,
+    Meeting_Initiator_Info: {} as object,
+    Server_Info: {} as object,
+    MeetingId: "" as string,
+    You_Joined: false as boolean,
+    ChannelInfo: {} as object,
+  });
+  const [AnIncoming_AudioCall_Occurred, setAnIncoming_AudioCall_Occurred] = useState({
+    An_Incoming_Call: false as boolean,
+    Meeting_Initiator_Info: {} as object,
+    Server_Info: {} as object,
+    MeetingId: "" as string,
+    You_Joined: false as boolean,
+    ChannelInfo: {} as object,
+  });
 
-  const [PinningAnSpecificVideoStream, setPinningAnSpecificVideoStream] =
-    useState({
-      PinVideo: false as boolean,
-      video_id: "" as string,
-    });
-  const [
-    Current_VideoCall_Participant_Info,
-    setCurrent_VideoCall_Participant_Info,
-  ] = useState({} as any);
-  const [
-    Current_AudioCall_Participant_Info,
-    setCurrent_AudioCall_Participant_Info,
-  ] = useState({} as any);
+  const [PinningAnSpecificVideoStream, setPinningAnSpecificVideoStream] = useState({
+    PinVideo: false as boolean,
+    video_id: "" as string,
+  });
+  const [Current_VideoCall_Participant_Info, setCurrent_VideoCall_Participant_Info] = useState({} as any);
+  const [Current_AudioCall_Participant_Info, setCurrent_AudioCall_Participant_Info] = useState({} as any);
 
-  const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] =
-    useState([] as Array<object>);
-  const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState(
-    {} as any
-  );
+  const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] = useState([] as Array<object>);
+  const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState({} as any);
   //
   //
   // ? defining all the functions
@@ -491,10 +379,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       ProfileBgColor: data.ProfileBgColor || "",
       ProfileBanner_Color: data.ProfileBanner_Color || "",
     };
-    setGlobalSuccessNotification((prev: Array<GlobalNotification>) => [
-      ...prev,
-      NotificationData,
-    ]);
+    setGlobalSuccessNotification((prev: Array<GlobalNotification>) => [...prev, NotificationData]);
 
     setTimeout(() => {
       const element = document.getElementById(NotificationData.id);
@@ -509,11 +394,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }
     }, NotificationTime || 3000);
   };
-  const StoreFriendRequestInTheDB = async (
-    sender_id: string,
-    receiver_id: string,
-    Message: string
-  ) => {
+  const StoreFriendRequestInTheDB = async (sender_id: string, receiver_id: string, Message: string) => {
     try {
       const AuthToken = getCookie("User_Authentication_Token") as string;
       const formData = new FormData();
@@ -533,10 +414,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        setGlobalNotificationStoredInDB((prev: Array<object>) => [
-          ...prev,
-          response?.data?.data,
-        ]);
+        setGlobalNotificationStoredInDB((prev: Array<object>) => [...prev, response?.data?.data]);
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -599,8 +477,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const Register_User_Function = async (user_info: object) => {
     try {
       if (user_info) {
-        const { UserName, Password, Email, FullName, DateOfBirth } =
-          user_info as any;
+        const { UserName, Password, Email, FullName, DateOfBirth } = user_info as any;
 
         const formData = new FormData();
         formData.append("UserName", UserName);
@@ -650,10 +527,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       return false;
     }
   };
-  const Create_New_Server_Function = async (
-    server_info: object,
-    AuthToken: string
-  ) => {
+  const Create_New_Server_Function = async (server_info: object, AuthToken: string) => {
     try {
       if (AuthToken) {
         const response = await axios({
@@ -697,10 +571,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchingTheServerInfoByServerId = async (
-    serverId: string,
-    AuthToke: string
-  ) => {
+  const FetchingTheServerInfoByServerId = async (serverId: string, AuthToke: string) => {
     try {
       if (!AuthToke) return;
       const result = await axios({
@@ -744,10 +615,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  const RegeneratingServerInviteCodeFunction = async (
-    AuthToken: string,
-    serverId: string
-  ) => {
+  const RegeneratingServerInviteCodeFunction = async (AuthToken: string, serverId: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -769,10 +637,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       return { success: false };
     }
   };
-  const JoiningServerWithInvitationCode = async (
-    AuthToken: string,
-    InvitationCode: string
-  ) => {
+  const JoiningServerWithInvitationCode = async (AuthToken: string, InvitationCode: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -797,10 +662,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       return { success: false };
     }
   };
-  const UpdatingServerInformationFunction = async (
-    AuthToken: string,
-    server_info: object
-  ) => {
+  const UpdatingServerInformationFunction = async (AuthToken: string, server_info: object) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -904,11 +766,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
 
       if (response.data.success) {
-        GlobalNotificationHandlerFunction(
-          response.data,
-          NotificationType.NORMAL,
-          "New Channel Has Been Created"
-        );
+        GlobalNotificationHandlerFunction(response.data, NotificationType.NORMAL, "New Channel Has Been Created");
         socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {
@@ -939,20 +797,12 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       console.log(response.data);
       if (response.data.success) {
-        GlobalNotificationHandlerFunction(
-          response.data,
-          NotificationType.NORMAL,
-          "Channel Has Been Updated"
-        );
+        GlobalNotificationHandlerFunction(response.data, NotificationType.NORMAL, "Channel Has Been Updated");
         socket?.emit("NewChannelHasBeenCreated", response.data);
       }
     } catch (error) {}
   };
-  const DeleteChannelFunction = async (
-    AuthToken: string,
-    serverId: string,
-    channelId: string
-  ) => {
+  const DeleteChannelFunction = async (AuthToken: string, serverId: string, channelId: string) => {
     try {
       const formData = new FormData();
       formData.append("channelId", channelId);
@@ -966,23 +816,14 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         data: formData,
       });
       if (response.data.success) {
-        GlobalNotificationHandlerFunction(
-          response.data,
-          NotificationType.NORMAL,
-          "Channel Has Been Deleted"
-        );
+        GlobalNotificationHandlerFunction(response.data, NotificationType.NORMAL, "Channel Has Been Deleted");
         socket?.emit("NewChannelHasBeenCreated");
       }
     } catch (error) {
       GlobalErrorHandler(error);
     }
   };
-  const LeaveFromServerFunction = async (
-    AuthToken: string,
-    serverId: string,
-    userId: string,
-    memberId: string
-  ) => {
+  const LeaveFromServerFunction = async (AuthToken: string, serverId: string, userId: string, memberId: string) => {
     try {
       const formData = new FormData();
       formData.append("userId", userId);
@@ -1017,10 +858,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!SocketData) return;
-      if (
-        UserCurrentPath.includes("server") &&
-        UserCurrentPath.includes(SocketData.serverId)
-      ) {
+      if (UserCurrentPath.includes("server") && UserCurrentPath.includes(SocketData.serverId)) {
         const serverId = UserCurrentPath[3];
         const user_id = JSON.parse(getCookie("User__Info") || "").id;
         if (serverId === SocketData.serverId && user_id === SocketData.userId) {
@@ -1076,15 +914,10 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     try {
       if (!SocketData) return;
-      if (
-        UserCurrentPath.includes("server") &&
-        UserCurrentPath.includes(SocketData.serverId)
-      ) {
+      if (UserCurrentPath.includes("server") && UserCurrentPath.includes(SocketData.serverId)) {
         const serverId = UserCurrentPath[3];
         if (serverId === SocketData.serverId) {
-          if (
-            SocketData.adminId === JSON.parse(getCookie("User__Info") || "").id
-          ) {
+          if (SocketData.adminId === JSON.parse(getCookie("User__Info") || "").id) {
             return {
               serverHasBeenDeleted: true,
               userIsInTheCurrentServer: true,
@@ -1111,10 +944,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchTheTextChannelOfTheServer = async (
-    AuthToken: string,
-    serverId: string
-  ) => {
+  const FetchTheTextChannelOfTheServer = async (AuthToken: string, serverId: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -1132,10 +962,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchTheAudioChannelOfTheServer = async (
-    AuthToken: string,
-    serverId: string
-  ) => {
+  const FetchTheAudioChannelOfTheServer = async (AuthToken: string, serverId: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -1153,10 +980,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchTheVideoChannelOfTheServer = async (
-    AuthToken: string,
-    serverId: string
-  ) => {
+  const FetchTheVideoChannelOfTheServer = async (AuthToken: string, serverId: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -1174,10 +998,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchTheUserOnTheBaseOfDemand = async (
-    AuthToken: string,
-    userType: string
-  ) => {
+  const FetchTheUserOnTheBaseOfDemand = async (AuthToken: string, userType: string) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -1271,10 +1092,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const SendTheFollowRequestToTheUser = async (
-    AuthToken: string,
-    UserYouWantToFollow: string
-  ) => {
+  const SendTheFollowRequestToTheUser = async (AuthToken: string, UserYouWantToFollow: string) => {
     try {
       const formData = new FormData();
       formData.append("UserIdYouWantToFollow", UserYouWantToFollow);
@@ -1290,11 +1108,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("NewFollowRequestHasBeenSent", response.data);
-        GlobalNotificationHandlerFunction(
-          response.data,
-          NotificationType.NORMAL,
-          "Follow Request Has Been Sent"
-        );
+        GlobalNotificationHandlerFunction(response.data, NotificationType.NORMAL, "Follow Request Has Been Sent");
         StoreFriendRequestInTheDB(
           response.data?.request_sender_info?.id,
           response.data?.request_receiver_info?.id,
@@ -1305,10 +1119,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const WithDrawTheSentFollowRequest = async (
-    AuthToken: string,
-    receiverId: string
-  ) => {
+  const WithDrawTheSentFollowRequest = async (AuthToken: string, receiverId: string) => {
     try {
       if (!AuthToken) return;
       const formData = new FormData();
@@ -1325,20 +1136,13 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       if (response.data.success) {
         socket?.emit("A_FollowRequestHasBeenWithdrawn");
-        GlobalNotificationHandlerFunction(
-          response.data,
-          NotificationType.NORMAL,
-          "Follow Request Has Been Withdrawn"
-        );
+        GlobalNotificationHandlerFunction(response.data, NotificationType.NORMAL, "Follow Request Has Been Withdrawn");
       }
     } catch (error) {
       GlobalErrorHandler(error);
     }
   };
-  const IgnoreReceivedFollowRequest = async (
-    AuthToken: string,
-    senderId: string
-  ) => {
+  const IgnoreReceivedFollowRequest = async (AuthToken: string, senderId: string) => {
     try {
       if (!AuthToken) return;
       const formData = new FormData();
@@ -1359,10 +1163,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const AcceptFollowRequestFunction = async (
-    AuthToken: string,
-    receiverId: string
-  ) => {
+  const AcceptFollowRequestFunction = async (AuthToken: string, receiverId: string) => {
     try {
       const formData = new FormData();
       formData.append("receiverId", receiverId);
@@ -1405,10 +1206,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const RemoveASpecificFollowerFunction = async (
-    AuthToken: string,
-    FollowerId: string
-  ) => {
+  const RemoveASpecificFollowerFunction = async (AuthToken: string, FollowerId: string) => {
     try {
       if (!AuthToken || FollowerId === "undefined") return;
       const formData = new FormData();
@@ -1431,10 +1229,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const Block_A_Specific_User = async (
-    AuthToken: string,
-    BlockUserId: string
-  ) => {
+  const Block_A_Specific_User = async (AuthToken: string, BlockUserId: string) => {
     try {
       if (!AuthToken || BlockUserId === "undefined") return;
       const response = await axios({
@@ -1453,10 +1248,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const UnBlock_A_Specific_User = async (
-    AuthToken: string,
-    unBlockUserId: string
-  ) => {
+  const UnBlock_A_Specific_User = async (AuthToken: string, unBlockUserId: string) => {
     try {
       if (!AuthToken || unBlockUserId === "undefined") return;
       const response = await axios({
@@ -1475,10 +1267,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const UpdatingTheUserProfileDetails = async (
-    AuthToken: string,
-    formData: FormData
-  ) => {
+  const UpdatingTheUserProfileDetails = async (AuthToken: string, formData: FormData) => {
     try {
       if (!AuthToken) return;
       const response = await axios({
@@ -1499,10 +1288,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  const CreateAnOneToOneConversation = async (
-    AuthToken: string,
-    receiver_id: string
-  ) => {
+  const CreateAnOneToOneConversation = async (AuthToken: string, receiver_id: string) => {
     try {
       console.log(receiver_id);
       if (!AuthToken || receiver_id === "undefined") return;
@@ -1522,10 +1308,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const FetchAllTheMessageOfAnOneToOneConversation = async (
-    AuthToken,
-    channel_id
-  ) => {
+  const FetchAllTheMessageOfAnOneToOneConversation = async (AuthToken, channel_id) => {
     try {
       if (!AuthToken || channel_id === "undefined") return;
       const response = await axios({
@@ -1599,11 +1382,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   ) => {
     console.log("fetching message");
     try {
-      if (
-        !AuthToken ||
-        server_id === "undefined" ||
-        channel_id === "undefined"
-      ) {
+      if (!AuthToken || server_id === "undefined" || channel_id === "undefined") {
         return;
       }
 
@@ -1623,12 +1402,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const EditMessageFunction = async (
-    AuthToken: string,
-    message_id: string,
-    content: string,
-    Current_Page: number
-  ) => {
+  const EditMessageFunction = async (AuthToken: string, message_id: string, content: string, Current_Page: number) => {
     try {
       if (!AuthToken || message_id === "undefined") return;
       const formData = new FormData();
@@ -1653,10 +1427,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const DeleteMessageFunction = async (
-    AuthToken: string,
-    message_id: string
-  ) => {
+  const DeleteMessageFunction = async (AuthToken: string, message_id: string) => {
     try {
       if (!AuthToken || message_id === "undefined") return;
 
@@ -1699,10 +1470,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       formData.append("replying_to_user_member_id", replying_to_user_member_id);
 
-      formData.append(
-        "replying_message_message_id",
-        replying_message_message_id
-      );
+      formData.append("replying_message_message_id", replying_message_message_id);
 
       const response = await axios({
         method: "put",
@@ -1721,11 +1489,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  const Delete_MessageReplayFunction = async (
-    AuthToken: string,
-    message_id: string,
-    message_replay_id: string
-  ) => {
+  const Delete_MessageReplayFunction = async (AuthToken: string, message_id: string, message_replay_id: string) => {
     try {
       if (!AuthToken || message_id === "undefined") return;
 
@@ -1755,13 +1519,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     content: string
   ) => {
     try {
-      if (
-        !AuthToken ||
-        message_id === "undefined" ||
-        message_replay_id === "undefined" ||
-        content === ""
-      )
-        return;
+      if (!AuthToken || message_id === "undefined" || message_replay_id === "undefined" || content === "") return;
       const formData = new FormData();
       formData.append("content", content);
       const response = await axios({
@@ -1784,10 +1542,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
-  const SendVideoCallInfoSdp_To_Backend = async (
-    AuthToken: string,
-    Payload: any
-  ) => {
+  const SendVideoCallInfoSdp_To_Backend = async (AuthToken: string, Payload: any) => {
     try {
       if (!AuthToken) return;
       console.log(Payload);
@@ -1807,43 +1562,53 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+  // const SendImagesToTheSelectedTextChannel = async (AuthToke: string, channel_id: string, payload: FormData) => {
+  //   try {
+  //     console.log(AuthToke, channel_id, payload);
+  //     if (!AuthToke || channel_id === undefined) return;
+  //     console.log("sending The Message .......");
+  //     const response = await axios({
+  //       method: "post",
+  //       url: `${Host}/app/api/Messages/SendImagesInTheChannel`,
+  //       headers: {
+  //         Authorization: AuthToke,
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //       data: payload,
+  //     });
+  //     console.log("api Called");
+  //     console.log(response);
+  //   } catch (error) {
+  //     GlobalErrorHandler(error);
+  //   }
+  // };
 
   //
   // ? defining the context value
   //
   const context_value = {
     GlobalMetaTagHandler,
-    setGlobalMetaTagHandler: setGlobalMetaTagHandler as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    setGlobalMetaTagHandler: setGlobalMetaTagHandler as React.Dispatch<React.SetStateAction<object>>,
 
     GlobalSuccessNotification,
-    setGlobalSuccessNotification:
-      setGlobalSuccessNotification as React.Dispatch<
-        React.SetStateAction<GlobalNotification[]>
-      >,
+    setGlobalSuccessNotification: setGlobalSuccessNotification as React.Dispatch<
+      React.SetStateAction<GlobalNotification[]>
+    >,
     Global_Server_Profile_Image,
-    setGlobal_Server_Profile_Image:
-      setGlobal_Server_Profile_Image as React.Dispatch<
-        React.SetStateAction<object>
-      >,
+    setGlobal_Server_Profile_Image: setGlobal_Server_Profile_Image as React.Dispatch<React.SetStateAction<object>>,
     Show_Create_Server_PopUp,
     setShow_Create_Server_PopUp,
     Including_Server_Info_Array,
     ServerInfoById,
     UserInformation,
     UpdateServerInfoImage,
-    setUpdateServerInfoImage: setUpdateServerInfoImage as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    setUpdateServerInfoImage: setUpdateServerInfoImage as React.Dispatch<React.SetStateAction<object>>,
 
     AllTheTextChannelsOfTheServer,
     AllTheAudioChannelsOfTheServer,
     AllTheVideoChannelsOfTheServer,
     CurrentChatChannelInfo,
-    setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    setCurrentChatChannelInfo: setCurrentChatChannelInfo as React.Dispatch<React.SetStateAction<object>>,
 
     FetchAllTheOtherUsers,
     AllTheSendRequestOfTheUser,
@@ -1854,54 +1619,35 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     AllTheMessageOfTheChannel,
 
     editingAMessage,
-    setEditingAMessage: setEditingAMessage as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    setEditingAMessage: setEditingAMessage as React.Dispatch<React.SetStateAction<object>>,
     replyingASpecificMessage,
-    setReplyingASpecificMessage: setReplyingASpecificMessage as React.Dispatch<
-      React.SetStateAction<object>
-    >,
+    setReplyingASpecificMessage: setReplyingASpecificMessage as React.Dispatch<React.SetStateAction<object>>,
 
     ANew_VideoMeeting_HasBeenStarted,
-    setANew_VideoMeeting_HasBeenStarted:
-      setANew_VideoMeeting_HasBeenStarted as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    ANew_AudioMeeting_HasBeenStarted,
-    setANew_AudioMeeting_HasBeenStarted:
-      setANew_AudioMeeting_HasBeenStarted as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    AnIncoming_VideoCall_Occurred,
-    setAnIncoming_VideoCall_Occurred:
-      setAnIncoming_VideoCall_Occurred as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    AnIncoming_AudioCall_Occurred,
-    setAnIncoming_AudioCall_Occurred:
-      setAnIncoming_AudioCall_Occurred as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    PinningAnSpecificVideoStream,
-    setPinningAnSpecificVideoStream:
-      setPinningAnSpecificVideoStream as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    Current_VideoCall_Participant_Info,
-    setCurrent_VideoCall_Participant_Info:
-      setCurrent_VideoCall_Participant_Info as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-    Current_AudioCall_Participant_Info,
-    setCurrent_AudioCall_Participant_Info:
-      setCurrent_AudioCall_Participant_Info as React.Dispatch<
-        React.SetStateAction<object>
-      >,
-
-    selectedOneToOneChatInfo,
-    setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<
+    setANew_VideoMeeting_HasBeenStarted: setANew_VideoMeeting_HasBeenStarted as React.Dispatch<
       React.SetStateAction<object>
     >,
+    ANew_AudioMeeting_HasBeenStarted,
+    setANew_AudioMeeting_HasBeenStarted: setANew_AudioMeeting_HasBeenStarted as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+    AnIncoming_VideoCall_Occurred,
+    setAnIncoming_VideoCall_Occurred: setAnIncoming_VideoCall_Occurred as React.Dispatch<React.SetStateAction<object>>,
+    AnIncoming_AudioCall_Occurred,
+    setAnIncoming_AudioCall_Occurred: setAnIncoming_AudioCall_Occurred as React.Dispatch<React.SetStateAction<object>>,
+    PinningAnSpecificVideoStream,
+    setPinningAnSpecificVideoStream: setPinningAnSpecificVideoStream as React.Dispatch<React.SetStateAction<object>>,
+    Current_VideoCall_Participant_Info,
+    setCurrent_VideoCall_Participant_Info: setCurrent_VideoCall_Participant_Info as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+    Current_AudioCall_Participant_Info,
+    setCurrent_AudioCall_Participant_Info: setCurrent_AudioCall_Participant_Info as React.Dispatch<
+      React.SetStateAction<object>
+    >,
+
+    selectedOneToOneChatInfo,
+    setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<React.SetStateAction<object>>,
     Login_User_Function,
     CheckUsersLoginStatus,
     Register_User_Function,

@@ -41,6 +41,7 @@ function ServerFooterBar({
     replyingASpecificMessage,
     setReplyingASpecificMessage,
     Reply_A_SpecificMessageFunction,
+    SendImagesToTheSelectedTextChannel,
   } = useContext(Context) as any;
 
   const [message, setMessage] = useState("");
@@ -49,6 +50,8 @@ function ServerFooterBar({
   const socket = UseSocketIO();
   const InputFiledRef = useRef<HTMLInputElement>(null);
   const [showUploadImageModal, setShowUploadImageModal] = useState(false as boolean);
+  const [messageWithImages, setMessageWithImages] = useState("" as string);
+  const [selectedImagesArray, setSelectedImageArray] = useState([] as Array<File>);
 
   const Data = useMemo(
     () => ({
@@ -66,7 +69,7 @@ function ServerFooterBar({
     if (InputFiledRef.current) {
       InputFiledRef.current.focus();
     }
-  }, [CurrentChatChannelInfo, ChannalMessages]);
+  }, [CurrentChatChannelInfo, ChannalMessages, showUploadImageModal]);
 
   const remove_editingAMessage_StateInfo = useCallback(() => {
     setEditingAMessage({
@@ -268,13 +271,32 @@ function ServerFooterBar({
   };
 
   const handelEmojiPicker = (emoji: string) => {
-    setMessage((msg: string) => msg + emoji);
+    if (showUploadImageModal) {
+      setMessageWithImages((message: string) => message + emoji);
+    } else {
+      setMessage((msg: string) => msg + emoji);
+    }
+
     // ((prevMessages) => [...prevMessages, ...newMessages])
+  };
+  const sendMessageWithImages = async (e) => {
+    e.preventDefault();
+    const AuthToken = getCookie("User_Authentication_Token") as string;
+    const formData = new FormData();
+    selectedImagesArray.forEach((files) => {
+      formData.append("channelImages", files);
+    });
+    formData.append("imageAttachment", messageWithImages);
+    const channel_id = CurrentChatChannelInfo.ChatId;
+    await SendImagesToTheSelectedTextChannel(AuthToken, channel_id, formData);
+  };
+  const ImageAttachmentOnInputChange = (e) => {
+    setMessageWithImages(e.target.value);
   };
 
   return (
     <>
-      <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-[2] ">
+      <div className="w-[100%] shadow  border-t-[1px] border-t-[#2f2f2f] flex flex-col h px-[12px] pb-[15px] pt-[6px]  backdrop-blur-[10px] bg-[rgba(0,0,0,0.45)] absolute bottom-0 left-0 z-10 ">
         {editingAMessage?.is_Editing && !replyingASpecificMessage?.is_Replying
           ? ReplyingOrEditingCommonComponent(editingAMessage?.data)
           : null}
@@ -305,25 +327,39 @@ function ServerFooterBar({
               </DropdownMenuContent>
             </DropdownMenu>
             <div className="w-[100%]">
-              <form
-                onSubmit={
-                  editingAMessage.is_Editing
-                    ? Edit_SpecificMessage
-                    : replyingASpecificMessage?.is_Replying
-                    ? Replay_Message_OnSubmit
-                    : OnFormSubmit
-                }
-                className="w-[100%] h-[100%]">
-                <input
-                  type="text"
-                  className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
-                  placeholder={`Message #${CurrentChatChannelInfo?.ChatName}`}
-                  value={message || ""}
-                  onChange={InputFiledChanged}
-                  disabled={Loading}
-                  ref={InputFiledRef}
-                />
-              </form>
+              {showUploadImageModal ? (
+                <form onSubmit={sendMessageWithImages} className="w-[100%] h-[100%]">
+                  <input
+                    type="text"
+                    className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
+                    placeholder={`Sent An Attachment Into #${CurrentChatChannelInfo?.ChatName}`}
+                    value={messageWithImages}
+                    onChange={ImageAttachmentOnInputChange}
+                    disabled={Loading}
+                    ref={InputFiledRef}
+                  />
+                </form>
+              ) : (
+                <form
+                  onSubmit={
+                    editingAMessage.is_Editing
+                      ? Edit_SpecificMessage
+                      : replyingASpecificMessage?.is_Replying
+                      ? Replay_Message_OnSubmit
+                      : OnFormSubmit
+                  }
+                  className="w-[100%] h-[100%]">
+                  <input
+                    type="text"
+                    className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
+                    placeholder={`Message #${CurrentChatChannelInfo?.ChatName}`}
+                    value={message || ""}
+                    onChange={InputFiledChanged}
+                    disabled={Loading}
+                    ref={InputFiledRef}
+                  />
+                </form>
+              )}
             </div>
 
             <Popover>
@@ -340,6 +376,9 @@ function ServerFooterBar({
       <Upload_ImageModal
         showUploadImageModal={showUploadImageModal}
         setShowUploadImageModal={setShowUploadImageModal}
+        selectedImagesArray={selectedImagesArray}
+        setSelectedImagesArray={setSelectedImageArray}
+        sendImagesOnClick={sendMessageWithImages}
       />
     </>
   );
