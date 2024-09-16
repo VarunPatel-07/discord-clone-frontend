@@ -8,24 +8,29 @@ import { FiMessageCircle } from "react-icons/fi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { FaCaretDown, FaReply } from "react-icons/fa";
+import { FaCamera, FaCaretDown, FaReply } from "react-icons/fa";
 import { IoCopy } from "react-icons/io5";
 import { Edit } from "lucide-react";
 import { MdDelete, MdOutlineAddReaction } from "react-icons/md";
 import CryptoJS from "crypto-js";
 import { MessageProps } from "@/interface/MessageProps";
 import { NotificationType } from "@/enums/enums";
+import Image from "next/image";
+import MessageImage from "../MessageImage";
+import PreviewFiles from "../PreviewFiles";
 
 function Message({
   MessageData,
   scrollingToTheMessage,
   setScrollingToTheMessage,
   isLastInSequence,
+  finalSelectedImagesArray,
 }: {
   MessageData: MessageProps;
   scrollingToTheMessage: string;
   setScrollingToTheMessage: React.Dispatch<React.SetStateAction<string>>;
   isLastInSequence: boolean;
+  finalSelectedImagesArray: any;
 }) {
   const {
     DeleteMessageFunction,
@@ -165,21 +170,49 @@ function Message({
                     onClick={() => {
                       scrollToThe_Message_Being_Replied(MessageData?.replyingMessageMessageId as string);
                     }}>
-                    <span className="absolute w-[6px] h-[110%] z-[2] top-[-10px] left-[0px] rounded bg-gradient-to-r from-red-500 to-orange-500 "></span>
-                    <div className="inner-section pl-[6px]">
-                      <div className="header">
-                        <h5 className="username text-[#00ffe9] font-medium global-font-roboto text-[14px]">
-                          {MessageData?.replyingToUser?.user?.id === UserInformation?.id
-                            ? "You"
-                            : MessageData?.replyingToUser?.user?.UserName}
-                        </h5>
+                    <span className="absolute w-[6px] h-[200%] z-[2] top-[-10px] left-[0px] rounded bg-gradient-to-r from-red-500 to-orange-500 "></span>
+                    <div className="inner-section pl-[6px] flex items-center justify-between gap-[15px]">
+                      <div className="flex flex-col items-start justify-start">
+                        <div className="header">
+                          <h5 className="username text-[#00ffe9] font-medium global-font-roboto text-[14px]">
+                            {MessageData?.replyingToUser?.user?.id === UserInformation?.id
+                              ? "You"
+                              : MessageData?.replyingToUser?.user?.UserName}
+                          </h5>
+                        </div>
+                        <div className="content text-gray-300 global-font-roboto text-[15px] font-[300] line-clamp-2">
+                          {MessageData.replyingMessage ? (
+                            <p>{decryptContent(MessageData?.replyingMessage)}</p>
+                          ) : (
+                            <p className="text-gray-300 global-font-roboto text-[15px] font-[300] py-[3px] flex items-center justify-start gap-[5px]">
+                              <FaCamera />
+                              <span>Photo</span>
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="content text-gray-300 global-font-roboto text-[15px] font-[300] line-clamp-2">
-                        <p>{decryptContent(MessageData?.replyingMessage)}</p>
-                      </div>
+                      {MessageData.replyingImage !== "" ? (
+                        <div className="w-[60px] h-[60px]">
+                          <Image
+                            src={MessageData.replyingImage}
+                            alt="replying image"
+                            width={60}
+                            height={60}
+                            className="object-cover rounded w-full h-full"></Image>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ) : null}
+                {MessageData.ImageUrl !== "" ? <MessageImage imagesArray={JSON.parse(MessageData.ImageUrl)} /> : null}
+                {MessageData.FileURL !== "" ? (
+                  <>
+                    {JSON.parse(MessageData.FileURL).map((fileUrl) => (
+                      <PreviewFiles  fileUrl={fileUrl} key={fileUrl} />
+                    ))}
+                  </>
+                ) : null}
+
                 <div className="flex flex-nowrap items-end justify-between relative">
                   <div className="message  flex items-center">
                     <p
@@ -207,19 +240,38 @@ function Message({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align={MessageSendBySender ? "end" : "start"}>
                   {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
-                  <DropdownMenuItem
-                    className=" text-[rgb(255,255,255,0.9)]"
-                    onClick={() => {
-                      setReplyingASpecificMessage({
-                        is_Replying: true,
-                        data: MessageData as MessageProps,
-                      });
-                    }}>
-                    <span className="flex items-center gap-[5px]">
-                      <FaReply className="w-[18px] h-[18px]" />
-                      <span className="">Reply Message</span>
-                    </span>
-                  </DropdownMenuItem>
+                  {MessageData.ImageUrl !== "" ? (
+                    JSON.parse(MessageData.ImageUrl || "").length > 1 ? null : (
+                      <DropdownMenuItem
+                        className=" text-[rgb(255,255,255,0.9)]"
+                        onClick={() => {
+                          setReplyingASpecificMessage({
+                            is_Replying: true,
+                            data: MessageData as MessageProps,
+                          });
+                        }}>
+                        <span className="flex items-center gap-[5px]">
+                          <FaReply className="w-[18px] h-[18px]" />
+                          <span className="">Reply Message</span>
+                        </span>
+                      </DropdownMenuItem>
+                    )
+                  ) : (
+                    <DropdownMenuItem
+                      className=" text-[rgb(255,255,255,0.9)]"
+                      onClick={() => {
+                        setReplyingASpecificMessage({
+                          is_Replying: true,
+                          data: MessageData as MessageProps,
+                        });
+                      }}>
+                      <span className="flex items-center gap-[5px]">
+                        <FaReply className="w-[18px] h-[18px]" />
+                        <span className="">Reply Message</span>
+                      </span>
+                    </DropdownMenuItem>
+                  )}
+
                   {!MessageData?.IsDeleted ? (
                     <DropdownMenuItem
                       className=" text-[rgb(255,255,255,0.9)]"

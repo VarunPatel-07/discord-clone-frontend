@@ -216,12 +216,30 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
           Authorization: token,
         },
       });
-
+     
       if (!response.data) return;
 
       SendMeetingIdToTheMemberOfTheServer(response.data.roomId);
       setMeetingID(response.data.roomId);
-
+      if (Call_Type === "AUDIO") {
+        console.log("done 2");
+        setANew_AudioMeeting_HasBeenStarted({
+          Call_Started: true,
+          Meeting_Initiator_Info: UserInformation ? UserInformation : JSON.parse(getCookie("User__Info") as string),
+          Server_Info: ServerInfoById,
+          MeetingId: response.data.roomId,
+          ChannelInfo: CurrentChatChannelInfo,
+        });
+      } else {
+        setANew_VideoMeeting_HasBeenStarted({
+          Call_Started: true,
+          Meeting_Initiator_Info: UserInformation ? UserInformation : JSON.parse(getCookie("User__Info") as string),
+          Server_Info: ServerInfoById,
+          MeetingId: response.data.roomId,
+          ChannelInfo: CurrentChatChannelInfo,
+        });
+      }
+      setStartCall(true);
       // Continue the logic for handling call initiation
     } catch (error) {
       console.log(error);

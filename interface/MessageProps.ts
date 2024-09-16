@@ -5,6 +5,7 @@ export interface MessageProps {
   id: string;
   content: string;
   FileURL: string;
+  ImageUrl: string;
   IsEdited: boolean;
   IsDeleted: boolean;
   DeletedBy: string | null;
@@ -19,4 +20,5 @@ export interface MessageProps {
   member: Member;
   channel: Channel;
   replyingToUser: Member;
+  replyingImage: string;
 }

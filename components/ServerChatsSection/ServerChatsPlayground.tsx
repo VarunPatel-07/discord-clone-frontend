@@ -26,7 +26,7 @@ function ServerChatsPlayground({
 }) {
   const [Loading, setLoading] = useState(true);
   const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
-
+  const [finalSelectedImagesArray, setFinalSelectedImagesArray] = useState([] as Array<File>);
   return (
     <div className="w-[100%] h-[100%]  relative  transition-all duration-200 ease-in-out">
       <ServerNavbar />
@@ -39,6 +39,7 @@ function ServerChatsPlayground({
               setLoading={setLoading}
               ChannalMessages={ChannalMessages}
               setChannalMessages={setChannalMessages}
+              finalSelectedImagesArray={finalSelectedImagesArray}
             />
           </ScrollArea>
           {Loading && (
@@ -66,6 +67,7 @@ function ServerChatsPlayground({
         <ServerFooterBar
           ChannalMessages={ChannalMessages}
           setChannalMessages={setChannalMessages}
+          setFinalSelectedImagesArray={setFinalSelectedImagesArray}
         />
       )}
     </div>

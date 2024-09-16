@@ -117,6 +117,8 @@ interface ContextApiProps {
   Current_AudioCall_Participant_Info: object;
   setCurrent_AudioCall_Participant_Info: React.Dispatch<React.SetStateAction<object>>;
   setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
+  selectedFinalImagesArray: Array<File>;
+  setSelectedFinalImagesArray: React.Dispatch<React.SetStateAction<Array<File>>>;
 
   //
   //? exporting all the functions
@@ -211,7 +213,8 @@ interface ContextApiProps {
     content: string,
     replying_to_message: string,
     replying_to_user_member_id: string,
-    replying_message_message_id: string
+    replying_message_message_id: string,
+    replyingImage: string
   ) => void;
   Delete_MessageReplayFunction: (AuthToken: string, message_id: string, message_replay_id: string) => void;
   Edit_MessageReplayFunction: (
@@ -346,6 +349,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] = useState([] as Array<object>);
   const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState({} as any);
+  const [selectedFinalImagesArray, setSelectedFinalImagesArray] = useState([] as Array<File>);
   //
   //
   // ? defining all the functions
@@ -1457,7 +1461,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     content: string,
     replying_to_message: string,
     replying_to_user_member_id: string,
-    replying_message_message_id: string
+    replying_message_message_id: string,
+    replyingImage: string
   ) => {
     try {
       if (!AuthToken || server_id === "undefined") return;
@@ -1471,6 +1476,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       formData.append("replying_to_user_member_id", replying_to_user_member_id);
 
       formData.append("replying_message_message_id", replying_message_message_id);
+      formData.append("replyingImage", replyingImage);
 
       const response = await axios({
         method: "put",
@@ -1483,6 +1489,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       if (response.data.success) {
         socket?.emit("NewMessageHasBeenSent", response.data);
+        return response.data.data;
       }
     } catch (error) {
       GlobalErrorHandler(error);
@@ -1645,6 +1652,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setCurrent_AudioCall_Participant_Info: setCurrent_AudioCall_Participant_Info as React.Dispatch<
       React.SetStateAction<object>
     >,
+    selectedFinalImagesArray,
+    setSelectedFinalImagesArray: setSelectedFinalImagesArray as React.Dispatch<React.SetStateAction<Array<File>>>,
 
     selectedOneToOneChatInfo,
     setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<React.SetStateAction<object>>,

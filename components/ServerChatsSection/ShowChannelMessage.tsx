@@ -21,12 +21,15 @@ const ShowChannelMessage = memo(
     setLoading,
     ChannalMessages,
     setChannalMessages,
+    finalSelectedImagesArray,
   }: {
     Loading: boolean;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     ChannalMessages: Array<Object>;
     setChannalMessages: React.Dispatch<React.SetStateAction<Array<Object>>>;
+    finalSelectedImagesArray: any;
   }) => {
+    const { selectedFinalImagesArray } = useContext(Context) as any;
     const BottomDiv = useRef<HTMLDivElement>(null);
     const MessageContainerRef = useRef<HTMLDivElement>(null);
     const LastMessageOfBatch = useRef<HTMLDivElement>(null);
@@ -130,7 +133,7 @@ const ShowChannelMessage = memo(
     }, [topInView]);
     useEffect(() => {
       scrollToBottom();
-    }, [CurrentChatChannelInfo]);
+    }, [CurrentChatChannelInfo, selectedFinalImagesArray]);
     //
     //
     //
@@ -185,8 +188,10 @@ const ShowChannelMessage = memo(
           {!channelHasMoreData ? (
             <>
               <ChatDefaultScreen CurrentChatChannelInfo={CurrentChatChannelInfo} />
-              <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
             </>
+          ) : null}
+          {ChannalMessages.length > 0 ? (
+            <span className="w-[100%] h-[1px] bg-[rgba(255,255,255,0.1)] mt-[25px] mb-[30px] block"></span>
           ) : null}
           <div className="message-fetching transition-all duration-300 w-[100%] ">
             {channelHasMoreData ? (
@@ -230,6 +235,7 @@ const ShowChannelMessage = memo(
                                   scrollingToTheMessage={scrollingToTheMessage}
                                   setScrollingToTheMessage={setScrollingToTheMessage}
                                   isLastInSequence={isLastInSequence}
+                                  finalSelectedImagesArray={finalSelectedImagesArray}
                                 />
                               </div>
                             );
@@ -241,6 +247,26 @@ const ShowChannelMessage = memo(
                 </div>
               </div>
             ) : null}
+            <div className="w-full flex flex-col gap-[8px] pt-[8px]">
+              {selectedFinalImagesArray.map((file, index) => {
+                const ImageUrl = URL.createObjectURL(file);
+                return (
+                  <div
+                    key={index}
+                    className="w-full min-w-[300px] aspect-square max-w-[250px] ml-auto rounded overflow-hidden relative group p-[5px] bg-gradient-to-r from-emerald-700 to-emerald-800">
+                    <picture className="w-full h-full">
+                      <source src={ImageUrl} />
+                      <img src={ImageUrl} alt="" className="w-full h-full object-cover rounded " loading="lazy" />
+                    </picture>
+                    <div className="absolute top-0 left-0 w-full h-full bg-black/[0.3] flex flex-col items-center justify-center">
+                      <div>
+                        <SpinnerComponent />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
             <div ref={BottomDiv}></div>
           </div>

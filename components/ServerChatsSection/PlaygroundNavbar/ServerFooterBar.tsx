@@ -18,16 +18,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FaFileUpload } from "react-icons/fa";
+import { FaCamera, FaFileUpload } from "react-icons/fa";
 import { FaRegImages } from "react-icons/fa6";
 import Upload_ImageModal from "@/components/Upload_Images_Modal/Upload_ImageModal";
+import axios from "axios";
+import Image from "next/image";
 
 function ServerFooterBar({
   ChannalMessages,
   setChannalMessages,
+  setFinalSelectedImagesArray,
 }: {
   ChannalMessages: Array<Object>;
   setChannalMessages: React.Dispatch<React.SetStateAction<Array<Object>>>;
+  setFinalSelectedImagesArray: any;
 }) {
   const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
   const Pathname = usePathname();
@@ -41,7 +45,7 @@ function ServerFooterBar({
     replyingASpecificMessage,
     setReplyingASpecificMessage,
     Reply_A_SpecificMessageFunction,
-    SendImagesToTheSelectedTextChannel,
+    setSelectedFinalImagesArray,
   } = useContext(Context) as any;
 
   const [message, setMessage] = useState("");
@@ -52,7 +56,7 @@ function ServerFooterBar({
   const [showUploadImageModal, setShowUploadImageModal] = useState(false as boolean);
   const [messageWithImages, setMessageWithImages] = useState("" as string);
   const [selectedImagesArray, setSelectedImageArray] = useState([] as Array<File>);
-
+  const [isSending, setIsSending] = useState("images" as string);
   const Data = useMemo(
     () => ({
       user_info: {
@@ -65,6 +69,7 @@ function ServerFooterBar({
     }),
     [UserInformation, CurrentChatChannelInfo]
   );
+  const Host = process.env.NEXT_PUBLIC_BACKEND_DOMAIN as string;
   useEffect(() => {
     if (InputFiledRef.current) {
       InputFiledRef.current.focus();
@@ -86,7 +91,6 @@ function ServerFooterBar({
   const SendMessageWithDebounce = useDebounce(async (AuthToken, serverId, channelId, message) => {
     const _newMessage = await SendMessageInTheSelectedChannelOfServer(AuthToken, serverId, channelId, message);
     if (!_newMessage) return;
-    console.log(ChannalMessages, _newMessage);
 
     // Ensure the new message is only added if it's not already in ChannalMessages
     if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
@@ -113,9 +117,10 @@ function ServerFooterBar({
       message_id,
       replying_to_message,
       replying_to_user_member_id,
-      replying_message_message_id
+      replying_message_message_id,
+      replyingImage
     ) => {
-      await Reply_A_SpecificMessageFunction(
+      const _newMessage = await Reply_A_SpecificMessageFunction(
         AuthToken,
         serverId,
         channelId,
@@ -123,11 +128,15 @@ function ServerFooterBar({
         message_id,
         replying_to_message,
         replying_to_user_member_id,
-        replying_message_message_id
+        replying_message_message_id,
+        replyingImage
       );
       setLoading(false);
       setMessage("");
       remove_editingAMessage_StateInfo();
+      if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
+        setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
+      }
     },
     350
   );
@@ -139,8 +148,9 @@ function ServerFooterBar({
       const AuthToken = getCookie("User_Authentication_Token") as string;
       const serverId = Pathname?.split("/")[3];
       const channel_id = CurrentChatChannelInfo?.ChatId;
-
+      setFinalSelectedImagesArray(selectedImagesArray);
       SendMessageWithDebounce(AuthToken, serverId, channel_id, message);
+      setShowUploadImageModal(false);
     },
     [message, Pathname, CurrentChatChannelInfo, SendMessageWithDebounce]
   );
@@ -167,6 +177,8 @@ function ServerFooterBar({
       const replying_to_message = replyingASpecificMessage?.data?.content;
       const replying_to_user_member_id = replyingASpecificMessage?.data?.member?.id;
       const replying_message_message_id = replyingASpecificMessage?.data?.id;
+      const replyingImage =
+        replyingASpecificMessage?.data?.ImageUrl !== "" ? JSON.parse(replyingASpecificMessage?.data?.ImageUrl)[0] : "";
 
       ReplayMessageWithDebounce(
         AuthToken,
@@ -175,7 +187,8 @@ function ServerFooterBar({
         message,
         replying_to_message,
         replying_to_user_member_id,
-        replying_message_message_id
+        replying_message_message_id,
+        replyingImage
       );
     },
     [message, Pathname, CurrentChatChannelInfo, replyingASpecificMessage, ReplayMessageWithDebounce]
@@ -225,9 +238,9 @@ function ServerFooterBar({
   }, [decryptContent, editingAMessage]);
 
   const ReplyingOrEditingCommonComponent = (data: MessageProps) => {
-    if (data.content) {
+    if (data.content || data.ImageUrl !== "") {
       return (
-        <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300">
+        <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300 py-[4px]">
           <div className="flex items-start">
             <div className="profile">
               <Avatar className="w-[40px] h-[40px] ">
@@ -251,19 +264,38 @@ function ServerFooterBar({
                   </div>
                 </div>
                 <div className="message">
-                  <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
-                    {data?.IsDeleted ? data?.content : decryptContent(data?.content)}
-                  </p>
+                  {data.content ? (
+                    <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px]">
+                      {data?.IsDeleted ? data?.content : decryptContent(data?.content)}
+                    </p>
+                  ) : data.ImageUrl !== "" ? (
+                    <p className="text-white global-font-roboto text-[15px] font-[300] py-[3px] flex items-center justify-start gap-[5px]">
+                      <FaCamera />
+                      <span>Photo</span>
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
           </div>
-          <div className="close">
-            <button
-              className="w-[32px] h-[32px] flex justify-center items-center  rounded-full text-white"
-              onClick={remove_editingAMessage_StateInfo}>
-              <IoIosCloseCircle className="w-[32px] h-[32px]" />
-            </button>
+          <div className="flex items-center justify-end gap-[15px]">
+            {data.ImageUrl !== "" ? (
+              <div className="w-[70px] h-[70px]">
+                <Image
+                  src={JSON.parse(data.ImageUrl)[0]}
+                  alt="replying image"
+                  width={70}
+                  height={70}
+                  className="object-cover rounded w-full h-full"></Image>
+              </div>
+            ) : null}
+            <div className="close">
+              <button
+                className="w-[32px] h-[32px] flex justify-center items-center  rounded-full text-white"
+                onClick={remove_editingAMessage_StateInfo}>
+                <IoIosCloseCircle className="w-[32px] h-[32px]" />
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -279,16 +311,209 @@ function ServerFooterBar({
 
     // ((prevMessages) => [...prevMessages, ...newMessages])
   };
+
+  const StoreSelectedImagesOnTheCloud = async (file: File, AuthToken: string) => {
+    const formData = new FormData();
+    formData.append("Image", file);
+    const response = await axios({
+      method: "post",
+      url: `${Host}/app/api/cloud/uploader/UploadImageToCloud`,
+      headers: {
+        Authorization: AuthToken,
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+    });
+    if (response.data?.success) {
+      return {
+        res: true,
+        URL_String: response.data?.data?.secure_url as string,
+      };
+    } else {
+      return {
+        res: false,
+        URL_String: "",
+      };
+    }
+  };
+
+  const sendImagesToTheSelectedChannelMessage = async (
+    AuthToken: string,
+    serverId: string,
+    channelId: string,
+    message: string,
+    imagesArray: string
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("server_id", serverId);
+      formData.append("channel_id", channelId);
+      formData.append("content", message);
+      formData.append("stringyFyImagesArray", imagesArray);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/Messages/messageWithImages`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      socket?.emit("NewMessageHasBeenSent", response.data);
+      return response.data.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handelCloudImageUploadingProcess = (
+    selected_Images_Array: Array<File>,
+    AuthToken: string,
+    message: string,
+    serverId: string,
+    channel_id: string
+  ) => {
+    try {
+      let uploadedImagesArray: Array<string> = [];
+      selected_Images_Array.forEach(async (EachFile: File) => {
+        const response: {
+          res: boolean;
+          URL_String: string;
+        } = await StoreSelectedImagesOnTheCloud(EachFile, AuthToken);
+        if (!response.res) {
+          setLoading(false);
+          return;
+        }
+        uploadedImagesArray.push(response.URL_String);
+        if (selected_Images_Array.length === uploadedImagesArray.length) {
+          const _newMessage = await sendImagesToTheSelectedChannelMessage(
+            AuthToken,
+            serverId,
+            channel_id,
+            message,
+            JSON.stringify(uploadedImagesArray)
+          );
+          if (!_newMessage) return;
+          setSelectedFinalImagesArray([]);
+          setSelectedImageArray([]);
+          if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
+            setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
+          }
+        }
+        setLoading(false);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const storeFilesToTheCloud = async (file: File, AuthToken: string) => {
+    const formData = new FormData();
+    formData.append("File", file);
+    const response = await axios({
+      method: "post",
+      url: `${Host}/app/api/cloud/uploader/uploadFilesToTheCloud`,
+      headers: {
+        Authorization: AuthToken,
+        "Content-Type": "multipart/form-data",
+      },
+      data: formData,
+    });
+    if (response.data?.success) {
+      return {
+        res: true,
+        URL_String: response.data?.data?.secure_url as string,
+      };
+    } else {
+      return {
+        res: false,
+        URL_String: "",
+      };
+    }
+  };
+
+  const sendFilesToTheSelectedChannel = async (
+    AuthToken: string,
+    serverId: string,
+    channelId: string,
+    message: string,
+    filesArray: string
+  ) => {
+    try {
+      console.log(filesArray);
+      const formData = new FormData();
+      formData.append("server_id", serverId);
+      formData.append("channel_id", channelId);
+      formData.append("content", message);
+      formData.append("stringyFyFilesArray", filesArray);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/Messages/sendFilesInTheChat`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      socket?.emit("NewMessageHasBeenSent", response.data);
+      return response.data.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handelCloudFilesUploadingProcess = (
+    selected_ImagesArray: Array<File>,
+    AuthToken: string,
+    message: string,
+    serverId: string,
+    channel_id: string
+  ) => {
+    try {
+      const uploadFilesArray: Array<string> = [];
+      selected_ImagesArray.forEach(async (EachFile) => {
+        const response: {
+          res: boolean;
+          URL_String: string;
+        } = await storeFilesToTheCloud(EachFile, AuthToken);
+        if (!response.res) {
+          setLoading(false);
+          return;
+        }
+        uploadFilesArray.push(response.URL_String);
+        if (selected_ImagesArray.length === uploadFilesArray.length) {
+          const _newMessage = await sendFilesToTheSelectedChannel(
+            AuthToken,
+            serverId,
+            channel_id,
+            message,
+            JSON.stringify(uploadFilesArray)
+          );
+          if (!_newMessage) return;
+          setSelectedFinalImagesArray([]);
+          setSelectedImageArray([]);
+          if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
+            setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
+          }
+        }
+      });
+    } catch (error) {}
+  };
+
   const sendMessageWithImages = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
-    const formData = new FormData();
-    selectedImagesArray.forEach((files) => {
-      formData.append("channelImages", files);
-    });
-    formData.append("imageAttachment", messageWithImages);
-    const channel_id = CurrentChatChannelInfo.ChatId;
-    await SendImagesToTheSelectedTextChannel(AuthToken, channel_id, formData);
+    const serverId = Pathname?.split("/")[3];
+    const channel_id = CurrentChatChannelInfo?.ChatId;
+    if (isSending === "images") {
+      setShowUploadImageModal(false);
+      setSelectedFinalImagesArray(selectedImagesArray);
+      handelCloudImageUploadingProcess(selectedImagesArray, AuthToken, messageWithImages, serverId, channel_id);
+    } else {
+      setShowUploadImageModal(false);
+      handelCloudFilesUploadingProcess(selectedImagesArray, AuthToken, messageWithImages, serverId, channel_id);
+    }
   };
   const ImageAttachmentOnInputChange = (e) => {
     setMessageWithImages(e.target.value);
@@ -312,13 +537,21 @@ function ServerFooterBar({
               <DropdownMenuContent>
                 <DropdownMenuItem
                   className=" text-[rgb(255,255,255,0.9)]"
-                  onClick={() => setShowUploadImageModal(true)}>
+                  onClick={() => {
+                    setIsSending("images");
+                    setShowUploadImageModal(true);
+                  }}>
                   <span className="flex items-center gap-[5px]">
                     <FaRegImages className="w-[18px] h-[18px]" />
                     <span className="">Send Image</span>
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className=" text-[rgb(255,255,255,0.9)]">
+                <DropdownMenuItem
+                  className=" text-[rgb(255,255,255,0.9)]"
+                  onClick={() => {
+                    setIsSending("files");
+                    setShowUploadImageModal(true);
+                  }}>
                   <span className="flex items-center gap-[5px]">
                     <FaFileUpload className="w-[18px] h-[18px]" />
                     <span className="">Send File</span>
@@ -373,13 +606,16 @@ function ServerFooterBar({
           </div>
         </div>
       </div>
-      <Upload_ImageModal
-        showUploadImageModal={showUploadImageModal}
-        setShowUploadImageModal={setShowUploadImageModal}
-        selectedImagesArray={selectedImagesArray}
-        setSelectedImagesArray={setSelectedImageArray}
-        sendImagesOnClick={sendMessageWithImages}
-      />
+      {showUploadImageModal ? (
+        <Upload_ImageModal
+          showUploadImageModal={showUploadImageModal}
+          setShowUploadImageModal={setShowUploadImageModal}
+          selectedImagesArray={selectedImagesArray}
+          setSelectedImagesArray={setSelectedImageArray}
+          sendImagesOnClick={sendMessageWithImages}
+          isSending={isSending}
+        />
+      ) : null}
     </>
   );
 }
