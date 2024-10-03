@@ -244,6 +244,7 @@ interface ContextApiProps {
     message: string
   ) => void;
   FetchingAllTheOneToOneConversation: (AuthToken: string) => void;
+  FetchAllTheMessageOfAnOneToOneConversation: (AuthToken: string, conversation_id: string, Page: number) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -1297,7 +1298,6 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const CreateAnOneToOneConversation = async (AuthToken: string, receiver_id: string) => {
     try {
-      console.log(receiver_id);
       if (!AuthToken || receiver_id === "undefined") return;
       const formData = new FormData();
       formData.append("receiver_id", receiver_id);
@@ -1310,24 +1310,23 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         },
         data: formData,
       });
-      console.log(response.data);
+      return response.data.data;
     } catch (error) {
       GlobalErrorHandler(error);
     }
   };
-  const FetchAllTheMessageOfAnOneToOneConversation = async (AuthToken, channel_id) => {
+  const FetchAllTheMessageOfAnOneToOneConversation = async (AuthToken, conversation_id, Page = 1) => {
     try {
-      if (!AuthToken || channel_id === "undefined") return;
+      if (!AuthToken || conversation_id === "undefined") return;
       const response = await axios({
         method: "get",
-        url: `${Host}/app/api/OneToOneMessage/FetchConversationMessages/
-        ${channel_id}`,
+        url: `${Host}/app/api/OneToOneMessage/FetchConversationMessages/${conversation_id}?page=${Page}`,
         headers: {
           Authorization: AuthToken,
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
+      return response.data;
     } catch (error) {
       GlobalErrorHandler(error);
     }
@@ -1710,6 +1709,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     GlobalNotificationHandlerFunction,
     StoreMessageNotificationInTheDB,
     FetchingAllTheOneToOneConversation,
+    FetchAllTheMessageOfAnOneToOneConversation,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

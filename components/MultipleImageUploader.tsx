@@ -1,20 +1,13 @@
 import Image from "next/image";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import PdfFileTypeIcon from "@/public/file-type-icons/pdf.png";
-import docFileTypeIcon from "@/public/file-type-icons/google-docs.png";
-import docxFileTypeIcon from "@/public/file-type-icons/docx-file.png";
-import excelFileTypeIcon from "@/public/file-type-icons/excel.png";
-import csvFileTypeIcon from "@/public/file-type-icons/csv.png";
-import pptxFileTypeIcon from "@/public/file-type-icons/pptx-file.png";
-import pptFileTypeIcon from "@/public/file-type-icons/ppt.png";
-import rtfFileTypeIcon from "@/public/file-type-icons/rtf.png";
-import txtFileTypeIcon from "@/public/file-type-icons/txt.png";
-import zipFileTypeIcon from "@/public/file-type-icons/zip.png";
-import markdownFileTypeIcon from "@/public/file-type-icons/substance.png";
-import codeFileTypeIcon from "@/public/file-type-icons/markup.png";
+import { checkTheFileFormateOfThatIsBeingUploading, getTheFileExtension } from "@/helper/GetFileTypeAndFileIcon";
+import { Context } from "@/context/ContextApi";
+import { NotificationType } from "@/enums/enums";
+import cloudUploadIcon from "@/public/cloud-computing.png";
+import { checkTheImageTypeThatIsBeingUploading } from "@/helper/ImageTypeChecker";
 
 function MultipleImageUploader({
   setSelectedImagesArray,
@@ -28,110 +21,44 @@ function MultipleImageUploader({
   selectedFilesFinalArray: Array<File>;
 }) {
   const [previewImagesUrls, setPreviewImagesUrls] = useState([] as Array<string>);
+  const { GlobalNotificationHandlerFunction } = useContext(Context) as any;
 
   const onDrop = useCallback((files) => {
     if (isSending === "images") {
-      files.map((file) => {
-        const ImageUrl = URL.createObjectURL(file);
-        setPreviewImagesUrls((Urls) => [...Urls, ImageUrl]);
-        setSelectedImagesArray((previous) => [...previous, file]);
+      files.map((file: File) => {
+        const isAllowedFormate = checkTheImageTypeThatIsBeingUploading(file.name);
+        if (isAllowedFormate) {
+          const ImageUrl = URL.createObjectURL(file);
+          setPreviewImagesUrls((Urls) => [...Urls, ImageUrl]);
+          setSelectedImagesArray((previous) => [...previous, file]);
+        } else {
+          GlobalNotificationHandlerFunction(
+            "",
+            NotificationType.ERROR,
+            `".${file.name.split(".")[1].toLocaleUpperCase()}"  is not a valid formate`,
+            "top-right",
+            1500
+          );
+        }
       });
     } else {
-      console.log(files);
-      files.map((file) => {
-        setSelectedFilesFinalArray((previous) => [...previous, file]);
+      files.map((file: File) => {
+        const isAllowedFormate = checkTheFileFormateOfThatIsBeingUploading(file);
+        if (isAllowedFormate) {
+          setSelectedFilesFinalArray((previous) => [...previous, file]);
+        } else {
+          GlobalNotificationHandlerFunction(
+            "",
+            NotificationType.ERROR,
+            `".${file.name.split(".")[1].toLocaleUpperCase()}"  is not a valid formate`,
+            "top-right",
+            1500
+          );
+        }
       });
     }
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-
-  const getTheFileExtension = (fileName) => {
-    const extension = fileName.split(".").pop().toLowerCase();
-    let mimeType;
-
-    switch (extension) {
-      case "pdf":
-        mimeType = "application/pdf";
-        break;
-      case "doc":
-        mimeType = "application/msword";
-        break;
-      case "docx":
-        mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        break;
-      case "xls":
-        mimeType = "application/vnd.ms-excel";
-        break;
-      case "xlsx":
-        mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        break;
-      case "csv":
-        mimeType = "text/csv";
-        break;
-      case "ppt":
-        mimeType = "application/vnd.ms-powerpoint";
-        break;
-      case "pptx":
-        mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-        break;
-      case "rtf":
-        mimeType = "application/rtf";
-        break;
-      case "txt":
-        mimeType = "text/plain";
-        break;
-      case "zip":
-        mimeType = "application/zip";
-        break;
-      case "md":
-        mimeType = "text/markdown"; // or "application/octet-stream"
-        break;
-      case "html":
-        mimeType = "text/html";
-        break;
-      case "css":
-        mimeType = "text/css";
-        break;
-      default:
-        mimeType = "application/octet-stream"; // Default for unknown types
-    }
-
-    // Now use the mimeType in the original switch to return the icon
-    switch (mimeType) {
-      case "application/pdf":
-        return PdfFileTypeIcon;
-      case "application/msword":
-        return docFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        return docxFileTypeIcon;
-      case "application/vnd.ms-excel":
-        return excelFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        return excelFileTypeIcon;
-      case "text/csv":
-        return csvFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        return pptxFileTypeIcon;
-      case "application/vnd.ms-powerpoint":
-        return pptFileTypeIcon;
-      case "application/rtf":
-        return rtfFileTypeIcon;
-      case "text/plain":
-        return txtFileTypeIcon;
-      case "application/zip":
-        return zipFileTypeIcon;
-      case "application/octet-stream":
-        return markdownFileTypeIcon; // Use markdown icon for octet-stream
-      case "text/html":
-        return codeFileTypeIcon;
-      case "text/css":
-        return codeFileTypeIcon;
-      case "text/markdown":
-        return markdownFileTypeIcon; // Use a specific icon for markdown
-      default:
-        return "Unknown MIME type";
-    }
-  };
 
   const removeSpecificUrl = (image_url, index) => {
     if (isSending === "images") {
@@ -153,17 +80,45 @@ function MultipleImageUploader({
   };
 
   return (
-    <div className="multiple-image-uploader">
-      <div className="image-uploader-dropzone">
-        <div {...getRootProps()} className="w-full ">
+    <div className="multiple-image-uploader h-full">
+      <div className="image-uploader-dropzone h-full">
+        <div
+          {...getRootProps()}
+          className={`w-full h-full fixed transition-all ${isDragActive ? "z-30" : "z-[1]"} top-0 left-0`}>
           <input {...getInputProps()} />
-          <p className="px-[20px] text-center py-[18px] border-[3px] border-dashed border-violet-600 rounded capitalize">
-            {isDragActive ? `Drag And Drop ${isSending}` : `Drag And Drop Your ${isSending} Hear ...`}
-          </p>
+          <div className="w-full h-full p-2 pb-[72px]">
+            <div
+              className={`h-full rounded-xl transition-all relative z-50 ${
+                isDragActive ? "bg-[rgba(0,0,0,0.35)]" : ""
+              }`}>
+              <div
+                className={`w-full h-full rounded flex items-center justify-center ${
+                  isDragActive ? "visible" : "invisible"
+                }`}>
+                <div className="min-w-80 min-h-80 aspect-square rounded-[100%] bg-black">
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-5">
+                    <div className="min-w-28 min-h-28 aspect-auto bg-white rounded-[100%] flex items-center justify-center">
+                      <Image
+                        src={cloudUploadIcon}
+                        height={100}
+                        width={100}
+                        className="w-20 h-20"
+                        alt="cloud files upload"
+                      />
+                    </div>
+                    <p className="text-base text-white capitalize gap-1">drop your {isSending} and upload it</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      <p className="px-[20px] text-center py-[18px] border-[3px] border-dashed border-violet-600 rounded capitalize">
+        {isDragActive ? `Drop ${isSending}` : `Drag And Drop Your ${isSending} Hear ...`}
+      </p>
       {previewImagesUrls.length >= 1 ? (
-        <ScrollArea className="w-full h-[240px] py-[10px] max-w-[500px] ">
+        <ScrollArea className="w-full h-[240px] py-[10px] max-w-[500px] relative z-10">
           <div
             className={`flex items-stretch ${
               previewImagesUrls.length <= 1 ? "justify-center" : "justify-start"
@@ -190,7 +145,7 @@ function MultipleImageUploader({
         </ScrollArea>
       ) : null}
       {selectedFilesFinalArray.length >= 1 ? (
-        <ScrollArea className="w-full h-[240px] py-[10px] max-w-[500px] ">
+        <ScrollArea className="w-full h-[240px] py-[10px] max-w-[500px] relative z-10">
           <div
             className={`flex items-stretch ${
               previewImagesUrls.length <= 1 ? "justify-center" : "justify-start"
@@ -207,7 +162,7 @@ function MultipleImageUploader({
                         width="100"
                         height="100"
                         alt="pdf file type icon"
-                         className="min-w-14 max-w-14 min-h-14 h-full"
+                        className="min-w-14 max-w-14 min-h-14 h-full"
                       />
                     </div>
                     <div className="w-full">

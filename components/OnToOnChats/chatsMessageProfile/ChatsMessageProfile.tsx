@@ -48,7 +48,7 @@ function ChatsMessageProfile({
     return (
       <div className="w-[100%] flex items-center justify-start gap-[8px]">
         <div className="profile">
-          <Avatar className="w-[45px] h-[45px] flex items-center justify-center">
+          <Avatar className="w-[40px] h-[40px] flex items-center justify-center">
             <AvatarImage
               src={
                 ConversationsInfo?.SenderId === User_Info?.id

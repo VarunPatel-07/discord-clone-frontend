@@ -40,6 +40,7 @@ function ListOfAllTheServerChannel({
     CreateAnOneToOneConversation,
     UserInformation,
     AnIncoming_VideoCall_Occurred,
+    setSelectedOneToOneChatInfo,
   } = useContext(Context) as any;
   const [Loader, setLoader] = useState(false);
 
@@ -59,9 +60,10 @@ function ListOfAllTheServerChannel({
   }, [AllTheTextChannelsOfTheServer, setCurrentChatChannelInfo]);
 
   const CreatingConversation_With_Debounce = useDebounce(async (AuthToken: String, receiver_id: String) => {
-    await CreateAnOneToOneConversation(AuthToken, receiver_id);
+    const conversation = await CreateAnOneToOneConversation(AuthToken, receiver_id);
+    setSelectedOneToOneChatInfo(conversation);
     // setLoader(false);
-    push(`/pages/dashboard`);
+    push(`/pages/chats`);
   }, 350);
 
   const CreateNewConversation = (receiver_id: string) => {
@@ -412,7 +414,9 @@ function ListOfAllTheServerChannel({
                             <ul className="w-[100%] flex flex-col items-center justify-center">
                               <li className="w-[100%]">
                                 <button
-                                  className="bg-white text-black px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]"
+                                  className={`${
+                                    !Loader ? "bg-white" : "bg-black"
+                                  } px-[10px] py-[5px] hover:bg-black hover:text-white rounded global-font-roboto text-[13px] w-[100%]`}
                                   onClick={() => CreateNewConversation(MemberInfo?.user?.id)}>
                                   {Loader ? <SpinnerComponent /> : "Message Privately"}
                                 </button>

@@ -1,18 +1,11 @@
 import React from "react";
-import PdfFileTypeIcon from "@/public/file-type-icons/pdf.png";
 import Image from "next/image";
 import SpinnerComponent from "./Loader/SpinnerComponent";
-import docFileTypeIcon from "@/public/file-type-icons/google-docs.png";
-import docxFileTypeIcon from "@/public/file-type-icons/docx-file.png";
-import excelFileTypeIcon from "@/public/file-type-icons/excel.png";
-import csvFileTypeIcon from "@/public/file-type-icons/csv.png";
-import pptxFileTypeIcon from "@/public/file-type-icons/pptx-file.png";
-import pptFileTypeIcon from "@/public/file-type-icons/ppt.png";
-import rtfFileTypeIcon from "@/public/file-type-icons/rtf.png";
-import txtFileTypeIcon from "@/public/file-type-icons/txt.png";
-import zipFileTypeIcon from "@/public/file-type-icons/zip.png";
-import markdownFileTypeIcon from "@/public/file-type-icons/substance.png";
-import codeFileTypeIcon from "@/public/file-type-icons/markup.png";
+import {
+  getFileExtensionThroughMimeType,
+  getFileLogoBasedOnTheExtension,
+  getTheFileExtension,
+} from "@/helper/GetFileTypeAndFileIcon";
 
 function FilePreviewStructure({
   showUploadingLoader = true,
@@ -33,161 +26,6 @@ function FilePreviewStructure({
       return `${(valueInMb * 1000).toFixed(2)} KB`; // Return in KB
     } else {
       return `${valueInMb.toFixed(2)} MB`; // Return in MB
-    }
-  };
-  const getFileExtension = (mimeType) => {
-    switch (mimeType) {
-      case "application/pdf":
-        return ".pdf";
-      case "application/msword":
-        return ".doc";
-      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        return ".docx";
-      case "application/vnd.ms-excel":
-        return ".xls";
-      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        return ".xlsx";
-      case "text/csv":
-        return ".csv";
-      case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        return ".pptx";
-      case "application/vnd.ms-powerpoint":
-        return ".ppt";
-      case "application/rtf":
-        return ".rtf";
-      case "text/plain":
-        return ".txt";
-      case "application/zip":
-        return ".zip";
-      case "application/octet-stream":
-        return ".md";
-      case "text/html":
-        return ".html";
-      case "text/css":
-        return ".css";
-      default:
-        return "Unknown MIME type";
-    }
-  };
-  const getFileLogoBasedOnTheExtension = (mineType) => {
-    switch (mineType) {
-      case "application/pdf":
-        return PdfFileTypeIcon;
-      case "application/msword":
-        return docFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        return docxFileTypeIcon;
-      case "application/vnd.ms-excel":
-        return excelFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        return excelFileTypeIcon;
-      case "text/csv":
-        return csvFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        return pptxFileTypeIcon;
-      case "application/vnd.ms-powerpoint":
-        return pptFileTypeIcon;
-      case "application/rtf":
-        return rtfFileTypeIcon;
-      case "text/plain":
-        return txtFileTypeIcon;
-      case "application/zip":
-        return zipFileTypeIcon;
-      case "application/octet-stream":
-        return markdownFileTypeIcon;
-      case "text/html":
-        return codeFileTypeIcon;
-      case "text/css":
-        return codeFileTypeIcon;
-      default:
-        return "Unknown MIME type";
-    }
-  };
-  const getTheFileExtension = (fileName) => {
-    const extension = fileName.split(".").pop().toLowerCase();
-    let mimeType;
-
-    switch (extension) {
-      case "pdf":
-        mimeType = "application/pdf";
-        break;
-      case "doc":
-        mimeType = "application/msword";
-        break;
-      case "docx":
-        mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        break;
-      case "xls":
-        mimeType = "application/vnd.ms-excel";
-        break;
-      case "xlsx":
-        mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        break;
-      case "csv":
-        mimeType = "text/csv";
-        break;
-      case "ppt":
-        mimeType = "application/vnd.ms-powerpoint";
-        break;
-      case "pptx":
-        mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-        break;
-      case "rtf":
-        mimeType = "application/rtf";
-        break;
-      case "txt":
-        mimeType = "text/plain";
-        break;
-      case "zip":
-        mimeType = "application/zip";
-        break;
-      case "md":
-        mimeType = "text/markdown"; // or "application/octet-stream"
-        break;
-      case "html":
-        mimeType = "text/html";
-        break;
-      case "css":
-        mimeType = "text/css";
-        break;
-      default:
-        mimeType = "application/octet-stream"; // Default for unknown types
-    }
-
-    // Now use the mimeType in the original switch to return the icon
-    switch (mimeType) {
-      case "application/pdf":
-        return PdfFileTypeIcon;
-      case "application/msword":
-        return docFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        return docxFileTypeIcon;
-      case "application/vnd.ms-excel":
-        return excelFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-        return excelFileTypeIcon;
-      case "text/csv":
-        return csvFileTypeIcon;
-      case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        return pptxFileTypeIcon;
-      case "application/vnd.ms-powerpoint":
-        return pptFileTypeIcon;
-      case "application/rtf":
-        return rtfFileTypeIcon;
-      case "text/plain":
-        return txtFileTypeIcon;
-      case "application/zip":
-        return zipFileTypeIcon;
-      case "application/octet-stream":
-        return markdownFileTypeIcon; // Use markdown icon for octet-stream
-      case "text/html":
-        return codeFileTypeIcon;
-      case "text/css":
-        return codeFileTypeIcon;
-      case "text/markdown":
-        return markdownFileTypeIcon; // Use a specific icon for markdown
-      default:
-        return "Unknown MIME type";
     }
   };
 
@@ -239,7 +77,8 @@ function FilePreviewStructure({
           </div>
           <div className="file-content flex items-start flex-col h-full gap-2 w-full max-w-[300px]">
             <p className="text-white text-base text-nowrap text-ellipsis overflow-hidden w-full">
-              {fileInformation?.fileInfo?.public_id?.split("/")[1] + getFileExtension(fileInformation.fileType)}
+              {fileInformation?.fileInfo?.public_id?.split("/")[1] +
+                getFileExtensionThroughMimeType(fileInformation.fileType)}
             </p>
             <p className="text-gray-300 text-xs uppercase">{convertToMegabyte(fileInformation?.fileInfo?.bytes)}</p>
           </div>

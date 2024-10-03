@@ -49,7 +49,7 @@ const Upload_ImageModal = memo((props: UploadImageModalProps) => {
                 />
               </div>
 
-              <div className="w-full button flex items-center justify-between">
+              <div className="w-full button flex items-center justify-between relative z-20">
                 <button
                   className="send-button border-[1px] border-black rounded px-[15px] py-[10px] text-[15px] global-font-roboto capitalize text-black min-w-[120px] text-center hover:bg-black hover:text-white"
                   onClick={cancelButton}>

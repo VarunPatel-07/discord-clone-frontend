@@ -17,56 +17,61 @@ interface GlobalNotification {
   ProfileBgColor: string;
   ProfileBanner_Color: string;
 }
-const is_Normal_Notification = [
-  NotificationType.NORMAL,
-  NotificationType.MESSAGE_SUCCESS,
-];
+const is_Normal_Notification = [NotificationType.NORMAL, NotificationType.MESSAGE_SUCCESS];
 function GlobalSuccessNotification() {
   const { GlobalSuccessNotification } = useContext(Context) as any;
   return (
     <div className="w-fit h-auto absolute top-[15px] right-[15px] z-[30]">
       <div className="w-[100%] h-[100%] flex flex-col-reverse items-end justify-end gap-[10px]">
         {GlobalSuccessNotification.map((notification: GlobalNotification) => {
-          return (
-            <div
-              className={`w-fit h-fit ${
-                notification.Type === NotificationType.MESSAGE_SUCCESS
-                  ? "bg-green-400 border-[1px] border-green-600"
-                  : "bg-white"
-              } px-[10px] py-[8px] rounded-[8px] animate-enter`}
-              key={notification.id}
-              id={notification.id}
-            >
-              <div className="flex items-center justify-center gap-[12px]">
-                {!is_Normal_Notification.includes(notification.Type) && (
-                  <div className="profile">
-                    <Avatar
-                      className="w-[40px] h-[40px] flex items-center justify-center rounded-full"
-                      style={{ backgroundColor: notification.ProfileBgColor }}
-                    >
-                      <AvatarImage
-                        src={notification.Profile_Picture}
-                      ></AvatarImage>
-                      <AvatarFallback
-                        className="text-[15px] flex items-center justify-center font-semibold global-font-roboto"
-                        style={{ color: notification.ProfileBanner_Color }}
-                      >
-                        {notification?.FullName?.slice(0, 1)}
-                      </AvatarFallback>
-                    </Avatar>
+          if (notification.Type !== NotificationType.ERROR) {
+            return (
+              <div
+                className={`w-fit h-fit ${
+                  notification.Type === NotificationType.MESSAGE_SUCCESS
+                    ? "bg-green-400 border-[1px] border-green-600"
+                    : "bg-white"
+                } px-[10px] py-[8px] rounded-[8px] animate-enter`}
+                key={notification.id}
+                id={notification.id}>
+                <div className="flex items-center justify-center gap-[12px]">
+                  {!is_Normal_Notification.includes(notification.Type) && (
+                    <div className="profile">
+                      <Avatar
+                        className="w-[40px] h-[40px] flex items-center justify-center rounded-full"
+                        style={{ backgroundColor: notification.ProfileBgColor }}>
+                        <AvatarImage src={notification.Profile_Picture}></AvatarImage>
+                        <AvatarFallback
+                          className="text-[15px] flex items-center justify-center font-semibold global-font-roboto"
+                          style={{ color: notification.ProfileBanner_Color }}>
+                          {notification?.FullName?.slice(0, 1)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  )}
+                  <div className="content">
+                    <p className="global-font-roboto text-[15px] text-gray-800  capitalize">
+                      <span className="text-gray-950 font-semibold pr-[5px]">{notification.UserName}</span>
+                      {notification.Message}
+                    </p>
                   </div>
-                )}
-                <div className="content">
-                  <p className="global-font-roboto text-[15px] text-gray-800  capitalize">
-                    <span className="text-gray-950 font-semibold pr-[5px]">
-                      {notification.UserName}
-                    </span>
-                    {notification.Message}
-                  </p>
                 </div>
               </div>
-            </div>
-          );
+            );
+          } else {
+            return (
+              <div
+                className="w-fit h-fit px-[16px] py-[8px] rounded-[8px] animate-enter bg-rose-300"
+                key={notification.id}
+                id={notification.id}>
+                <div className="flex items-center justify-center gap-[12px]">
+                  <div className="content">
+                    <p className="global-font-roboto text-[15px] text-black  capitalize">{notification.Message}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          }
         })}
       </div>
     </div>
