@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { Context } from "@/context/ContextApi";
 
@@ -14,6 +14,8 @@ import ChatDefaultScreen from "./ChatDefaultScreen";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 import { format, isToday, isYesterday } from "date-fns";
 import { MessageProps } from "@/interface/MessageProps";
+import { ImagesGroup } from "@/interface/ImagesGroup";
+import FilePreviewStructure from "../FilePreviewStructure";
 
 const ShowChannelMessage = memo(
   ({
@@ -25,11 +27,11 @@ const ShowChannelMessage = memo(
   }: {
     Loading: boolean;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    ChannalMessages: Array<Object>;
-    setChannalMessages: React.Dispatch<React.SetStateAction<Array<Object>>>;
+    ChannalMessages: Array<MessageProps>;
+    setChannalMessages: React.Dispatch<React.SetStateAction<Array<MessageProps>>>;
     finalSelectedImagesArray: any;
   }) => {
-    const { selectedFinalImagesArray } = useContext(Context) as any;
+    const { selectedFinalImagesArray, selectedFilesFinalArray } = useContext(Context) as any;
     const BottomDiv = useRef<HTMLDivElement>(null);
     const MessageContainerRef = useRef<HTMLDivElement>(null);
     const LastMessageOfBatch = useRef<HTMLDivElement>(null);
@@ -43,6 +45,8 @@ const ShowChannelMessage = memo(
 
     const [channelHasMoreData, setChannelHasMoreData] = useState(false as boolean);
     const [isFetchingOlderData, setIsFetchingOlderData] = useState(false as boolean);
+
+    const renderedImageGroups = new Set();
 
     const { ref: topRef, inView: topInView } = useInView({
       root: null,
@@ -122,7 +126,7 @@ const ShowChannelMessage = memo(
         // Increment page number after fetching
         setPage((prevPage) => prevPage + 1);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     };
 
@@ -144,13 +148,16 @@ const ShowChannelMessage = memo(
     useEffect(() => {
       socket?.on("EmitNewMessageHasBeenSent", async (data) => {
         if (data?.success) {
-          const message = data?.data;
+          const message: MessageProps = data?.data;
+          // console.log(message);
 
-          if (channelHasMoreData && CurrentChatChannelInfo?.ChatId === message?.channel?.id) {
-            // Ensure the new message is only added if it's not already in ChannalMessages
-            if (ChannalMessages.every((msg: any) => msg.id !== message.id)) {
+          if (CurrentChatChannelInfo?.ChatId === message?.channel?.id) {
+            // Check if the message already exists
+
+            // Only add the message if it doesn't already exist
+            if (ChannalMessages.every((msg) => msg.id !== message.id)) {
               setChannalMessages((prevMessages) => [message, ...prevMessages]);
-              scrollToBottom();
+              scrollToBottom(); // Scroll to bottom after adding the new message
             }
           }
         }
@@ -170,7 +177,7 @@ const ShowChannelMessage = memo(
         socket?.off("EmitNewMessageHasBeenSent");
         socket?.off("EmitMessageHasBeenEditedSuccessfully");
       };
-    }, [socket, CurrentChatChannelInfo, AllTheMessageOfTheChannel, UserInformation]);
+    }, [socket, CurrentChatChannelInfo, AllTheMessageOfTheChannel, UserInformation, ChannalMessages]);
 
     const groupMessage = ChannalMessages?.reduce((_groups: any, message: any) => {
       const date = format(new Date(message?.createdAt), "dd MMM yyyy");
@@ -180,6 +187,7 @@ const ShowChannelMessage = memo(
       _groups[date].push(message);
       return _groups;
     }, {});
+
     return (
       <div className="w-[100%] h-[100%] py-[30px] relative left-0 flex items-center justify-center">
         <div
@@ -225,6 +233,7 @@ const ShowChannelMessage = memo(
                               index === messages.length - 1 || messages[index + 1]?.memberId !== message.memberId;
 
                             const isLastMessageOfNewBatch = index === messages.length - 1;
+
                             return (
                               <div
                                 className="w-full"
@@ -235,7 +244,6 @@ const ShowChannelMessage = memo(
                                   scrollingToTheMessage={scrollingToTheMessage}
                                   setScrollingToTheMessage={setScrollingToTheMessage}
                                   isLastInSequence={isLastInSequence}
-                                  finalSelectedImagesArray={finalSelectedImagesArray}
                                 />
                               </div>
                             );
@@ -265,6 +273,9 @@ const ShowChannelMessage = memo(
                     </div>
                   </div>
                 );
+              })}
+              {selectedFilesFinalArray.map((file: File, index) => {
+                return <FilePreviewStructure key={index} pdfName={file.name} pdfSize={file.size} />;
               })}
             </div>
 

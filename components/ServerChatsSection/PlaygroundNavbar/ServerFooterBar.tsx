@@ -30,7 +30,7 @@ function ServerFooterBar({
   setFinalSelectedImagesArray,
 }: {
   ChannalMessages: Array<Object>;
-  setChannalMessages: React.Dispatch<React.SetStateAction<Array<Object>>>;
+  setChannalMessages: React.Dispatch<React.SetStateAction<Array<MessageProps>>>;
   setFinalSelectedImagesArray: any;
 }) {
   const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
@@ -46,6 +46,8 @@ function ServerFooterBar({
     setReplyingASpecificMessage,
     Reply_A_SpecificMessageFunction,
     setSelectedFinalImagesArray,
+    selectedFilesFinalArray,
+    setSelectedFilesFinalArray,
   } = useContext(Context) as any;
 
   const [message, setMessage] = useState("");
@@ -177,8 +179,7 @@ function ServerFooterBar({
       const replying_to_message = replyingASpecificMessage?.data?.content;
       const replying_to_user_member_id = replyingASpecificMessage?.data?.member?.id;
       const replying_message_message_id = replyingASpecificMessage?.data?.id;
-      const replyingImage =
-        replyingASpecificMessage?.data?.ImageUrl !== "" ? JSON.parse(replyingASpecificMessage?.data?.ImageUrl)[0] : "";
+      const replyingImage = replyingASpecificMessage?.data?.ImageUrl;
 
       ReplayMessageWithDebounce(
         AuthToken,
@@ -225,7 +226,7 @@ function ServerFooterBar({
         const originalContent = bytes.toString(CryptoJS.enc.Utf8);
         return originalContent;
       } catch (error) {
-        console.error("Decryption error:", error);
+        // console.error("Decryption error:", error);
         return null;
       }
     },
@@ -238,6 +239,7 @@ function ServerFooterBar({
   }, [decryptContent, editingAMessage]);
 
   const ReplyingOrEditingCommonComponent = (data: MessageProps) => {
+    // console.log(data);
     if (data.content || data.ImageUrl !== "") {
       return (
         <div className="message-container w-[100%] flex items-center justify-between transition-all duration-300 py-[4px]">
@@ -282,7 +284,7 @@ function ServerFooterBar({
             {data.ImageUrl !== "" ? (
               <div className="w-[70px] h-[70px]">
                 <Image
-                  src={JSON.parse(data.ImageUrl)[0]}
+                  src={data.ImageUrl}
                   alt="replying image"
                   width={70}
                   height={70}
@@ -328,11 +330,13 @@ function ServerFooterBar({
       return {
         res: true,
         URL_String: response.data?.data?.secure_url as string,
+        uploadedFile: file,
       };
     } else {
       return {
         res: false,
         URL_String: "",
+        uploadedFile: null,
       };
     }
   };
@@ -342,14 +346,16 @@ function ServerFooterBar({
     serverId: string,
     channelId: string,
     message: string,
-    imagesArray: string
+    imageUrl: string,
+    imageMessageId: string
   ) => {
     try {
       const formData = new FormData();
       formData.append("server_id", serverId);
       formData.append("channel_id", channelId);
       formData.append("content", message);
-      formData.append("stringyFyImagesArray", imagesArray);
+      formData.append("imageUrl", imageUrl);
+      formData.append("imageMessageId", imageMessageId);
       const response = await axios({
         method: "post",
         url: `${Host}/app/api/Messages/messageWithImages`,
@@ -359,76 +365,97 @@ function ServerFooterBar({
         },
         data: formData,
       });
-      socket?.emit("NewMessageHasBeenSent", response.data);
-      return response.data.data;
+
+      return response.data;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
-  const handelCloudImageUploadingProcess = (
+  const removeImage = (uploadedFile: File | null) => {
+    setSelectedFinalImagesArray((previous) => previous.filter((image) => image.name !== uploadedFile?.name));
+    setSelectedImageArray((previous) => previous.filter((image) => image.name !== uploadedFile?.name));
+  };
+  const handelCloudImageUploadingProcess = async (
     selected_Images_Array: Array<File>,
     AuthToken: string,
     message: string,
     serverId: string,
     channel_id: string
   ) => {
+    setLoading(true); // Set loading state at the start
     try {
-      let uploadedImagesArray: Array<string> = [];
-      selected_Images_Array.forEach(async (EachFile: File) => {
+      let messageId = "";
+
+      for (const EachFile of selected_Images_Array) {
         const response: {
           res: boolean;
           URL_String: string;
+          uploadedFile: File | null;
         } = await StoreSelectedImagesOnTheCloud(EachFile, AuthToken);
-        if (!response.res) {
-          setLoading(false);
-          return;
-        }
-        uploadedImagesArray.push(response.URL_String);
-        if (selected_Images_Array.length === uploadedImagesArray.length) {
-          const _newMessage = await sendImagesToTheSelectedChannelMessage(
+
+        if (response.res) {
+          const _res = await sendImagesToTheSelectedChannelMessage(
             AuthToken,
             serverId,
             channel_id,
             message,
-            JSON.stringify(uploadedImagesArray)
+            response.URL_String,
+            messageId
           );
+          const _newMessage = _res.data;
           if (!_newMessage) return;
-          setSelectedFinalImagesArray([]);
-          setSelectedImageArray([]);
-          if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
-            setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
+
+          if (messageId === _newMessage.id) {
+            setChannalMessages((prevMessages) =>
+              prevMessages.map((msg: any) => (msg.id === _newMessage.id ? _newMessage : msg))
+            );
+
+            // Reset messageId if all images have been uploaded
+          } else {
+            messageId = _newMessage.id; // Update the messageId
+            if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
+              setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
+            }
           }
+          if (JSON.parse(_newMessage.ImageUrl).length === selected_Images_Array.length) {
+            messageId = "";
+            socket?.emit("NewMessageHasBeenSent", _res);
+          }
+          removeImage(response.uploadedFile); // Clean up after upload
+        } else {
+          // console.log("Image upload failed for:", EachFile);
         }
-        setLoading(false);
-      });
+      }
     } catch (error) {
-      console.log(error);
+      // console.error("Error during image upload process:", error);
+    } finally {
+      setLoading(false); // Reset loading state after the process
     }
   };
 
-  const storeFilesToTheCloud = async (file: File, AuthToken: string) => {
-    const formData = new FormData();
-    formData.append("File", file);
-    const response = await axios({
-      method: "post",
-      url: `${Host}/app/api/cloud/uploader/uploadFilesToTheCloud`,
-      headers: {
-        Authorization: AuthToken,
-        "Content-Type": "multipart/form-data",
-      },
-      data: formData,
-    });
-    if (response.data?.success) {
-      return {
-        res: true,
-        URL_String: response.data?.data?.secure_url as string,
-      };
-    } else {
-      return {
-        res: false,
-        URL_String: "",
-      };
+  const storeFilesToTheCloud = async (file: File, AuthToken: string, fileIndex: number) => {
+    try {
+      const formData = new FormData();
+      formData.append("File", file);
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/cloud/uploader/uploadFilesToTheCloud`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      if (response.data?.success) {
+        return response.data;
+      }
+    } catch (error) {
+      setSelectedFilesFinalArray((prev) => {
+        const updatedArr = [...prev];
+        updatedArr.splice(fileIndex, 1);
+        return updatedArr;
+      });
     }
   };
 
@@ -437,15 +464,14 @@ function ServerFooterBar({
     serverId: string,
     channelId: string,
     message: string,
-    filesArray: string
+    fileInfo: string
   ) => {
     try {
-      console.log(filesArray);
       const formData = new FormData();
       formData.append("server_id", serverId);
       formData.append("channel_id", channelId);
       formData.append("content", message);
-      formData.append("stringyFyFilesArray", filesArray);
+      formData.append("stringifyFilesInfo", fileInfo);
       const response = await axios({
         method: "post",
         url: `${Host}/app/api/Messages/sendFilesInTheChat`,
@@ -458,40 +484,37 @@ function ServerFooterBar({
       socket?.emit("NewMessageHasBeenSent", response.data);
       return response.data.data;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
   const handelCloudFilesUploadingProcess = (
-    selected_ImagesArray: Array<File>,
     AuthToken: string,
     message: string,
     serverId: string,
     channel_id: string
   ) => {
     try {
-      const uploadFilesArray: Array<string> = [];
-      selected_ImagesArray.forEach(async (EachFile) => {
-        const response: {
-          res: boolean;
-          URL_String: string;
-        } = await storeFilesToTheCloud(EachFile, AuthToken);
-        if (!response.res) {
-          setLoading(false);
-          return;
-        }
-        uploadFilesArray.push(response.URL_String);
-        if (selected_ImagesArray.length === uploadFilesArray.length) {
+      selectedFilesFinalArray.forEach(async (EachFile, index) => {
+        const response = await storeFilesToTheCloud(EachFile, AuthToken, index);
+        if (response.success) {
           const _newMessage = await sendFilesToTheSelectedChannel(
             AuthToken,
             serverId,
             channel_id,
             message,
-            JSON.stringify(uploadFilesArray)
+            JSON.stringify(response.data)
           );
-          if (!_newMessage) return;
-          setSelectedFinalImagesArray([]);
-          setSelectedImageArray([]);
+          if (selectedFilesFinalArray.length === 1) {
+            setSelectedFilesFinalArray([]);
+          } else {
+            setSelectedFilesFinalArray((previous) => {
+              const updatedFilesArray = [...previous];
+              updatedFilesArray.splice(index, 1);
+              return updatedFilesArray;
+            });
+          }
+
           if (ChannalMessages.every((msg: any) => msg.id !== _newMessage.id)) {
             setChannalMessages((prevMessages) => [_newMessage, ...prevMessages]);
           }
@@ -501,6 +524,7 @@ function ServerFooterBar({
   };
 
   const sendMessageWithImages = async (e) => {
+    // console.log("function called");
     e.preventDefault();
     setLoading(true);
     const AuthToken = getCookie("User_Authentication_Token") as string;
@@ -512,7 +536,7 @@ function ServerFooterBar({
       handelCloudImageUploadingProcess(selectedImagesArray, AuthToken, messageWithImages, serverId, channel_id);
     } else {
       setShowUploadImageModal(false);
-      handelCloudFilesUploadingProcess(selectedImagesArray, AuthToken, messageWithImages, serverId, channel_id);
+      handelCloudFilesUploadingProcess(AuthToken, messageWithImages, serverId, channel_id);
     }
   };
   const ImageAttachmentOnInputChange = (e) => {
@@ -561,7 +585,7 @@ function ServerFooterBar({
             </DropdownMenu>
             <div className="w-[100%]">
               {showUploadImageModal ? (
-                <form onSubmit={sendMessageWithImages} className="w-[100%] h-[100%]">
+                <form className="w-[100%] h-[100%]">
                   <input
                     type="text"
                     className="w-[100%] h-[100%] bg-transparent text-white focus:ring-0 focus:border-0 focus:outline-none global-font-roboto px-[5px] disabled:opacity-50"
@@ -614,6 +638,8 @@ function ServerFooterBar({
           setSelectedImagesArray={setSelectedImageArray}
           sendImagesOnClick={sendMessageWithImages}
           isSending={isSending}
+          setSelectedFilesFinalArray={setSelectedFilesFinalArray}
+          selectedFilesFinalArray={selectedFilesFinalArray}
         />
       ) : null}
     </>

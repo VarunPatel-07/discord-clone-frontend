@@ -13,7 +13,6 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import { NotificationType } from "@/enums/enums";
 
 function Sidebar() {
-
   const { push } = useRouter();
   const {
     setShow_Create_Server_PopUp,
@@ -31,23 +30,15 @@ function Sidebar() {
     CurrentChatChannelInfo,
   } = useContext(Context) as any;
 
-  const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(
-    false as boolean
-  );
+  const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(false as boolean);
   const socket = UseSocketIO();
   const Path = usePathname();
 
   const A_New_CallHasBeen_Started = useCallback(
     (data) => {
-      const User_Info = UserInformation
-        ? UserInformation
-        : JSON?.parse(getCookie("User__Info") as string);
+      const User_Info = UserInformation ? UserInformation : JSON?.parse(getCookie("User__Info") as string);
 
-      if (
-        data.ServerInfo.members.some(
-          (member: any) => member.userId === User_Info?.id
-        )
-      ) {
+      if (data.ServerInfo.members.some((member: any) => member.userId === User_Info?.id)) {
         if (data?.CallInitiatorInfo?.id === User_Info?.id) {
           return;
         }
@@ -56,8 +47,7 @@ function Sidebar() {
           FullName: data?.CallInitiatorInfo?.FullName as string,
           UserName: data?.CallInitiatorInfo?.UserName as string,
           ProfileBgColor: data?.CallInitiatorInfo?.ProfileBgColor as string,
-          ProfileBanner_Color: data?.CallInitiatorInfo
-            ?.ProfileBanner_Color as string,
+          ProfileBanner_Color: data?.CallInitiatorInfo?.ProfileBanner_Color as string,
         };
         GlobalNotificationHandlerFunction(
           NotificationData,
@@ -125,16 +115,11 @@ function Sidebar() {
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     socket?.on("EmitNewMessageHasBeenSent", async (data) => {
-      const current_user_id = UserInformation
-        ? UserInformation
-        : JSON.parse(getCookie("User__Info") as string);
+     
+      const current_user_id = UserInformation ? UserInformation : JSON.parse(getCookie("User__Info") as string);
 
       if (data?.success) {
-        if (
-          data?.data?.channel?.server?.members?.some(
-            (member) => member?.userId === current_user_id?.id
-          )
-        ) {
+        if (data?.data?.channel?.server?.members?.some((member) => member?.userId === current_user_id?.id)) {
           const socket_serverId = data?.data?.channel?.serverId;
           const channel_id = data?.data?.channel?.id;
           const sender_id = data?.data?.member?.user?.id;
@@ -142,21 +127,16 @@ function Sidebar() {
           // now we send a notification if user is not in the current server
           const current_server_id = Path.split("/")[3];
 
-          if (
-            current_server_id !== socket_serverId ||
-            channel_id !== CurrentChatChannelInfo?.ChatId
-          ) {
+          if (current_server_id !== socket_serverId || channel_id !== CurrentChatChannelInfo?.ChatId) {
             if (data?.data?.member?.userId !== current_user_id?.id) {
               const Data = {
-                Profile_Picture: data?.data?.member?.user
-                  ?.Profile_Picture as string,
+                Profile_Picture: data?.data?.member?.user?.Profile_Picture as string,
                 FullName: data?.data?.member?.user?.FullName as string,
                 UserName: data?.data?.member?.user?.UserName as string,
-                ProfileBgColor: data?.data?.member?.user
-                  ?.ProfileBgColor as string,
-                ProfileBanner_Color: data?.data?.member?.user
-                  ?.ProfileBanner_Color as string,
+                ProfileBgColor: data?.data?.member?.user?.ProfileBgColor as string,
+                ProfileBanner_Color: data?.data?.member?.user?.ProfileBanner_Color as string,
               };
+              console.log(Data);
               GlobalNotificationHandlerFunction(
                 Data,
                 NotificationType.MESSAGE,
@@ -191,13 +171,7 @@ function Sidebar() {
           ProfileBgColor: sender?.ProfileBgColor as string,
           ProfileBanner_Color: sender?.ProfileBanner_Color as string,
         };
-        GlobalNotificationHandlerFunction(
-          Data,
-          NotificationType.FRIEND_REQUEST,
-          "Wants to Follow",
-          "top-right",
-          4000
-        );
+        GlobalNotificationHandlerFunction(Data, NotificationType.FRIEND_REQUEST, "Wants to Follow", "top-right", 4000);
       }
       await FetchingAllTheSentRequestOfUser(AuthToken);
       await FetchingAllTheReceivedRequestOfUser(AuthToken);
@@ -230,13 +204,7 @@ function Sidebar() {
           ProfileBgColor: sender_info?.ProfileBgColor as string,
           ProfileBanner_Color: sender_info?.ProfileBanner_Color as string,
         };
-        GlobalNotificationHandlerFunction(
-          Data,
-          NotificationType.FOLLOW,
-          "Started Following You",
-          "top-right",
-          4000
-        );
+        GlobalNotificationHandlerFunction(Data, NotificationType.FOLLOW, "Started Following You", "top-right", 4000);
       }
 
       await FetchingAllTheSentRequestOfUser(AuthToken);
@@ -254,13 +222,7 @@ function Sidebar() {
             ProfileBgColor: data?.UserInfo.ProfileBgColor as string,
             ProfileBanner_Color: data?.UserInfo?.ProfileBanner_Color as string,
           };
-          GlobalNotificationHandlerFunction(
-            Data,
-            NotificationType.FOLLOW,
-            "joined the server",
-            "top-right",
-            4000
-          );
+          GlobalNotificationHandlerFunction(Data, NotificationType.FOLLOW, "joined the server", "top-right", 4000);
         } catch (error) {
           console.error("Error handling new member joined event:", error);
         }
@@ -291,12 +253,10 @@ function Sidebar() {
             <div
               className="create-new-server-button my-[10px] hover:bg-green-600"
               data-tooltip-id="Create-New-Server-tooltip"
-              data-tooltip-content="Create Server"
-            >
+              data-tooltip-content="Create Server">
               <button
                 className="w-100 h-100 flex items-center justify-center fs-18"
-                onClick={() => setShow_Create_Server_PopUp(true)}
-              >
+                onClick={() => setShow_Create_Server_PopUp(true)}>
                 <FaPlus />
               </button>
             </div>
@@ -310,13 +270,10 @@ function Sidebar() {
                 prefetch={false}
                 href={"/pages/dashboard"}
                 className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
-                  Path.split("/").includes("dashboard")
-                    ? "active-server"
-                    : "server-logo-wrapper"
+                  Path.split("/").includes("dashboard") ? "active-server" : "server-logo-wrapper"
                 }`}
                 data-tooltip-id="HomePage-tooltip"
-                data-tooltip-content="Home Page"
-              >
+                data-tooltip-content="Home Page">
                 <div className="clickable-button">
                   <div className="image-section w-100 h-100">
                     <div className="w-[52px] h-[52px] bg-indigo-600 flex flex-col items-center justify-center">
@@ -334,13 +291,10 @@ function Sidebar() {
                     href={`/pages/server/${Info?.id}`}
                     key={Info.id}
                     className={`w-100  flex items-center justify-center relative mb-[20px] cursor-pointer ${
-                      Path.split("/").includes(Info.id)
-                        ? "active-server"
-                        : "server-logo-wrapper"
+                      Path.split("/").includes(Info.id) ? "active-server" : "server-logo-wrapper"
                     }`}
                     data-tooltip-id="Server-name-tooltip"
-                    data-tooltip-content={Info?.name}
-                  >
+                    data-tooltip-content={Info?.name}>
                     <div className="clickable-button">
                       <div className="image-section w-100 h-100">
                         <video autoPlay muted loop poster={Info.imageUrl}>
@@ -349,9 +303,7 @@ function Sidebar() {
                         </video>
                       </div>
                     </div>
-                    <span
-                      className={`absolute active-server-indicator  `}
-                    ></span>
+                    <span className={`absolute active-server-indicator  `}></span>
                   </Link>
                 );
               })}
@@ -363,8 +315,7 @@ function Sidebar() {
                 <div
                   className="w-[52px] h-[52px] bg-[rgba(255,255,255,0.1)] rounded-full flex flex-col items-center justify-center cursor-pointer transition duration-[0.15s] hover:bg-green-800 hover:rounded-[20px] group"
                   data-tooltip-id="Explorer-tooltip"
-                  data-tooltip-content="Explorer Server"
-                >
+                  data-tooltip-content="Explorer Server">
                   <MdExplore className="w-[28px] h-[28px] text-green-700 transition duration-[0.15s] group-hover:text-black" />
                 </div>
               </Link>

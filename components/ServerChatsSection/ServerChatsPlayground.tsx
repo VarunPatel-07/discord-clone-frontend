@@ -9,6 +9,8 @@ import { VideoAudioCallContextProvider } from "@/context/CallContextApi";
 import { Context } from "@/context/ContextApi";
 import SpinnerComponent from "../Loader/SpinnerComponent";
 import PermissionRemover from "../Audio_Video_Call/PermissionRemover";
+import { MessageProps } from "@/interface/MessageProps";
+import AudioVideoCall from "../VideoAudioCall/VideoAudioCall";
 
 function ServerChatsPlayground({
   CurrentChatChannelInfo,
@@ -25,7 +27,7 @@ function ServerChatsPlayground({
   };
 }) {
   const [Loading, setLoading] = useState(true);
-  const [ChannalMessages, setChannalMessages] = useState([] as Array<object>);
+  const [ChannalMessages, setChannalMessages] = useState([] as Array<MessageProps>);
   const [finalSelectedImagesArray, setFinalSelectedImagesArray] = useState([] as Array<File>);
   return (
     <div className="w-[100%] h-[100%]  relative  transition-all duration-200 ease-in-out">
@@ -50,19 +52,15 @@ function ServerChatsPlayground({
             </div>
           )}
         </div>
-      ) : null}
-      <VideoAudioCallContextProvider>
-        {CurrentChatChannelInfo.ChatType === "AUDIO" ? (
+      ) : (
+        <VideoAudioCallContextProvider>
           <div className="w-[100%] h-[100%] pt-[50px]">
-            <AudioAndVideoCallLayout Call_Type="AUDIO" />
+            {/* <AudioAndVideoCallLayout Call_Type={CurrentChatChannelInfo.ChatType === "AUDIO" ? "AUDIO" : "VIDEO"} />
+             */}
+            <AudioVideoCall Is_VideoCall={CurrentChatChannelInfo.ChatType === "AUDIO" ? false : true} />
           </div>
-        ) : null}
-        {CurrentChatChannelInfo.ChatType === "VIDEO" ? (
-          <div className="w-[100%] h-[100%] pt-[50px]">
-            <AudioAndVideoCallLayout Call_Type="VIDEO" />
-          </div>
-        ) : null}
-      </VideoAudioCallContextProvider>
+        </VideoAudioCallContextProvider>
+      )}
       {CurrentChatChannelInfo.ChatType === "TEXT" && (
         <ServerFooterBar
           ChannalMessages={ChannalMessages}

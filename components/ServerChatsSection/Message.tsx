@@ -14,23 +14,21 @@ import { Edit } from "lucide-react";
 import { MdDelete, MdOutlineAddReaction } from "react-icons/md";
 import CryptoJS from "crypto-js";
 import { MessageProps } from "@/interface/MessageProps";
-import { NotificationType } from "@/enums/enums";
+import { MessageType, NotificationType } from "@/enums/enums";
 import Image from "next/image";
 import MessageImage from "../MessageImage";
-import PreviewFiles from "../PreviewFiles";
+import FilePreviewStructure from "../FilePreviewStructure";
 
 function Message({
   MessageData,
   scrollingToTheMessage,
   setScrollingToTheMessage,
   isLastInSequence,
-  finalSelectedImagesArray,
 }: {
   MessageData: MessageProps;
   scrollingToTheMessage: string;
   setScrollingToTheMessage: React.Dispatch<React.SetStateAction<string>>;
   isLastInSequence: boolean;
-  finalSelectedImagesArray: any;
 }) {
   const {
     DeleteMessageFunction,
@@ -66,7 +64,7 @@ function Message({
       const originalContent = bytes.toString(CryptoJS.enc.Utf8);
       return originalContent;
     } catch (error) {
-      console.error("Decryption error:", error);
+      // console.error("Decryption error:", error);
       return null;
     }
   };
@@ -99,7 +97,6 @@ function Message({
   };
 
   const MessageSendBySender = MessageData?.member?.user?.id === UserInformation?.id ? true : false;
-
   return (
     <div className="message w-[100%] rounded  transition-all duration-300">
       <div
@@ -204,13 +201,12 @@ function Message({
                     </div>
                   </div>
                 ) : null}
-                {MessageData.ImageUrl !== "" ? <MessageImage imagesArray={JSON.parse(MessageData.ImageUrl)} /> : null}
-                {MessageData.FileURL !== "" ? (
-                  <>
-                    {JSON.parse(MessageData.FileURL).map((fileUrl) => (
-                      <PreviewFiles  fileUrl={fileUrl} key={fileUrl} />
-                    ))}
-                  </>
+
+                {MessageData.MessageType === "IMAGE" && MessageData.ImageUrl !== "" ? (
+                  <MessageImage imageArray={JSON.parse(MessageData.ImageUrl)} />
+                ) : null}
+                {MessageData.MessageType === "FILE" && MessageData.FileURL !== "" ? (
+                  <FilePreviewStructure showUploadingLoader={false} fileInformation={JSON.parse(MessageData.FileURL)} MessageSendBySender={MessageSendBySender} />
                 ) : null}
 
                 <div className="flex flex-nowrap items-end justify-between relative">
@@ -225,7 +221,7 @@ function Message({
                   <p
                     className={`${
                       MessageSendBySender ? "text-gray-300" : "text-gray-400"
-                    } text-[11px] global-font-roboto text-end absolute bottom-[3px] right-[5px] `}>
+                    } text-[11px] global-font-roboto text-end absolute bottom-0 right-[5px] `}>
                     {GetLocalTimeFrom_UTC(MessageData?.createdAt as Date)}
                   </p>
                 </div>
@@ -240,37 +236,19 @@ function Message({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align={MessageSendBySender ? "end" : "start"}>
                   {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
-                  {MessageData.ImageUrl !== "" ? (
-                    JSON.parse(MessageData.ImageUrl || "").length > 1 ? null : (
-                      <DropdownMenuItem
-                        className=" text-[rgb(255,255,255,0.9)]"
-                        onClick={() => {
-                          setReplyingASpecificMessage({
-                            is_Replying: true,
-                            data: MessageData as MessageProps,
-                          });
-                        }}>
-                        <span className="flex items-center gap-[5px]">
-                          <FaReply className="w-[18px] h-[18px]" />
-                          <span className="">Reply Message</span>
-                        </span>
-                      </DropdownMenuItem>
-                    )
-                  ) : (
-                    <DropdownMenuItem
-                      className=" text-[rgb(255,255,255,0.9)]"
-                      onClick={() => {
-                        setReplyingASpecificMessage({
-                          is_Replying: true,
-                          data: MessageData as MessageProps,
-                        });
-                      }}>
-                      <span className="flex items-center gap-[5px]">
-                        <FaReply className="w-[18px] h-[18px]" />
-                        <span className="">Reply Message</span>
-                      </span>
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem
+                    className=" text-[rgb(255,255,255,0.9)]"
+                    onClick={() => {
+                      setReplyingASpecificMessage({
+                        is_Replying: true,
+                        data: MessageData as MessageProps,
+                      });
+                    }}>
+                    <span className="flex items-center gap-[5px]">
+                      <FaReply className="w-[18px] h-[18px]" />
+                      <span className="">Reply Message</span>
+                    </span>
+                  </DropdownMenuItem>
 
                   {!MessageData?.IsDeleted ? (
                     <DropdownMenuItem

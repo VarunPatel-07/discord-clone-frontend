@@ -6,3 +6,8 @@ export enum NotificationType {
   ERROR,
   MESSAGE_SUCCESS,
 }
+export enum MessageType {
+  IMAGE,
+  FILE,
+  MESSAGE,
+}

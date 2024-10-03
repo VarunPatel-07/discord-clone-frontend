@@ -21,4 +21,5 @@ export interface MessageProps {
   channel: Channel;
   replyingToUser: Member;
   replyingImage: string;
+  MessageType: string;
 }

@@ -7,15 +7,27 @@ interface UploadImageModalProps {
   setSelectedImagesArray: React.Dispatch<React.SetStateAction<Array<File>>>;
   sendImagesOnClick: any;
   isSending: string;
+  setSelectedFilesFinalArray: React.Dispatch<React.SetStateAction<Array<File>>>;
+  selectedFilesFinalArray: Array<File>;
 }
 
 const Upload_ImageModal = memo((props: UploadImageModalProps) => {
-  const { showUploadImageModal, setShowUploadImageModal, setSelectedImagesArray, sendImagesOnClick, isSending } = props;
+  const {
+    showUploadImageModal,
+    setShowUploadImageModal,
+    setSelectedImagesArray,
+    sendImagesOnClick,
+    isSending,
+    setSelectedFilesFinalArray,
+    selectedFilesFinalArray,
+  } = props;
 
   const mainBoxRef = useRef<HTMLDivElement>(null);
 
   const cancelButton = () => {
     setShowUploadImageModal(false);
+    setSelectedFilesFinalArray([]);
+    setSelectedImagesArray([]);
   };
 
   return (
@@ -29,7 +41,12 @@ const Upload_ImageModal = memo((props: UploadImageModalProps) => {
           <div className="px-[20px] py-[20px] rounded bg-white min-w-[500px] max-w-[500px]" ref={mainBoxRef}>
             <div className="w-full flex flex-col gap-[25px] items-start justify-start">
               <div className="w-full">
-                <MultipleImageUploader setSelectedImagesArray={setSelectedImagesArray} isSending={isSending} />
+                <MultipleImageUploader
+                  setSelectedImagesArray={setSelectedImagesArray}
+                  isSending={isSending}
+                  setSelectedFilesFinalArray={setSelectedFilesFinalArray}
+                  selectedFilesFinalArray={selectedFilesFinalArray}
+                />
               </div>
 
               <div className="w-full button flex items-center justify-between">

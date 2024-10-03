@@ -38,75 +38,39 @@ function RunningMeetingLayout({ Call_Type }: { Call_Type: string }) {
   }, [UserInfoFetchingFunction, UserInformation]);
 
   if (!Token) return <SpinnerComponent />;
-  if (Call_Type === "AUDIO") {
-    return (
-      <MeetingProvider
-        config={{
-          micEnabled: MicOn,
-          webcamEnabled: false,
-          name: UserInformation?.UserName,
-          debugMode: true,
-          meetingId: ANew_AudioMeeting_HasBeenStarted.MeetingId,
-          metaData: UserInformation,
-        }}
-        token={Token}
-        // joinWithoutUserInteraction={true}
-      >
-        <div className="w-[100%] h-[100%] relative  px-[15px]">
-          <MeetingViewGridLayout
-            UserInformation={UserInformation}
-            Call_Type={Call_Type}
-            ActiveSpeakerId={ActiveSpeakerId}
-            setActiveSpeakerId={setActiveSpeakerId}
-          />
-        </div>
-        <div className="w-[100%] relative z-[10]">
-          <MeetingController
-            Call_Type={Call_Type}
-            ActiveSpeakerId={ActiveSpeakerId}
-            setActiveSpeakerId={setActiveSpeakerId}
-          />
-        </div>
-        <div className="w-[100%] h-[100%]">
-          <MeetingNotification />
-        </div>
-      </MeetingProvider>
-    );
-  } else {
-    return (
-      <MeetingProvider
-        config={{
-          micEnabled: MicOn,
-          webcamEnabled: VideoOn,
-          name: UserInformation?.UserName,
-          debugMode: true,
-          meetingId: ANew_VideoMeeting_HasBeenStarted.MeetingId,
-          metaData: UserInformation,
-        }}
-        token={Token}
-        // joinWithoutUserInteraction={true}
-      >
-        <div className="w-[100%] h-[100%] relative px-[15px] ">
-          <MeetingViewGridLayout
-            UserInformation={UserInformation}
-            Call_Type={Call_Type}
-            ActiveSpeakerId={ActiveSpeakerId}
-            setActiveSpeakerId={setActiveSpeakerId}
-          />
-        </div>
-        <div className="w-[100%] relative z-[10]">
-          <MeetingController
-            Call_Type={Call_Type}
-            ActiveSpeakerId={ActiveSpeakerId}
-            setActiveSpeakerId={setActiveSpeakerId}
-          />
-        </div>
-        <div className="w-[100%] h-[100%]">
-          <MeetingNotification />
-        </div>
-      </MeetingProvider>
-    );
-  }
+  return (
+    <MeetingProvider
+      config={{
+        micEnabled: MicOn,
+        webcamEnabled: Call_Type === "AUDIO" ? false : VideoOn,
+        name: UserInformation?.UserName,
+        debugMode: true,
+        meetingId: ANew_AudioMeeting_HasBeenStarted.MeetingId,
+        metaData: UserInformation,
+      }}
+      token={Token}
+      // joinWithoutUserInteraction={true}
+    >
+      <div className="w-[100%] h-[100%] relative  px-[15px]">
+        <MeetingViewGridLayout
+          UserInformation={UserInformation}
+          Call_Type={Call_Type}
+          ActiveSpeakerId={ActiveSpeakerId}
+          setActiveSpeakerId={setActiveSpeakerId}
+        />
+      </div>
+      <div className="w-[100%] relative z-[10]">
+        <MeetingController
+          Call_Type={Call_Type}
+          ActiveSpeakerId={ActiveSpeakerId}
+          setActiveSpeakerId={setActiveSpeakerId}
+        />
+      </div>
+      <div className="w-[100%] h-[100%]">
+        <MeetingNotification />
+      </div>
+    </MeetingProvider>
+  );
 }
 
 export default RunningMeetingLayout;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 // Set the worker path to the proper version

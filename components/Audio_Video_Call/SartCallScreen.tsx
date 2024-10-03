@@ -216,7 +216,7 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
           Authorization: token,
         },
       });
-     
+
       if (!response.data) return;
 
       SendMeetingIdToTheMemberOfTheServer(response.data.roomId);
@@ -276,55 +276,21 @@ function StartCallScreen({ Call_Type }: { Call_Type: string }) {
             </p>
             <audio ref={audioRef} autoPlay muted={!MicOn} />
 
-            {Call_Type === "VIDEO" ? (
-              video_Stream ? (
-                Is_Video_Permitted ? (
-                  AvailableCameras.length ? (
-                    VideoOn ? (
-                      <div className="w-full h-full video-wrapper">
-                        <ReactPlayer
-                          url={video_Stream}
-                          playsinline
-                          pip={false}
-                          light={false}
-                          controls={false}
-                          muted
-                          playing
-                          width="100%"
-                          height="100%"
-                          style={{ objectFit: "cover" }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Avatar
-                          className="w-[120px] h-[120px] rounded-full overflow-hidden"
-                          style={{ backgroundColor: UserInformation?.ProfileBgColor }}>
-                          <AvatarImage src={UserInformation.Profile_Picture} className="w-full h-full" />
-                          <AvatarFallback
-                            className="text-[40px] font-bold flex items-center justify-center"
-                            style={{ color: UserInformation?.ProfileBanner_Color }}>
-                            {UserInformation?.FullName?.slice(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                    )
-                  ) : (
-                    <p className="text-black text-[15px] font-medium text-center">No Camera Found</p>
-                  )
-                ) : (
-                  <p className="text-black text-[15px] font-medium text-center">
-                    Allow Us To Access Your Camera To Start The Video Call
-                    <span className="font-semibold inline-block">
-                      Go To Your Browser Settings And Allow Us To Access Your Camera
-                    </span>
-                  </p>
-                )
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <p className="text-black text-[15px] font-medium text-center">Loading ...</p>
-                </div>
-              )
+            {video_Stream && VideoOn ? (
+              <div className="w-full h-full video-wrapper">
+                <ReactPlayer
+                  url={video_Stream}
+                  playsinline
+                  pip={false}
+                  light={false}
+                  controls={false}
+                  muted
+                  playing
+                  width="100%"
+                  height="100%"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <Avatar

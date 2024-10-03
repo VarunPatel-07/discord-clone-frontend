@@ -119,6 +119,8 @@ interface ContextApiProps {
   setPinningAnSpecificVideoStream: React.Dispatch<React.SetStateAction<object>>;
   selectedFinalImagesArray: Array<File>;
   setSelectedFinalImagesArray: React.Dispatch<React.SetStateAction<Array<File>>>;
+  selectedFilesFinalArray: Array<File>;
+  setSelectedFilesFinalArray: React.Dispatch<React.SetStateAction<Array<File>>>;
 
   //
   //? exporting all the functions
@@ -350,6 +352,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [GlobalNotificationStoredInDB, setGlobalNotificationStoredInDB] = useState([] as Array<object>);
   const [selectedOneToOneChatInfo, setSelectedOneToOneChatInfo] = useState({} as any);
   const [selectedFinalImagesArray, setSelectedFinalImagesArray] = useState([] as Array<File>);
+  const [selectedFilesFinalArray, setSelectedFilesFinalArray] = useState([] as Array<File>);
   //
   //
   // ? defining all the functions
@@ -1436,7 +1439,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (!AuthToken || message_id === "undefined") return;
 
       const response = await axios({
-        method: "put",
+        method: "delete",
         url: `${Host}/app/api/Messages/DeleteMessage?message_id=${message_id}`,
         headers: {
           Authorization: AuthToken,
@@ -1501,7 +1504,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (!AuthToken || message_id === "undefined") return;
 
       const response = await axios({
-        method: "put",
+        method: "delete",
         url: `${Host}/app/api/Messages/DeleteMessageReply?message_id=${message_id}&message_replay_id=${message_replay_id}`,
         headers: {
           Authorization: AuthToken,
@@ -1654,6 +1657,8 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     >,
     selectedFinalImagesArray,
     setSelectedFinalImagesArray: setSelectedFinalImagesArray as React.Dispatch<React.SetStateAction<Array<File>>>,
+    selectedFilesFinalArray,
+    setSelectedFilesFinalArray: setSelectedFilesFinalArray as React.Dispatch<React.SetStateAction<Array<File>>>,
 
     selectedOneToOneChatInfo,
     setSelectedOneToOneChatInfo: setSelectedOneToOneChatInfo as React.Dispatch<React.SetStateAction<object>>,
