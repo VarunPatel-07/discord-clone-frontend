@@ -35,7 +35,7 @@ function ServerChatsPlayground({
 
       {CurrentChatChannelInfo.ChatType === "TEXT" ? (
         <div className="w-[100%] h-[100%] flex flex-col justify-end pt-[50px] pb-[70px] relative">
-          <ScrollArea className="w-[100%]   chat-section-wrapper">
+          <ScrollArea className="w-[100%] chat-section-wrapper">
             <ShowChannelMessage
               Loading={Loading}
               setLoading={setLoading}

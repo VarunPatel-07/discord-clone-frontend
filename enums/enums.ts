@@ -5,6 +5,7 @@ export enum NotificationType {
   FRIEND_REQUEST,
   ERROR,
   MESSAGE_SUCCESS,
+  NetworkStatus,
 }
 export enum MessageType {
   IMAGE,

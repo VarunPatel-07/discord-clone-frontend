@@ -1,23 +1,20 @@
 import React, { useContext } from "react";
-
 import { Context } from "@/context/ContextApi";
-
 import { useDebounce } from "@/hooks/debounceHook";
 import { getCookie } from "cookies-next";
 import { FiMessageCircle } from "react-icons/fi";
-
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { FaCamera, FaCaretDown, FaReply } from "react-icons/fa";
 import { IoCopy } from "react-icons/io5";
 import { Edit } from "lucide-react";
 import { MdDelete, MdOutlineAddReaction } from "react-icons/md";
-import CryptoJS from "crypto-js";
 import { MessageProps } from "@/interface/MessageProps";
-import { MessageType, NotificationType } from "@/enums/enums";
+import { NotificationType } from "@/enums/enums";
 import Image from "next/image";
 import MessageImage from "../MessageImage";
 import FilePreviewStructure from "../FilePreviewStructure";
+import { decryptContent, GetLocalTimeFrom_UTC } from "@/helper/HelperFunctions";
 
 function Message({
   MessageData,
@@ -38,8 +35,6 @@ function Message({
     GlobalNotificationHandlerFunction,
   } = useContext(Context) as any;
 
-  const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY as string;
-
   const DeleteMessage_With_Debounce = useDebounce(async (AuthToken: string, messageId: string) => {
     await DeleteMessageFunction(AuthToken, messageId);
   }, 350);
@@ -47,26 +42,6 @@ function Message({
   const DeleteMessage = async (message_id: string) => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     DeleteMessage_With_Debounce(AuthToken, message_id);
-  };
-
-  const GetLocalTimeFrom_UTC = (Time: Date) => {
-    const date = new Date(Time);
-    const localTime = date.toLocaleString();
-    const __time = localTime.split(",")[1].split(":");
-    const AM_PM = Number(__time[0]) >= 12 ? "PM" : "AM";
-
-    return `${__time[0]}:${__time[1]} ${AM_PM}`;
-  };
-
-  const decryptContent = (encryptedContent) => {
-    try {
-      const bytes = CryptoJS.AES.decrypt(encryptedContent, SECRET_KEY);
-      const originalContent = bytes.toString(CryptoJS.enc.Utf8);
-      return originalContent;
-    } catch (error) {
-      // console.error("Decryption error:", error);
-      return null;
-    }
   };
 
   const scrollToThe_Message_Being_Replied = (message_id: string) => {
@@ -89,7 +64,7 @@ function Message({
 
     setTimeout(() => {
       setScrollingToTheMessage("");
-    }, 600);
+    }, 1000);
   };
   const copyMessageFunction = (message: string) => {
     navigator.clipboard.writeText(message);
@@ -138,7 +113,7 @@ function Message({
             {/* this the div which is only visible when you are replying the message this contain the info of the message being replied */}
 
             <div className="content w-[100%] flex flex-col  relative ">
-              <div className="w-[100%]  cursor-pointer  relative z-[1] min-w-[75px] ">
+              <div className="w-[100%]  cursor-pointer  relative z-[1] min-w-[120px] ">
                 {!MessageSendBySender ? (
                   <div className="head   flex items-center justify-start gap-[10px]">
                     <div className="username">
@@ -147,13 +122,6 @@ function Message({
                           ? "You"
                           : MessageData?.member?.user?.UserName}
                       </p>
-                    </div>
-                    <div className="time flex items-center gap-[5px]">
-                      {MessageData?.IsEdited && !MessageData?.IsDeleted ? (
-                        <p className="text-rose-400 text-[12px] global-font-roboto capitalize">(edited)</p>
-                      ) : (
-                        ""
-                      )}
                     </div>
                   </div>
                 ) : null}
@@ -206,7 +174,11 @@ function Message({
                   <MessageImage imageArray={JSON.parse(MessageData.ImageUrl)} />
                 ) : null}
                 {MessageData.MessageType === "FILE" && MessageData.FileURL !== "" ? (
-                  <FilePreviewStructure showUploadingLoader={false} fileInformation={JSON.parse(MessageData.FileURL)} MessageSendBySender={MessageSendBySender} />
+                  <FilePreviewStructure
+                    showUploadingLoader={false}
+                    fileInformation={JSON.parse(MessageData.FileURL)}
+                    MessageSendBySender={MessageSendBySender}
+                  />
                 ) : null}
 
                 <div className="flex flex-nowrap items-end justify-between relative">
@@ -218,10 +190,17 @@ function Message({
                       {MessageData?.IsDeleted ? MessageData?.content : decryptContent(MessageData?.content)}
                     </p>
                   </div>
+                </div>
+                <div className="absolute bottom-0 right-[5px] flex items-center justify-end gap-2">
+                  {MessageData?.IsEdited && !MessageData?.IsDeleted ? (
+                    <p className="text-[11px] global-font-roboto text-end capitalize italic text-[#FFAA00]">edited</p>
+                  ) : (
+                    ""
+                  )}
                   <p
                     className={`${
                       MessageSendBySender ? "text-gray-300" : "text-gray-400"
-                    } text-[11px] global-font-roboto text-end absolute bottom-0 right-[5px] `}>
+                    } text-[11px] global-font-roboto text-end`}>
                     {GetLocalTimeFrom_UTC(MessageData?.createdAt as Date)}
                   </p>
                 </div>
@@ -237,20 +216,20 @@ function Message({
                 <DropdownMenuContent align={MessageSendBySender ? "end" : "start"}>
                   {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
                   <DropdownMenuItem
-                    className=" text-[rgb(255,255,255,0.9)]"
-                    onClick={() => {
-                      setReplyingASpecificMessage({
-                        is_Replying: true,
-                        data: MessageData as MessageProps,
-                      });
-                    }}>
-                    <span className="flex items-center gap-[5px]">
-                      <FaReply className="w-[18px] h-[18px]" />
-                      <span className="">Reply Message</span>
-                    </span>
-                  </DropdownMenuItem>
+                      className=" text-[rgb(255,255,255,0.9)]"
+                      onClick={() => {
+                        setReplyingASpecificMessage({
+                          is_Replying: true,
+                          data: MessageData as MessageProps,
+                        });
+                      }}>
+                      <span className="flex items-center gap-[5px]">
+                        <FaReply className="w-[18px] h-[18px]" />
+                        <span className="">Reply Message</span>
+                      </span>
+                    </DropdownMenuItem>
 
-                  {!MessageData?.IsDeleted ? (
+                  {!MessageData?.IsDeleted && !MessageData?.FileURL ? (
                     <DropdownMenuItem
                       className=" text-[rgb(255,255,255,0.9)]"
                       onClick={() =>
@@ -266,19 +245,22 @@ function Message({
                   ) : null}
                   {MessageData?.member?.userId === UserInformation?.id && !MessageData?.IsDeleted ? (
                     <>
-                      <DropdownMenuItem
-                        className=" text-[rgb(255,255,255,0.9)]"
-                        onClick={() => {
-                          setEditingAMessage({
-                            is_Editing: true,
-                            data: MessageData as MessageProps,
-                          });
-                        }}>
-                        <span className="flex items-center gap-[5px]">
-                          <Edit className="w-[18px] h-[18px]" />
-                          <span className="">Edit Message</span>
-                        </span>
-                      </DropdownMenuItem>
+                      {!MessageData?.FileURL && !MessageData?.ImageUrl ? (
+                        <DropdownMenuItem
+                          className=" text-[rgb(255,255,255,0.9)]"
+                          onClick={() => {
+                            setEditingAMessage({
+                              is_Editing: true,
+                              data: MessageData as MessageProps,
+                            });
+                          }}>
+                          <span className="flex items-center gap-[5px]">
+                            <Edit className="w-[18px] h-[18px]" />
+                            <span className="">Edit Message</span>
+                          </span>
+                        </DropdownMenuItem>
+                      ) : null}
+
                       <DropdownMenuItem
                         className="text-[rgb(255,255,255,0.9)]  "
                         onClick={() => DeleteMessage(MessageData?.id)}>

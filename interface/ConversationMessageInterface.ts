@@ -1,17 +1,22 @@
 import { User } from "./UserProps";
 
 export interface ConversationMessageInterface {
-  ConversationId: string;
+  id: string;
+  content: string;
   FileURL: string;
   ImageURL: string;
   IsDeleted: boolean;
   IsEdited: boolean;
-  Receiver: User;
-  ReceiverId: string;
-  Sender: User;
+  IsMessageReply: boolean;
+  ConversationId: string;
   SenderId: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  id: string;
+  Sender: User;
+  ReceiverId: string;
+  Receiver: User;
+  createdAt: Date;
+  updatedAt: Date;
+  replyingMessageContent?: string | null;
+  replyingToUser_UserId?: string | null;
+  replyingToUser?: User | null;
+  replyingMessage_MessageId?: string | null;
 }

@@ -245,6 +245,7 @@ interface ContextApiProps {
   ) => void;
   FetchingAllTheOneToOneConversation: (AuthToken: string) => void;
   FetchAllTheMessageOfAnOneToOneConversation: (AuthToken: string, conversation_id: string, Page: number) => void;
+  replyingMessageInOneOnOneConversation: (AuthToken: string, formData: FormData, conversation_id: string) => void;
 }
 
 const Context = createContext<ContextApiProps | undefined>(undefined);
@@ -365,6 +366,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   //
   const GlobalErrorHandler = (error: any) => {
     console.log("error From GlobalErrorHandler", error);
+    GlobalNotificationHandlerFunction("", NotificationType.ERROR, "internal server error");
   };
   const GlobalNotificationHandlerFunction = async (
     data: any,
@@ -1331,6 +1333,30 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+
+  const replyingMessageInOneOnOneConversation = async (
+    AuthToken: string,
+    formData: FormData,
+    conversation_id: string
+  ) => {
+    try {
+      if (!AuthToken) return;
+      const response = await axios({
+        method: "post",
+        url: `${Host}/app/api/OneToOneMessage/replyMessage?conversation_id=${conversation_id}`,
+        headers: {
+          Authorization: AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+      socket?.emit("NewMessageInOneOnOneConversation", response.data);
+      return response.data;
+    } catch (error) {
+      GlobalErrorHandler(error);
+    }
+  };
+
   const FetchingAllTheOneToOneConversation = async (AuthToken) => {
     try {
       if (!AuthToken) return;
@@ -1438,7 +1464,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (!AuthToken || message_id === "undefined") return;
 
       const response = await axios({
-        method: "delete",
+        method: "put",
         url: `${Host}/app/api/Messages/DeleteMessage?message_id=${message_id}`,
         headers: {
           Authorization: AuthToken,
@@ -1503,11 +1529,11 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (!AuthToken || message_id === "undefined") return;
 
       const response = await axios({
-        method: "delete",
+        method: "put",
         url: `${Host}/app/api/Messages/DeleteMessageReply?message_id=${message_id}&message_replay_id=${message_replay_id}`,
         headers: {
-          Authorization: AuthToken,
           "Content-Type": "multipart/form-data",
+          Authorization: AuthToken,
         },
       });
       console.log(response.data);
@@ -1571,6 +1597,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       GlobalErrorHandler(error);
     }
   };
+
   // const SendImagesToTheSelectedTextChannel = async (AuthToke: string, channel_id: string, payload: FormData) => {
   //   try {
   //     console.log(AuthToke, channel_id, payload);
@@ -1710,6 +1737,7 @@ const ContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     StoreMessageNotificationInTheDB,
     FetchingAllTheOneToOneConversation,
     FetchAllTheMessageOfAnOneToOneConversation,
+    replyingMessageInOneOnOneConversation,
   };
   return <Context.Provider value={context_value}>{children}</Context.Provider>;
 };

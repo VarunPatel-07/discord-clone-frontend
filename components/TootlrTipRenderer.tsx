@@ -22,36 +22,16 @@ function TootlrTipRenderer() {
         style={{ backgroundColor: "white", color: "black" }}
         opacity={1}
       />
-      <ReactTooltip
-        id="mic-icon-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
+      <ReactTooltip id="mic-icon-tooltip" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
       <ReactTooltip
         id="setting-tooltip"
         style={{ backgroundColor: "white", color: "black", zIndex: "10" }}
         opacity={1}
       />
-      <ReactTooltip
-        id="Server-name-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
-      <ReactTooltip
-        id="Create-New-Server-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
-      <ReactTooltip
-        id="HomePage-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
-      <ReactTooltip
-        id="Explorer-tooltip"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
+      <ReactTooltip id="Server-name-tooltip" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
+      <ReactTooltip id="Create-New-Server-tooltip" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
+      <ReactTooltip id="HomePage-tooltip" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
+      <ReactTooltip id="Explorer-tooltip" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
       <ReactTooltip
         id="start-call-screen-mic-icon-tooltip"
         style={{ backgroundColor: "white", color: "black" }}
@@ -67,20 +47,42 @@ function TootlrTipRenderer() {
         style={{ backgroundColor: "white", color: "black" }}
         opacity={1}
       />
-      <ReactTooltip
-        id="End-TheCallButton"
-        style={{ backgroundColor: "white", color: "black" }}
-        opacity={1}
-      />
+      <ReactTooltip id="End-TheCallButton" style={{ backgroundColor: "white", color: "black" }} opacity={1} />
 
       <ReactTooltip
-        id="delete-channel-tooltip"
+        id="edit-channel-tooltip-text"
         place="top"
         style={{ backgroundColor: "white", color: "black" }}
         opacity={1}
       />
       <ReactTooltip
-        id="edit-channel-tooltip"
+        id="delete-channel-tooltip-text"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+
+      <ReactTooltip
+        id="edit-channel-tooltip-audio"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+      <ReactTooltip
+        id="delete-channel-tooltip-audio"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+
+      <ReactTooltip
+        id="edit-channel-tooltip-video"
+        place="top"
+        style={{ backgroundColor: "white", color: "black" }}
+        opacity={1}
+      />
+      <ReactTooltip
+        id="delete-channel-tooltip-video"
         place="top"
         style={{ backgroundColor: "white", color: "black" }}
         opacity={1}

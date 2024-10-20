@@ -46,7 +46,7 @@ const ShowChannelMessage = memo(
     const [channelHasMoreData, setChannelHasMoreData] = useState(false as boolean);
     const [isFetchingOlderData, setIsFetchingOlderData] = useState(false as boolean);
 
-    const renderedImageGroups = new Set();
+
 
     const { ref: topRef, inView: topInView } = useInView({
       root: null,

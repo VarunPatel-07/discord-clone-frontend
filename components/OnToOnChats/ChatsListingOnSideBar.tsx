@@ -34,18 +34,22 @@ const ChatsListingOnSideBar = memo(({ IsDashboard }: { IsDashboard: boolean }) =
       ) : (
         <ScrollArea className="w-[100%] h-[100%]">
           <div className="w-[100%] h-[100%]">
-            {conversations.length > 0
-              ? conversations.map((info: any) => {
-                  return (
-                    <ChatsMessageProfile
-                      key={info.id}
-                      ConversationsInfo={info}
-                      IsDashboard={IsDashboard}
-                      User_Info={UserInformation}
-                    />
-                  );
-                })
-              : "No Chats Found"}
+            {conversations.length > 0 ? (
+              conversations.map((info: any) => {
+                return (
+                  <ChatsMessageProfile
+                    key={info.id}
+                    ConversationsInfo={info}
+                    IsDashboard={IsDashboard}
+                    User_Info={UserInformation}
+                  />
+                );
+              })
+            ) : (
+              <div className="w-full flex items-center justify-center" style={{ height: "calc(100vh - 120px" }}>
+                <p className="text-base text-center text-white">No Chats Found</p>
+              </div>
+            )}
           </div>
         </ScrollArea>
       )}

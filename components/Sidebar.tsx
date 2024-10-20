@@ -11,6 +11,8 @@ import { MdExplore } from "react-icons/md";
 import UseSocketIO from "@/hooks/UseSocketIO";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { NotificationType } from "@/enums/enums";
+import { ConversationMessageInterface } from "@/interface/ConversationMessageInterface";
+import { User } from "@/interface/UserProps";
 
 function Sidebar() {
   const { push } = useRouter();
@@ -28,6 +30,8 @@ function Sidebar() {
     FetchTheUserOnTheBaseOfDemand,
     StoreMessageNotificationInTheDB,
     CurrentChatChannelInfo,
+    selectedOneToOneChatInfo,
+    FetchingAllTheOneToOneConversation,
   } = useContext(Context) as any;
 
   const [ShowAccountSettingPopUp, setShowAccountSettingPopUp] = useState(false as boolean);
@@ -115,7 +119,6 @@ function Sidebar() {
   useEffect(() => {
     const AuthToken = getCookie("User_Authentication_Token") as string;
     socket?.on("EmitNewMessageHasBeenSent", async (data) => {
-     
       const current_user_id = UserInformation ? UserInformation : JSON.parse(getCookie("User__Info") as string);
 
       if (data?.success) {
@@ -228,11 +231,36 @@ function Sidebar() {
         }
       }
     });
+    socket?.on("EmitNewMessageInOneOnOneConversation", async (data) => {
+      console.log("data from the socket", data);
+      if (!data.success) return;
+      const _newMessage: ConversationMessageInterface = data?.data;
+      const AuthToken = getCookie("User_Authentication_Token") as string;
+      const response = await FetchingAllTheOneToOneConversation(AuthToken);
+      const availableConversation: Array<ConversationMessageInterface> = response?.data;
+      console.log();
+      if (availableConversation.every((info) => info.id === _newMessage?.ConversationId)) {
+        const user_info: User =
+          UserInformation || getCookie("User__Info") ? JSON.parse(getCookie("User__Info") as string) : "";
+        if (_newMessage?.Sender?.id === user_info?.id) return;
+        if (_newMessage?.ConversationId !== selectedOneToOneChatInfo?.id) {
+          const Data = {
+            Profile_Picture: _newMessage?.Sender?.Profile_Picture as string,
+            FullName: _newMessage?.Sender?.FullName as string,
+            UserName: _newMessage?.Sender?.UserName as string,
+            ProfileBgColor: _newMessage?.Sender?.ProfileBgColor as string,
+            ProfileBanner_Color: _newMessage?.Sender?.ProfileBanner_Color as string,
+          };
+          GlobalNotificationHandlerFunction(Data, NotificationType.MESSAGE, "sent a message", "top-right", 4000);
+        }
+      }
+    });
     return () => {
       socket?.off("EmitNewMessageHasBeenSent");
       socket?.off("EmitNewFollowRequestHasBeenSent");
       socket?.off("EmitYourFollowRequestHasBeenAccepted");
       socket?.off("EmitNew_UserJoined_The_Server");
+      socket?.off("EmitNewMessageInOneOnOneConversation");
     };
   }, [socket, Path, CurrentChatChannelInfo]);
 

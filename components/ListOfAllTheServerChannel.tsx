@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useRouter } from "next/navigation";
 import SpinnerComponent from "./Loader/SpinnerComponent";
 import Link from "next/link";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 function ListOfAllTheServerChannel({
   setShowUpdateChannelInfoModal,
@@ -147,7 +148,7 @@ function ListOfAllTheServerChannel({
                         CurrentChatChannelInfo?.ChatId === channel_info.id ? "" : "opacity-0 group-hover:opacity-100"
                       }`}>
                       <button
-                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-id="edit-channel-tooltip-text"
                         data-tooltip-content="Edit Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -165,7 +166,7 @@ function ListOfAllTheServerChannel({
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
                       <button
-                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-id="delete-channel-tooltip-text"
                         data-tooltip-content="Delete Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -180,6 +181,7 @@ function ListOfAllTheServerChannel({
                       </button>
                     </span>
                   )}
+                
                 </li>
               );
             })}
@@ -247,7 +249,7 @@ function ListOfAllTheServerChannel({
                             id: channel_info.id,
                           });
                         }}
-                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-id="edit-channel-tooltip-audio"
                         data-tooltip-content="Edit Channel">
                         <Edit className="w-[16px] h-[16px]" />
                       </button>
@@ -261,7 +263,7 @@ function ListOfAllTheServerChannel({
                           setShowDeleteChannelModal(true);
                           setChannalId(channel_info.id);
                         }}
-                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-id="delete-channel-tooltip-audio"
                         data-tooltip-content="Delete Channel">
                         <MdDelete className="w-[16px] h-[16px]" />
                       </button>
@@ -316,7 +318,7 @@ function ListOfAllTheServerChannel({
                         CurrentChatChannelInfo?.ChatId === channel_info.id ? "" : "opacity-0 group-hover:opacity-100"
                       }`}>
                       <button
-                        data-tooltip-id="edit-channel-tooltip"
+                        data-tooltip-id="edit-channel-tooltip-video"
                         data-tooltip-content="Edit Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
@@ -337,7 +339,7 @@ function ListOfAllTheServerChannel({
                       </button>
 
                       <button
-                        data-tooltip-id="delete-channel-tooltip"
+                        data-tooltip-id="delete-channel-tooltip-video"
                         data-tooltip-content="Delete Channel"
                         className={`w-[16px] h-[16px] cursor-pointer ${
                           CurrentChatChannelInfo?.ChatId === channel_info.id
